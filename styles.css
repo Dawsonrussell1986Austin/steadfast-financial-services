@@ -900,10 +900,13 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .team-photo {
-  height: 360px;
+  height: 440px;
   background-size: cover;
   background-position: center;
   background-color: var(--cream-darker);
+}
+@media (max-width: 720px) {
+  .team-photo { height: 380px; }
 }
 .team-info { padding: 32px 30px 34px; }
 .team-info .title {
