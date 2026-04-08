@@ -38,10 +38,10 @@
       <div class="nav-cta">
         <a href="${base}links.html" class="link-muted">Client Login</a>
         <a href="${base}contact-us.html" class="btn btn-primary">Let's Chat <span aria-hidden="true">+</span></a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </div>
   </header>`;
 
