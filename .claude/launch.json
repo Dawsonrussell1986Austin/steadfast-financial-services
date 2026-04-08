@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Static Preview (python http.server)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5173"],
+      "port": 5173
+    },
+    {
+      "name": "Static Preview (npx http-server)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "http-server", ".", "-p", "5174", "-c-1"],
+      "port": 5174
+    },
+    {
+      "name": "Static Preview (npx serve)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", ".", "-l", "5175"],
+      "port": 5175
+    }
+  ]
+}

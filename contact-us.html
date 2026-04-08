@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — Steadfast Financial Services</title>
+  <meta name="description" content="Get in touch with Steadfast Financial Services in Altamonte Springs, FL. Phone, email, and a contact form to start the conversation." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo-dark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-base="">
+  <div id="site-header-mount"></div>
+
+  <section class="page-hero">
+    <div>
+      <p class="crumb"><a href="index.html">Home</a> / Contact Us</p>
+      <h1>Contact Us</h1>
+      <p>We'd love to hear from you. Reach out to start a conversation about your financial goals.</p>
+    </div>
+  </section>
+
+  <section class="section section-contact">
+    <div class="container grid-2">
+      <div class="col-copy">
+        <span class="eyebrow">GET IN TOUCH</span>
+        <h2 class="display">Let's Start<br/>The Conversation</h2>
+        <p>
+          Whether you have a question about our services, want to schedule a discovery meeting, or
+          simply need a steady sounding board, we're here to help. Expect a personal response — not
+          an auto‑reply.
+        </p>
+        <ul class="contact-list">
+          <li>
+            <span class="ci" aria-hidden="true">⌂</span>
+            <span><strong>411 Spring Valley Lane, Altamonte Springs, FL 32714</strong></span>
+          </li>
+          <li>
+            <span class="ci" aria-hidden="true">✉</span>
+            <a href="mailto:Matt@steadfastwealth.com"><strong>Matt@steadfastwealth.com</strong></a>
+          </li>
+          <li>
+            <span class="ci" aria-hidden="true">☏</span>
+            <a href="tel:14077860092"><strong>(407) 786-0092</strong></a>
+          </li>
+          <li>
+            <span class="ci" aria-hidden="true">⎙</span>
+            <span><strong>Fax: (407) 358-5468</strong></span>
+          </li>
+        </ul>
+      </div>
+
+      <form class="contact-form" onsubmit="event.preventDefault(); alert('Thanks! We\'ll be in touch.');">
+        <div class="form-row">
+          <label>
+            <span>First Name</span>
+            <input type="text" name="firstName" required />
+          </label>
+          <label>
+            <span>Last Name</span>
+            <input type="text" name="lastName" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            <span>Phone</span>
+            <input type="tel" name="phone" />
+          </label>
+        </div>
+        <label class="full">
+          <span>How can we help?</span>
+          <textarea name="message" rows="5" required placeholder="Tell us a little about your goals or questions..."></textarea>
+        </label>
+        <button type="submit" class="btn btn-primary btn-lg">Send Message <span aria-hidden="true">→</span></button>
+      </form>
+    </div>
+  </section>
+
+  <section class="section section-help">
+    <div class="container">
+      <div class="help-header">
+        <div>
+          <span class="eyebrow">OUR OFFICE</span>
+          <h2 class="display">Visit Us In<br/>Altamonte Springs</h2>
+          <p class="lead">Located in Central Florida, we serve clients across the Orlando metro, the Atlantic coast, and beyond.</p>
+        </div>
+      </div>
+      <iframe
+        class="map-embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=411+Spring+Valley+Lane,+Altamonte+Springs,+FL+32714&output=embed"
+        title="Map of Steadfast Financial Services">
+      </iframe>
+    </div>
+  </section>
+
+  <div id="site-footer-mount"></div>
+  <script src="assets/partials.js"></script>
+</body>
+</html>
