@@ -5,6 +5,7 @@
     if (p.endsWith("/financial-planning.html") || p.includes("financial-planning")) return "financial-planning";
     if (p.endsWith("/investment-management.html") || p.includes("investment-management")) return "investment-management";
     if (p.endsWith("/our-people.html") || p.includes("our-people")) return "our-people";
+    if (p.endsWith("/insights.html") || p.includes("insights")) return "insights";
     if (p.endsWith("/links.html") || p.includes("links")) return "links";
     if (p.endsWith("/contact-us.html") || p.includes("contact-us")) return "contact-us";
     return "home";
@@ -14,6 +15,7 @@
     { href: "financial-planning.html", label: "Financial Planning", key: "financial-planning" },
     { href: "investment-management.html", label: "Investment Management", key: "investment-management" },
     { href: "our-people.html", label: "Our People", key: "our-people" },
+    { href: "insights.html", label: "Insights", key: "insights" },
     { href: "links.html", label: "Links", key: "links" },
     { href: "contact-us.html", label: "Contact Us", key: "contact-us" },
   ];
@@ -36,7 +38,7 @@
         <ul>${navLinks}</ul>
       </nav>
       <div class="nav-cta">
-        <a href="${base}links.html" class="link-muted">Client Login</a>
+        <a href="https://clientaccess.rjf.com/" target="_blank" rel="noopener" class="link-muted">Client Login</a>
         <a href="${base}contact-us.html" class="btn btn-primary">Let's Chat <span aria-hidden="true">+</span></a>
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -50,8 +52,8 @@
     <div class="footer-accent"></div>
     <div class="container footer-grid">
       <div class="footer-col">
-        <h4>Visit</h4>
-        <p><strong>411 Spring Valley Lane</strong><br /><strong>Altamonte Springs, FL 32714</strong></p>
+        <h4>Serving Central Florida &amp; Beyond</h4>
+        <p><strong>Fee-Only Financial Planning</strong><br /><strong>&amp; Investment Advisory</strong></p>
       </div>
       <div class="footer-col footer-brand">
         <img src="${base}assets/logo-dark.svg" alt="Steadfast Financial Services" />

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steadfast CMS — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/logo-dark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div class="admin-brand">
+        <img src="../assets/logo-dark.svg" alt="Steadfast" class="admin-logo" />
+        <span>Content Manager</span>
+      </div>
+      <nav class="admin-nav">
+        <button class="admin-tab is-active" data-panel="articles">Articles</button>
+        <button class="admin-tab" data-panel="team">Team</button>
+        <button class="admin-tab" data-panel="content">Site Content</button>
+        <button class="admin-tab" data-panel="images">Images</button>
+        <button class="admin-tab" data-panel="compliance">Compliance</button>
+      </nav>
+      <a href="/" class="admin-view-site" target="_blank">View Site &rarr;</a>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <!-- ═══════ ARTICLES ═══════ -->
+    <section class="panel" id="panel-articles">
+      <div class="panel-header">
+        <h2>Articles &amp; Insights</h2>
+        <button class="btn-admin btn-primary" id="btnNewArticle">+ New Article</button>
+      </div>
+      <div id="articlesList" class="card-list"></div>
+
+      <!-- Article Editor Modal -->
+      <div class="modal" id="articleModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="articleModalTitle">New Article</h3>
+            <button class="modal-close" id="articleModalClose">&times;</button>
+          </div>
+          <form id="articleForm">
+            <input type="hidden" id="artId" />
+            <label>Title <input type="text" id="artTitle" required /></label>
+            <div class="form-row">
+              <label>Date <input type="date" id="artDate" required /></label>
+              <label>Category
+                <select id="artCategory">
+                  <option value="commentary">Market Commentary</option>
+                  <option value="planning">Planning</option>
+                  <option value="news">News</option>
+                </select>
+              </label>
+            </div>
+            <label>Author <input type="text" id="artAuthor" /></label>
+            <label>Summary <textarea id="artSummary" rows="3" required></textarea></label>
+            <label>Image URL <input type="text" id="artImage" placeholder="Paste URL or upload below" /></label>
+            <label>Link (optional) <input type="text" id="artLink" placeholder="External URL or page path" /></label>
+            <div class="modal-actions">
+              <button type="button" class="btn-admin" id="articleModalCancel">Cancel</button>
+              <button type="submit" class="btn-admin btn-primary">Save Article</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ TEAM ═══════ -->
+    <section class="panel" id="panel-team" style="display:none;">
+      <div class="panel-header">
+        <h2>Team Members</h2>
+        <button class="btn-admin btn-primary" id="btnNewTeam">+ Add Member</button>
+      </div>
+      <div id="teamList" class="card-list"></div>
+
+      <div class="modal" id="teamModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="teamModalTitle">Edit Team Member</h3>
+            <button class="modal-close" id="teamModalClose">&times;</button>
+          </div>
+          <form id="teamForm">
+            <input type="hidden" id="tmIdx" value="-1" />
+            <label>Name <input type="text" id="tmName" required /></label>
+            <label>Title <input type="text" id="tmTitle" required /></label>
+            <label>Credentials <input type="text" id="tmCreds" placeholder="CFP® · ChFC®" /></label>
+            <label>Bio <textarea id="tmBio" rows="4"></textarea></label>
+            <label>Education <textarea id="tmEdu" rows="2"></textarea></label>
+            <label>Personal <textarea id="tmPersonal" rows="2"></textarea></label>
+            <label>Photo Path <input type="text" id="tmPhoto" placeholder="assets/team/name.jpg" /></label>
+            <div class="modal-actions">
+              <button type="button" class="btn-admin" id="teamModalCancel">Cancel</button>
+              <button type="submit" class="btn-admin btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ SITE CONTENT ═══════ -->
+    <section class="panel" id="panel-content" style="display:none;">
+      <div class="panel-header">
+        <h2>Site Content</h2>
+        <button class="btn-admin btn-primary" id="btnSaveContent">Save All Changes</button>
+      </div>
+      <p class="panel-desc">Edit text content across the site. Changes are saved to a data file and can be loaded dynamically.</p>
+      <div id="contentFields" class="content-editor"></div>
+    </section>
+
+    <!-- ═══════ IMAGES ═══════ -->
+    <section class="panel" id="panel-images" style="display:none;">
+      <div class="panel-header">
+        <h2>Upload Images</h2>
+      </div>
+      <form id="uploadForm" class="upload-area">
+        <label>Destination
+          <select id="uploadDir">
+            <option value="general">General (assets/uploads/)</option>
+            <option value="team">Team Photos (assets/team/)</option>
+          </select>
+        </label>
+        <label class="file-label">
+          Choose Image
+          <input type="file" id="uploadFile" accept="image/*" />
+        </label>
+        <button type="submit" class="btn-admin btn-primary">Upload</button>
+      </form>
+      <div id="uploadResult" class="upload-result"></div>
+    </section>
+
+    <!-- ═══════ COMPLIANCE ═══════ -->
+    <section class="panel" id="panel-compliance" style="display:none;">
+      <div class="panel-header">
+        <h2>Compliance Archiving</h2>
+      </div>
+
+      <div class="compliance-grid">
+        <div class="compliance-card">
+          <h3>Take Screenshot</h3>
+          <p>Capture a full-page screenshot of any page for your compliance archive.</p>
+          <div class="form-row">
+            <select id="screenshotPage">
+              <option value="/">Home</option>
+              <option value="/financial-planning">Financial Planning</option>
+              <option value="/investment-management">Investment Management</option>
+              <option value="/our-people">Our People</option>
+              <option value="/insights">Insights</option>
+              <option value="/links">Links</option>
+              <option value="/contact-us">Contact Us</option>
+            </select>
+            <button class="btn-admin btn-primary" id="btnScreenshot">Capture</button>
+          </div>
+          <div id="screenshotStatus" class="status-msg"></div>
+        </div>
+
+        <div class="compliance-card">
+          <h3>Upload Approval Email</h3>
+          <p>Attach compliance approval documentation (PDF, image, or email export).</p>
+          <form id="approvalForm">
+            <label class="file-label">
+              Choose File
+              <input type="file" id="approvalFile" accept=".pdf,.png,.jpg,.jpeg,.eml,.msg" />
+            </label>
+            <label>Note <input type="text" id="approvalNote" placeholder="e.g. Q1 2026 site update approval" /></label>
+            <button type="submit" class="btn-admin btn-primary">Upload Approval</button>
+          </form>
+          <div id="approvalStatus" class="status-msg"></div>
+        </div>
+      </div>
+
+      <div class="compliance-section">
+        <h3>Screenshot Archive</h3>
+        <div id="screenshotsList" class="archive-list"></div>
+      </div>
+
+      <div class="compliance-section">
+        <h3>Approval Documents</h3>
+        <div id="approvalsList" class="archive-list"></div>
+      </div>
+
+      <div class="compliance-section">
+        <h3>Change Log</h3>
+        <div id="complianceLog" class="log-table"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Matthew McGahey",
+    "title": "President & Owner",
+    "creds": "CFP® · ChFC® · RICP® · CKA®",
+    "bio": "Matt joined Steadfast on January 1, 2013 and became President and Owner on January 1, 2022. He came to the firm after five years at Enterprise Rent-a-Car, where he achieved branch management status. Between 2013 and 2017 he earned the CFP®, ChFC®, and RICP® designations from The American College, and more recently added the CKA® designation focused on ethical financial stewardship.",
+    "education": "Bachelor of Science in Business Management, University of Central Florida (2008)",
+    "personal": "Matt is married to Joy and has three sons — Caleb, Zachary, and Keegan. He's active in Grace Church Orlando and involved in its foster family ministry. Outside of work he enjoys fishing, surfing, college football, golf, running, and coaching basketball.",
+    "photo": "assets/team/matt-mcgahey.jpg"
+  },
+  {
+    "name": "Paul Bush",
+    "title": "Financial Advisor",
+    "creds": "Financial Planning · Client Service",
+    "bio": "Paul brings a client-centered approach to financial planning at Steadfast, working closely with families to develop and maintain comprehensive plans that align with their long-term goals. His attention to detail and commitment to personal service make him an integral part of the Steadfast team.",
+    "education": "",
+    "personal": "Bio details coming soon.",
+    "photo": "assets/team/paul-bush.jpg"
+  },
+  {
+    "name": "Raymond Johnson",
+    "title": "Founder",
+    "creds": "Accounting · Tax · Financial Planning",
+    "bio": "Raymond established Steadfast Financial Services in 1998, bringing more than twenty years of experience in accounting, tax, and financial planning — including eight years as a partner with Ronald Blue & Company. His steady hand shaped the firm's fee-only, relationship-first philosophy.",
+    "education": "Bachelor of Science in Finance, University of Central Florida (1973)\nMaster of Science in Accounting, University of Central Florida (1976)\nMaster of Taxation, University of Denver (1982)",
+    "personal": "Raymond is married with four children and thirteen grandchildren. He enjoys family time, reading, traveling, and golf, and has served on the boards of several charitable organizations.",
+    "photo": "assets/team/raymond-johnson.jpg"
+  }
+]

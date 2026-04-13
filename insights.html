@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insights — Steadfast Financial Services</title>
+  <meta name="description" content="Articles, news, and market commentary from the Steadfast Financial Services team." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo-dark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=5" />
+</head>
+<body data-base="">
+  <div id="site-header-mount"></div>
+
+  <section class="page-hero">
+    <div>
+      <p class="crumb"><a href="index.html">Home</a> / Insights</p>
+      <h1>Insights</h1>
+      <p>Articles, commentary, and timely guidance from our team to help you stay informed.</p>
+    </div>
+  </section>
+
+  <section class="section section-what">
+    <div class="container">
+      <!-- Filter tabs -->
+      <div class="insights-filters">
+        <button class="filter-btn is-active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="commentary">Market Commentary</button>
+        <button class="filter-btn" data-filter="planning">Planning</button>
+        <button class="filter-btn" data-filter="news">News</button>
+      </div>
+
+      <div class="articles-grid" id="articlesGrid">
+        <!-- Articles loaded dynamically from data/articles.json -->
+      </div>
+
+      <p class="articles-empty" id="articlesEmpty" style="display:none;">No articles yet — check back soon.</p>
+    </div>
+  </section>
+
+  <div id="site-footer-mount"></div>
+  <script src="assets/partials.js?v=3"></script>
+  <script>
+  (function () {
+    const grid = document.getElementById("articlesGrid");
+    const empty = document.getElementById("articlesEmpty");
+    let allArticles = [];
+
+    function renderArticles(articles) {
+      if (!articles.length) {
+        grid.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      grid.innerHTML = articles.map(function (a) {
+        const date = new Date(a.date).toLocaleDateString("en-US", {
+          year: "numeric", month: "long", day: "numeric"
+        });
+        return '<article class="article-card" data-category="' + a.category + '">' +
+          (a.image ? '<div class="article-img" style="background-image:url(\'' + a.image + '\')"></div>' : '') +
+          '<div class="article-body">' +
+            '<span class="article-cat">' + a.category + '</span>' +
+            '<h3>' + a.title + '</h3>' +
+            '<p class="article-date">' + date + '</p>' +
+            '<p>' + a.summary + '</p>' +
+            (a.link ? '<a href="' + a.link + '" target="_blank" rel="noopener" class="btn btn-outline">Read More <span aria-hidden="true">→</span></a>' : '') +
+          '</div>' +
+        '</article>';
+      }).join("");
+    }
+
+    // Load articles from JSON
+    fetch("data/articles.json")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        allArticles = data.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+        renderArticles(allArticles);
+      })
+      .catch(function () {
+        empty.style.display = "block";
+      });
+
+    // Filter buttons
+    document.querySelector(".insights-filters").addEventListener("click", function (e) {
+      var btn = e.target.closest(".filter-btn");
+      if (!btn) return;
+      document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      var cat = btn.getAttribute("data-filter");
+      if (cat === "all") {
+        renderArticles(allArticles);
+      } else {
+        renderArticles(allArticles.filter(function (a) { return a.category === cat; }));
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

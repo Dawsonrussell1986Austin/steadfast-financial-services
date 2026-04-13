@@ -20,6 +20,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Compliance archives (local only — screenshots + approval uploads)
+compliance/
+
 # Build output (reserved for future use)
 dist/
 build/

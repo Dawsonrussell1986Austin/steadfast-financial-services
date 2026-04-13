@@ -994,6 +994,126 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin-top: 2px;
 }
 
+/* RAYMOND JAMES SECTION */
+.section-rj { background: var(--cream); }
+.rj-logo-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 48px 40px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.rj-logo-img {
+  max-width: 280px;
+  margin: 0 auto 24px;
+}
+.rj-badge {
+  display: inline-block;
+  font-family: var(--ff-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green-700);
+  background: var(--cream-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 22px;
+}
+
+/* PROFESSIONAL NETWORK SECTION */
+.section-network { background: var(--cream-soft); }
+
+/* 3-COLUMN TEAM GRID */
+.team-grid-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1080px) {
+  .team-grid-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .team-grid-3 { grid-template-columns: 1fr; }
+}
+
+/* INSIGHTS / ARTICLES */
+.insights-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+.filter-btn {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-btn:hover { border-color: var(--green-400); color: var(--green-700); }
+.filter-btn.is-active {
+  background: var(--green-600);
+  color: #fff;
+  border-color: var(--green-600);
+}
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+.article-card {
+  background: var(--cream-soft);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--line);
+}
+.article-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.article-img {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--cream-darker);
+}
+.article-body { padding: 28px 28px 32px; }
+.article-cat {
+  display: inline-block;
+  font-family: var(--ff-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green-600);
+  margin-bottom: 12px;
+}
+.article-body h3 {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  color: var(--green-900);
+}
+.article-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.article-body p { font-size: 0.95rem; line-height: 1.7; }
+.article-body .btn { margin-top: 14px; }
+.articles-empty {
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+  padding: 60px 0;
+}
+@media (max-width: 720px) {
+  .articles-grid { grid-template-columns: 1fr; }
+}
+
 /* CONTACT PAGE map */
 .map-embed {
   border-radius: 24px;
