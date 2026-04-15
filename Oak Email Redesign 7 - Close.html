@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oak Real Estate Partners — Email Redesign 7 (Close)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f2f0ec;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #1a1a1a;
+    padding: 40px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .email-wrapper {
+    max-width: 620px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #0f1419;
+    padding: 28px 40px;
+    text-align: center;
+  }
+  .header img {
+    max-height: 60px;
+    width: auto;
+  }
+
+  /* ── Body ── */
+  .email-body {
+    padding: 44px 44px 48px;
+  }
+
+  /* ── Hero Stat ── */
+  .hero-stat {
+    text-align: center;
+    padding: 36px 20px 32px;
+    margin-bottom: 36px;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .hero-stat .number {
+    font-size: 72px;
+    font-weight: 700;
+    color: #c9a84c;
+    letter-spacing: -2px;
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+  .hero-stat .label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 10px;
+  }
+  .hero-stat .context {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    color: #999;
+    font-style: italic;
+    margin-top: 12px;
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 36px;
+    line-height: 1.75;
+  }
+
+  /* ── Section copy ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section p {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 14px;
+  }
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+  .section p strong {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+  .section p.standout {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .section-divider {
+    width: 48px;
+    height: 1px;
+    background: #c9a84c;
+    margin: 40px auto;
+  }
+
+  /* ── Inertia block ── */
+  .inertia-box {
+    background: #fafaf7;
+    border-left: 3px solid #e8e4dd;
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    border-radius: 0 4px 4px 0;
+  }
+  .inertia-box p {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .inertia-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── Pullquote ── */
+  .pullquote {
+    text-align: center;
+    padding: 28px 20px;
+    margin: 40px 0;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .pullquote p {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    color: #333;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .pullquote .hook-gold {
+    color: #c9a84c;
+    font-weight: 700;
+    font-style: italic;
+    text-decoration: underline;
+    text-decoration-color: rgba(201, 168, 76, 0.3);
+    text-underline-offset: 3px;
+  }
+
+  /* ── Oak summary box ── */
+  .oak-summary {
+    background: #0f1419;
+    border-radius: 4px;
+    padding: 28px;
+    margin-bottom: 36px;
+  }
+  .oak-summary p {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 10px;
+  }
+  .oak-summary p:last-child {
+    margin-bottom: 0;
+  }
+  .oak-summary p strong {
+    color: #ffffff;
+  }
+  .oak-summary .os-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  /* ── Two paths ── */
+  .two-paths {
+    margin-bottom: 36px;
+  }
+  .two-paths .paths-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 18px;
+  }
+  .path-option {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 18px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .path-option:last-child {
+    border-bottom: none;
+  }
+  .path-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: #0f1419;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #c9a84c;
+    margin-top: 2px;
+  }
+  .path-text {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+  }
+  .path-text a {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+    transition: border-color 0.2s;
+  }
+  .path-text a:hover {
+    border-bottom-color: #c9a84c;
+    color: #c9a84c;
+  }
+  .path-text .path-sub {
+    display: block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: #c9a84c;
+    color: #0f1419;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 16px 36px;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  .cta-btn:hover { background: #b8963e; }
+  .cta-note {
+    text-align: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+  .cta-secondary {
+    text-align: center;
+  }
+  .cta-secondary a {
+    font-family: Georgia, serif;
+    font-size: 14px;
+    color: #c9a84c;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+  }
+  .cta-secondary a:hover {
+    border-bottom-color: #c9a84c;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #0f1419;
+    padding: 40px 44px 32px;
+  }
+  .footer-logo {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .footer-logo img {
+    max-height: 40px;
+    width: auto;
+    opacity: 0.7;
+  }
+  .footer-divider {
+    width: 48px;
+    height: 1px;
+    background: rgba(201, 168, 76, 0.3);
+    margin: 0 auto 24px;
+  }
+  .footer-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .footer-info p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.8;
+  }
+  .footer-info a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+  .footer-legal {
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 20px;
+  }
+  .footer-legal p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .footer-legal a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .email-body { padding: 32px 24px 36px; }
+    .header { padding: 20px 24px; }
+    .hero-stat .number { font-size: 56px; }
+    .oak-summary { padding: 22px; }
+    .footer { padding: 32px 24px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="email-wrapper">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+  </div>
+
+  <div class="email-body">
+
+    <!-- Greeting -->
+    <p class="greeting">Hi {{contact.first_name}},</p>
+
+    <!-- ── Intro ── -->
+    <div class="section">
+      <p>We want to come back to the number we opened this conversation with.</p>
+    </div>
+
+    <!-- ── HERO STAT ── -->
+    <div class="hero-stat">
+      <div class="number">79%</div>
+      <div class="label">of institutional investors expect a correction in 2026</div>
+      <div class="context">Not a fringe view. The consensus of the most sophisticated capital allocators on the planet.</div>
+    </div>
+
+    <!-- ── ACT 1: The Inertia Problem ── -->
+    <div class="section">
+      <p>And yet.</p>
+      <p class="standout">The majority of accredited investors have not repositioned a single dollar.</p>
+      <p>They know the data. They see the risk. They agree with the thesis. And they haven't moved.</p>
+    </div>
+
+    <div class="inertia-box">
+      <p>Not because the case isn't clear. Because moving feels more dangerous than staying.</p>
+      <p>That's not analysis. That's instinct — the same instinct that told our ancestors to freeze when they heard a sound in the dark. It kept them alive then. It costs investors money now.</p>
+    </div>
+
+    <!-- ── PULLQUOTE ── -->
+    <div class="pullquote">
+      <p>The investors who will wish they had acted are always the ones who <span class="hook-gold">knew the data and waited.</span></p>
+    </div>
+
+    <!-- ── ACT 2: The Oak Thesis ── -->
+    <div class="oak-summary">
+      <span class="os-label">Oak exists for this moment</span>
+      <p>Uncorrelated to public equities. <strong>Secured by named collateral.</strong> Short-duration. Proven through eight cycles.</p>
+      <p>This isn't about timing the market. It's about building a portfolio where timing doesn't matter.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Two Paths ── -->
+    <div class="two-paths">
+      <div class="paths-label">Two paths</div>
+      <div class="path-option">
+        <div class="path-number">1</div>
+        <div class="path-text">
+          <a href="#">Request our Investment Summary</a>
+          <span class="path-sub">The same document our institutional partners review before committing capital.</span>
+        </div>
+      </div>
+      <div class="path-option">
+        <div class="path-number">2</div>
+        <div class="path-text">
+          <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call">Schedule twenty minutes with our team</a>
+          <span class="path-sub">No pitch. Just a direct conversation about what you're seeing and how Oak fits.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="cta-wrap">
+      <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call" class="cta-btn">Schedule Your 20-Minute Conversation</a>
+    </div>
+    <p class="cta-note">or</p>
+    <div class="cta-secondary">
+      <a href="#">Request the Investment Summary</a>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-logo">
+      <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+    </div>
+    <div class="footer-divider"></div>
+
+    <div class="footer-info">
+      <p>5925 Carnegie Boulevard, Suite 110 &nbsp;·&nbsp; Charlotte, NC 28209</p>
+      <p><a href="tel:9802886627">980.288.6627</a> &nbsp;·&nbsp; <a href="mailto:ir@oakrepartners.com">ir@oakrepartners.com</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com">oakrepartners.com</a></p>
+    </div>
+
+    <div class="footer-legal">
+      <p>This email is intended for accredited investors only. &nbsp;<a href="#">Unsubscribe</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com/privacy-policy">Privacy Policy</a></p>
+      <p style="margin-top: 8px;">&copy; 2026 White Oak Capital Holdings, LLC d/b/a Oak Real Estate Partners. All rights reserved.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

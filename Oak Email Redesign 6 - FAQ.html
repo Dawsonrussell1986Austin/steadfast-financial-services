@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oak Real Estate Partners — Email Redesign 6 (FAQ)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f2f0ec;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #1a1a1a;
+    padding: 40px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .email-wrapper {
+    max-width: 620px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #0f1419;
+    padding: 28px 40px;
+    text-align: center;
+  }
+  .header img {
+    max-height: 60px;
+    width: auto;
+  }
+
+  /* ── Body ── */
+  .email-body {
+    padding: 44px 44px 48px;
+  }
+
+  /* ── Hero Statement ── */
+  .hero-statement {
+    text-align: center;
+    padding: 32px 20px 28px;
+    margin-bottom: 36px;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .hero-statement .headline {
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: 400;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+  .hero-statement .headline em {
+    color: #c9a84c;
+    font-style: italic;
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 36px;
+    line-height: 1.75;
+  }
+
+  /* ── Section copy ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section p {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 14px;
+  }
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+  .section p strong {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+
+  .section-divider {
+    width: 48px;
+    height: 1px;
+    background: #c9a84c;
+    margin: 40px auto;
+  }
+
+  /* ── FAQ card ── */
+  .faq-card {
+    border: 1px solid #e8e4dd;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .faq-question {
+    background: #0f1419;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .faq-q-number {
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #c9a84c;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .faq-q-text {
+    font-family: Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.35;
+  }
+  .faq-answer {
+    padding: 24px;
+  }
+  .faq-answer p {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .faq-answer p:last-child {
+    margin-bottom: 0;
+  }
+  .faq-answer p strong {
+    color: #1a1a1a;
+  }
+  .faq-answer .faq-highlight {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    background: #f5f2eb;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-top: 8px;
+  }
+
+  /* ── Closing note ── */
+  .closing-note {
+    background: #fafaf7;
+    border-left: 3px solid #c9a84c;
+    padding: 24px 28px;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 36px;
+  }
+  .closing-note p {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .closing-note p:last-child {
+    margin-bottom: 0;
+  }
+  .closing-note p strong {
+    color: #333;
+  }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: #c9a84c;
+    color: #0f1419;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 16px 36px;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  .cta-btn:hover { background: #b8963e; }
+  .cta-note {
+    text-align: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 12px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #0f1419;
+    padding: 40px 44px 32px;
+  }
+  .footer-logo {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .footer-logo img {
+    max-height: 40px;
+    width: auto;
+    opacity: 0.7;
+  }
+  .footer-divider {
+    width: 48px;
+    height: 1px;
+    background: rgba(201, 168, 76, 0.3);
+    margin: 0 auto 24px;
+  }
+  .footer-cta {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .footer-cta p {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    color: #999;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .footer-cta a.schedule-link {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    text-decoration: none;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 10px 28px;
+    border-radius: 3px;
+    display: inline-block;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .footer-cta a.schedule-link:hover {
+    border-color: #c9a84c;
+    background: rgba(201, 168, 76, 0.08);
+  }
+  .footer-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .footer-info p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.8;
+  }
+  .footer-info a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+  .footer-legal {
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 20px;
+  }
+  .footer-legal p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .footer-legal a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .email-body { padding: 32px 24px 36px; }
+    .header { padding: 20px 24px; }
+    .hero-statement .headline { font-size: 17px; }
+    .faq-question { padding: 14px 18px; gap: 10px; }
+    .faq-q-text { font-size: 15px; }
+    .faq-answer { padding: 20px 18px; }
+    .closing-note { padding: 20px 22px; }
+    .footer { padding: 32px 24px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="email-wrapper">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+  </div>
+
+  <div class="email-body">
+
+    <!-- ── HERO STATEMENT ── -->
+    <div class="hero-statement">
+      <p class="headline">Before any investor writes a check to Oak,<br/><em>they ask some version of three questions. Every time.</em></p>
+    </div>
+
+    <!-- Greeting -->
+    <p class="greeting">Hi {{contact.first_name}},</p>
+
+    <!-- ── Intro ── -->
+    <div class="section">
+      <p>Most firms answer them on the call. We'd rather you have the answers first.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── FAQ 1 ── -->
+    <div class="faq-card">
+      <div class="faq-question">
+        <div class="faq-q-number">1</div>
+        <div class="faq-q-text">"How do I get my money back?"</div>
+      </div>
+      <div class="faq-answer">
+        <p>Oak's bridge loans are 12 to 36 months. They self-liquidate when the borrower refinances or sells.</p>
+        <p>You're not locked in for a decade waiting for a fund manager to find an exit. <strong>The loans are the exit.</strong> Capital returned. Reinvested. Compounding.</p>
+      </div>
+    </div>
+
+    <!-- ── FAQ 2 ── -->
+    <div class="faq-card">
+      <div class="faq-question">
+        <div class="faq-q-number">2</div>
+        <div class="faq-q-text">"What happens if a borrower defaults?"</div>
+      </div>
+      <div class="faq-answer">
+        <p>Oak holds the deed of trust. First-lien, senior-secured — our claim sits ahead of every equity holder and every subordinate lender in the stack.</p>
+        <p><strong>The property is the security.</strong></p>
+        <p>In 33 full-cycle loans, capital recovery has been 100%. Not because we've been lucky. Because the structure doesn't require luck.</p>
+        <div class="faq-highlight">100% capital recovery across 33 loans</div>
+      </div>
+    </div>
+
+    <!-- ── FAQ 3 ── -->
+    <div class="faq-card">
+      <div class="faq-question">
+        <div class="faq-q-number">3</div>
+        <div class="faq-q-text">"How is this different from a REIT?"</div>
+      </div>
+      <div class="faq-answer">
+        <p>A REIT makes you the landlord. Oak makes you the bank.</p>
+        <p><strong>You own the debt, not the building.</strong> Your position is senior to every equity holder. If property values fall 30%, equity gets wiped. You don't — because you lent at 60–65% of value.</p>
+        <p>The cushion is structural, not theoretical.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Closing ── -->
+    <div class="closing-note">
+      <p>We answer these in writing because we believe <strong>transparency shouldn't require a meeting</strong>.</p>
+      <p>But if these answers raised new questions — or confirmed what you were already sensing — twenty minutes is all it takes.</p>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="cta-wrap">
+      <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call" class="cta-btn">Schedule Your 20-Minute Conversation</a>
+    </div>
+    <p class="cta-note">No pressure, no pitch — just answers</p>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-logo">
+      <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+    </div>
+    <div class="footer-divider"></div>
+
+    <div class="footer-cta">
+      <p>Still have questions? We'd rather answer them than wonder.</p>
+      <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call" class="schedule-link">Schedule a Call</a>
+    </div>
+
+    <div class="footer-info">
+      <p>5925 Carnegie Boulevard, Suite 110 &nbsp;·&nbsp; Charlotte, NC 28209</p>
+      <p><a href="tel:9802886627">980.288.6627</a> &nbsp;·&nbsp; <a href="mailto:ir@oakrepartners.com">ir@oakrepartners.com</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com">oakrepartners.com</a></p>
+    </div>
+
+    <div class="footer-legal">
+      <p>This email is intended for accredited investors only. &nbsp;<a href="#">Unsubscribe</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com/privacy-policy">Privacy Policy</a></p>
+      <p style="margin-top: 8px;">&copy; 2026 White Oak Capital Holdings, LLC d/b/a Oak Real Estate Partners. All rights reserved.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

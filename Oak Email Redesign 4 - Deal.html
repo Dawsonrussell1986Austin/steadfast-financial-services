@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oak Real Estate Partners — Email Redesign 4 (Real Deal)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f2f0ec;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #1a1a1a;
+    padding: 40px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .email-wrapper {
+    max-width: 620px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #0f1419;
+    padding: 28px 40px;
+    text-align: center;
+  }
+  .header img {
+    max-height: 60px;
+    width: auto;
+  }
+
+  /* ── Body ── */
+  .email-body {
+    padding: 44px 44px 48px;
+  }
+
+  /* ── Hero Statement ── */
+  .hero-statement {
+    text-align: center;
+    padding: 32px 20px 28px;
+    margin-bottom: 36px;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .hero-statement .headline {
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: 400;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+  .hero-statement .headline em {
+    color: #c9a84c;
+    font-style: italic;
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 36px;
+    line-height: 1.75;
+  }
+
+  /* ── Section copy ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section p {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 14px;
+  }
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+  .section p strong {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+
+  .section-divider {
+    width: 48px;
+    height: 1px;
+    background: #c9a84c;
+    margin: 40px auto;
+  }
+
+  /* ── Deal card ── */
+  .deal-card {
+    border: 1px solid #e8e4dd;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 36px;
+  }
+  .deal-card-header {
+    background: #0f1419;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .deal-card-header .deal-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #c9a84c;
+  }
+  .deal-card-header .deal-badge {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #0f1419;
+    background: #c9a84c;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+  .deal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: none;
+  }
+  .deal-cell {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0ede8;
+    border-right: 1px solid #f0ede8;
+  }
+  .deal-cell:nth-child(2n) {
+    border-right: none;
+  }
+  .deal-cell:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+  .deal-cell .dc-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 6px;
+  }
+  .deal-cell .dc-value {
+    font-family: Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.3;
+  }
+  .deal-cell .dc-value.gold {
+    color: #c9a84c;
+  }
+
+  /* ── Question list ── */
+  .question-list {
+    margin-bottom: 36px;
+  }
+  .question-list .ql-header {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 16px;
+  }
+  .question-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .question-item:last-child {
+    border-bottom: none;
+  }
+  .question-item .qi-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    background: #fafaf7;
+    border: 1px solid #e8e4dd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 2px;
+  }
+  .question-item .qi-text {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* ── Explanation box ── */
+  .explain-box {
+    background: #fafaf7;
+    border-left: 3px solid #c9a84c;
+    padding: 24px 28px;
+    margin-bottom: 14px;
+    border-radius: 0 4px 4px 0;
+  }
+  .explain-box p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #555;
+    margin: 0;
+  }
+  .explain-box p strong {
+    color: #333;
+  }
+  .explain-box p + p {
+    margin-top: 10px;
+  }
+
+  /* ── Pullquote ── */
+  .pullquote {
+    text-align: center;
+    padding: 28px 20px;
+    margin: 40px 0;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .pullquote p {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    color: #333;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .pullquote .hook-gold {
+    color: #c9a84c;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  /* ── Proof bar ── */
+  .proof-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px 0;
+    margin-bottom: 32px;
+    border-top: 1px solid #e8e4dd;
+    border-bottom: 1px solid #e8e4dd;
+  }
+  .proof-item { text-align: center; }
+  .proof-item .proof-num {
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.2;
+  }
+  .proof-item .proof-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+  }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: #c9a84c;
+    color: #0f1419;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 16px 44px;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  .cta-btn:hover { background: #b8963e; }
+  .cta-note {
+    text-align: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 12px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #0f1419;
+    padding: 40px 44px 32px;
+  }
+  .footer-logo {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .footer-logo img {
+    max-height: 40px;
+    width: auto;
+    opacity: 0.7;
+  }
+  .footer-divider {
+    width: 48px;
+    height: 1px;
+    background: rgba(201, 168, 76, 0.3);
+    margin: 0 auto 24px;
+  }
+  .footer-cta {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .footer-cta p {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    color: #999;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .footer-cta a.schedule-link {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    text-decoration: none;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 10px 28px;
+    border-radius: 3px;
+    display: inline-block;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .footer-cta a.schedule-link:hover {
+    border-color: #c9a84c;
+    background: rgba(201, 168, 76, 0.08);
+  }
+  .footer-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .footer-info p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.8;
+  }
+  .footer-info a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+  .footer-legal {
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 20px;
+  }
+  .footer-legal p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .footer-legal a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .email-body { padding: 32px 24px 36px; }
+    .header { padding: 20px 24px; }
+    .hero-statement .headline { font-size: 18px; }
+    .deal-grid { grid-template-columns: 1fr; }
+    .deal-cell { border-right: none !important; }
+    .deal-cell:nth-last-child(-n+2) { border-bottom: 1px solid #f0ede8; }
+    .deal-cell:last-child { border-bottom: none; }
+    .proof-bar { gap: 24px; flex-wrap: wrap; }
+    .footer { padding: 32px 24px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="email-wrapper">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+  </div>
+
+  <div class="email-body">
+
+    <!-- ── HERO STATEMENT ── -->
+    <div class="hero-statement">
+      <p class="headline">We said we'd show you what an Oak position looks like.<br/><em>Here it is.</em></p>
+    </div>
+
+    <!-- Greeting -->
+    <p class="greeting">Hi {{contact.first_name}},</p>
+
+    <!-- ── ACT 1: The Deal ── -->
+    <div class="deal-card">
+      <div class="deal-card-header">
+        <span class="deal-title">Sample Oak Position</span>
+        <span class="deal-badge">Live Deal</span>
+      </div>
+      <div class="deal-grid">
+        <div class="deal-cell">
+          <div class="dc-label">Asset</div>
+          <div class="dc-value">Mixed-Use Retail/Office</div>
+        </div>
+        <div class="deal-cell">
+          <div class="dc-label">Position</div>
+          <div class="dc-value">Senior Secured 1st Lien</div>
+        </div>
+        <div class="deal-cell">
+          <div class="dc-label">LTV</div>
+          <div class="dc-value gold">62% Stabilized</div>
+        </div>
+        <div class="deal-cell">
+          <div class="dc-label">Term</div>
+          <div class="dc-value">24 Months SOFR + Spread</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p><strong>That's it.</strong> No narrative. No pitch. Just a position.</p>
+      <p>Now compare that to the last private equity allocation you made:</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── ACT 2: The Questions ── -->
+    <div class="question-list">
+      <p class="ql-header">Before you invested, did you know:</p>
+      <div class="question-item">
+        <div class="qi-icon">?</div>
+        <div class="qi-text">The specific asset your capital was backing?</div>
+      </div>
+      <div class="question-item">
+        <div class="qi-icon">?</div>
+        <div class="qi-text">Your exact position in the capital stack?</div>
+      </div>
+      <div class="question-item">
+        <div class="qi-icon">?</div>
+        <div class="qi-text">The loan-to-value — the cushion between your capital and loss?</div>
+      </div>
+      <div class="question-item">
+        <div class="qi-icon">?</div>
+        <div class="qi-text">Exactly when your capital would come back?</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p><strong>With Oak, the answer to every one of those questions is yes.</strong> Before you invest. Not years later, at liquidation, when the number on the statement finally becomes real.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── ACT 3: What the Numbers Mean ── -->
+    <div class="explain-box">
+      <p><strong>62% LTV</strong> means 38% of the property's value sits below you as a cushion.</p>
+      <p><strong>24 months</strong> means your capital works and comes back.</p>
+      <p><strong>First lien</strong> means you're ahead of every equity holder in the deal.</p>
+    </div>
+
+    <!-- ── PULLQUOTE ── -->
+    <div class="pullquote">
+      <p>Every dollar has an address. <span class="hook-gold">Not a promise. A structure.</span></p>
+    </div>
+
+    <!-- ── Social Proof ── -->
+    <div class="proof-bar">
+      <div class="proof-item">
+        <div class="proof-num">$18B+</div>
+        <div class="proof-label">Total Transactions</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">$5B</div>
+        <div class="proof-label">Bridge Loans (10 yrs)</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">150+</div>
+        <div class="proof-label">Years of Experience</div>
+      </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="cta-wrap">
+      <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call" class="cta-btn">See More Deals Like This</a>
+    </div>
+    <p class="cta-note">Schedule a call to review current Oak positions</p>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-logo">
+      <img src="https://www.oakrepartners.com/lovable-uploads/white_oak.png" alt="Oak Real Estate Partners" />
+    </div>
+    <div class="footer-divider"></div>
+
+    <div class="footer-cta">
+      <p>Want to walk through a live deal together?</p>
+      <a href="https://calendly.com/d/cvjz-tc5-jmt/oak-real-estate-partners-introduction-call" class="schedule-link">Schedule a Call</a>
+    </div>
+
+    <div class="footer-info">
+      <p>5925 Carnegie Boulevard, Suite 110 &nbsp;·&nbsp; Charlotte, NC 28209</p>
+      <p><a href="tel:9802886627">980.288.6627</a> &nbsp;·&nbsp; <a href="mailto:ir@oakrepartners.com">ir@oakrepartners.com</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com">oakrepartners.com</a></p>
+    </div>
+
+    <div class="footer-legal">
+      <p>This email is intended for accredited investors only. &nbsp;<a href="#">Unsubscribe</a> &nbsp;·&nbsp; <a href="https://www.oakrepartners.com/privacy-policy">Privacy Policy</a></p>
+      <p style="margin-top: 8px;">&copy; 2026 White Oak Capital Holdings, LLC d/b/a Oak Real Estate Partners. All rights reserved.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
