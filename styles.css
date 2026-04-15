@@ -997,12 +997,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* RAYMOND JAMES SECTION */
 .section-rj { background: var(--cream); }
 .rj-logo-card {
-  background: #fff;
+  background: transparent;
   border-radius: 28px;
   padding: 48px 40px;
-  box-shadow: var(--shadow-md);
   text-align: center;
-  border: 1px solid var(--line);
 }
 .rj-logo-img {
   max-width: 280px;
