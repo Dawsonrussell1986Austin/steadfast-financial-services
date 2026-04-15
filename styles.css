@@ -1003,7 +1003,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: center;
 }
 .rj-logo-img {
-  max-width: 280px;
+  max-width: 560px;
+  width: 100%;
   margin: 0 auto 24px;
 }
 .rj-badge {
