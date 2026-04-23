@@ -18,7 +18,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 export async function requireSession() {
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
-    window.location.replace("login.html");
+    window.location.replace("/admin/login.html");
     return null;
   }
   return data.session;
@@ -26,7 +26,7 @@ export async function requireSession() {
 
 export async function signOut() {
   await supabase.auth.signOut();
-  window.location.replace("login.html");
+  window.location.replace("/admin/login.html");
 }
 
 export function escapeHtml(s) {

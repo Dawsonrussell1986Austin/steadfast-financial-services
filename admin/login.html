@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In — Steadfast CMS</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/logo-dark.svg" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-dark.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
 </head>
 <body class="login-body">
   <main class="login-card">
-    <img src="../assets/logo-dark.svg" alt="Steadfast" class="login-logo" />
+    <img src="/assets/logo-dark.svg" alt="Steadfast" class="login-logo" />
     <h1>Content Manager</h1>
     <p class="login-sub">Sign in to manage site content.</p>
 
@@ -33,7 +33,7 @@
   </main>
 
   <script type="module">
-    import { supabase } from "./supabase-client.js";
+    import { supabase } from "/admin/supabase-client.js";
 
     const form = document.getElementById("loginForm");
     const errorEl = document.getElementById("loginError");
@@ -41,7 +41,7 @@
 
     // If already signed in, skip straight to the panel.
     const { data } = await supabase.auth.getSession();
-    if (data.session) window.location.replace("index.html");
+    if (data.session) window.location.replace("/admin/");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -57,7 +57,7 @@
         btn.textContent = "Sign In";
         return;
       }
-      window.location.replace("index.html");
+      window.location.replace("/admin/");
     });
   </script>
 </body>

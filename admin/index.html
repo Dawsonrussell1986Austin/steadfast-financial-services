@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Steadfast CMS — Admin</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/logo-dark.svg" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-dark.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
 </head>
 <body>
   <header class="admin-header">
     <div class="admin-header-inner">
       <div class="admin-brand">
-        <img src="../assets/logo-dark.svg" alt="Steadfast" class="admin-logo" />
+        <img src="/assets/logo-dark.svg" alt="Steadfast" class="admin-logo" />
         <span>Content Manager</span>
       </div>
       <nav class="admin-nav">
@@ -28,7 +28,7 @@
         <button class="btn-admin btn-primary" id="btnPublish" title="Push current content to the live site">
           <span id="publishLabel">Publish</span>
         </button>
-        <a href="/" class="admin-view-site" target="_blank">View Site &rarr;</a>
+        <a href="/" class="admin-view-site" target="_blank" rel="noopener">View Site &rarr;</a>
         <button class="btn-admin admin-signout" id="btnSignOut" title="Sign out">Sign Out</button>
       </div>
     </div>
@@ -211,6 +211,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="admin.js"></script>
+  <script type="module" src="/admin/admin.js"></script>
 </body>
 </html>
