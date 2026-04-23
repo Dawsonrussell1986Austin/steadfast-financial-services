@@ -12,6 +12,7 @@
   })();
 
   const NAV_LEFT = [
+    { href: "index.html", label: "Home", key: "home" },
     { href: "financial-planning.html", label: "Financial Planning", key: "financial-planning" },
     { href: "investment-management.html", label: "Investment Management", key: "investment-management" },
   ];
