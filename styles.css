@@ -340,8 +340,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 60%, rgba(11, 58, 42, 0.78) 100%),
-    linear-gradient(180deg, rgba(8, 40, 28, 0.45) 0%, rgba(11, 58, 42, 0.35) 50%, rgba(11, 58, 42, 0.82) 100%);
+    radial-gradient(ellipse at center, rgba(11, 58, 42, 0.22) 0%, rgba(11, 58, 42, 0.55) 60%, rgba(11, 58, 42, 0.90) 100%),
+    linear-gradient(180deg, rgba(8, 40, 28, 0.55) 0%, rgba(11, 58, 42, 0.50) 50%, rgba(11, 58, 42, 0.92) 100%);
 }
 .hero-content {
   position: relative;
@@ -1020,7 +1020,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: center;
 }
 .rj-logo-img {
-  max-width: 560px;
+  max-width: 370px;
   width: 100%;
   margin: 0 auto;
 }
