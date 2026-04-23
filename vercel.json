@@ -5,6 +5,10 @@
   "functions": {
     "api/publish.js": {
       "maxDuration": 30
+    },
+    "api/images/inventory.js": {
+      "maxDuration": 10,
+      "includeFiles": "{*.html,assets/partials.js}"
     }
   },
   "rewrites": [
