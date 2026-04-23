@@ -23,6 +23,11 @@ yarn-error.log*
 # Compliance archives (local only — screenshots + approval uploads)
 compliance/
 
+# Supabase CLI artifacts (keep config.toml + migrations; ignore local state)
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
 # Build output (reserved for future use)
 dist/
 build/
