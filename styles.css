@@ -224,6 +224,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .primary-nav a {
   font-size: 14px;
   font-weight: 500;
+  line-height: 1;
   color: #ffffff;
   transition: color 0.2s ease;
   position: relative;
@@ -254,7 +255,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 .nav-cta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
+}
+.nav-cta .link-muted {
+  padding: 6px 0;
+  font-size: 14px;
+  line-height: 1;
 }
 .site-header:not(.is-scrolled) .link-muted {
   color: #fff;
@@ -1016,7 +1022,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .rj-logo-img {
   max-width: 560px;
   width: 100%;
-  margin: 0 auto 24px;
+  margin: 0 auto;
 }
 .rj-badge {
   display: inline-block;
@@ -1030,6 +1036,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 8px 22px;
+  margin-bottom: 24px;
 }
 
 /* PROFESSIONAL NETWORK SECTION */
