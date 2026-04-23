@@ -411,8 +411,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 /* Hide the small nav logo on the home page — the big hero logo is the brand mark there */
 .is-home .site-header .brand { display: none; }
-.is-home .primary-nav-left { flex: 0 0 auto; }
+.is-home .nav-container { justify-content: center; }
+.is-home .primary-nav-left,
 .is-home .nav-right-group { flex: 0 0 auto; }
+.is-home .hero { align-items: flex-start; padding-top: calc(var(--nav-h) + 8px); }
+.is-home .hero-brand { margin-bottom: 18px; }
 .hero-eyebrow {
   display: inline-block;
   font-size: 10px;
