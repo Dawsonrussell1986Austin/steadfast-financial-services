@@ -150,6 +150,140 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
 });
 
 // ══════════════════════════════════════════════
+//  API — IMAGE INVENTORY & REPLACEMENT
+// ══════════════════════════════════════════════
+// Pages to scan. Each entry is { file, label }.
+const SITE_PAGES = [
+  { file: "index.html", label: "Home" },
+  { file: "financial-planning.html", label: "Financial Planning" },
+  { file: "investment-management.html", label: "Investment Management" },
+  { file: "our-people.html", label: "Our People" },
+  { file: "resources.html", label: "Resources" },
+  { file: "links.html", label: "Links" },
+  { file: "contact-us.html", label: "Contact Us" },
+];
+
+// Scan an HTML string for image references. Returns an array of { src, alt, kind }.
+function scanImagesInHtml(html) {
+  const found = [];
+  const seen = new Set();
+  const push = (src, alt, kind) => {
+    if (!src) return;
+    if (/^https?:/i.test(src)) return; // skip remote images
+    if (/^data:/i.test(src)) return;
+    const key = kind + "|" + src;
+    if (seen.has(key)) return;
+    seen.add(key);
+    found.push({ src, alt: alt || "", kind });
+  };
+  let m;
+  const imgRe = /<img\b([^>]*)>/gi;
+  while ((m = imgRe.exec(html))) {
+    const attrs = m[1];
+    const srcM = attrs.match(/\bsrc=["']([^"']+)["']/i);
+    const altM = attrs.match(/\balt=["']([^"']*)["']/i);
+    if (srcM) push(srcM[1], altM ? altM[1] : "", "img");
+  }
+  const bgRe = /background-image:\s*url\(\s*['"]?([^'")]+)['"]?\s*\)/gi;
+  while ((m = bgRe.exec(html))) push(m[1], "", "background");
+  const posterRe = /<video\b[^>]*\bposter=["']([^"']+)["'][^>]*>/gi;
+  while ((m = posterRe.exec(html))) push(m[1], "hero video poster", "poster");
+  const sourceRe = /<source\b[^>]*\bsrc=["']([^"']+\.(?:mp4|webm|ogg))["'][^>]*>/gi;
+  while ((m = sourceRe.exec(html))) push(m[1], "hero video", "video");
+  return found;
+}
+
+function readOverrides() {
+  return readJSON("image-overrides.json") || {};
+}
+
+function writeOverrides(map) {
+  writeJSON("image-overrides.json", map);
+}
+
+app.get("/api/images/inventory", (_req, res) => {
+  const overrides = readOverrides();
+  const pages = SITE_PAGES.map((p) => {
+    const fp = path.join(__dirname, p.file);
+    if (!fs.existsSync(fp)) return { file: p.file, label: p.label, images: [] };
+    const html = fs.readFileSync(fp, "utf-8");
+    const images = scanImagesInHtml(html).map((img) => ({
+      ...img,
+      override: overrides[img.src] || null,
+    }));
+    return { file: p.file, label: p.label, images };
+  });
+  // Shared partials (header/footer) scan
+  const partialsPath = path.join(__dirname, "assets", "partials.js");
+  const shared = { file: "assets/partials.js", label: "Shared (Header & Footer)", images: [] };
+  if (fs.existsSync(partialsPath)) {
+    const js = fs.readFileSync(partialsPath, "utf-8");
+    const imgRe = /['"`]([^'"`]*\.(?:png|jpg|jpeg|svg|webp|gif))['"`]/gi;
+    const seen = new Set();
+    let m;
+    while ((m = imgRe.exec(js))) {
+      const raw = m[1];
+      // Strip ${base} template substitution markers
+      const src = raw.replace(/\$\{[^}]+\}/g, "");
+      if (!src || /^https?:/i.test(src) || seen.has(src)) continue;
+      seen.add(src);
+      shared.images.push({ src, alt: "shared partial", kind: "img", override: overrides[src] || null });
+    }
+  }
+  res.json({ pages: [shared, ...pages], overrides });
+});
+
+app.get("/api/images/overrides", (_req, res) => {
+  res.json(readOverrides());
+});
+
+// Upload a replacement image for a specific original src.
+// Form fields: original (string), file (binary)
+const replaceStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const base = file.originalname
+      .replace(ext, "")
+      .replace(/[^a-z0-9-_]/gi, "-")
+      .toLowerCase();
+    cb(null, "replace-" + base + "-" + Date.now() + ext);
+  },
+});
+const replaceUpload = multer({
+  storage: replaceStorage,
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (/^image\//.test(file.mimetype)) cb(null, true);
+    else cb(new Error("Only image files are allowed"));
+  },
+});
+
+app.post("/api/images/replace", replaceUpload.single("file"), (req, res) => {
+  const original = (req.body.original || "").trim();
+  if (!original) return res.status(400).json({ error: "Missing 'original' field" });
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  const replacement = path.relative(__dirname, req.file.path).replace(/\\/g, "/");
+  const overrides = readOverrides();
+  overrides[original] = replacement;
+  writeOverrides(overrides);
+  logCompliance("image_replaced", { original, replacement });
+  res.json({ original, replacement });
+});
+
+// Revert a single override (restore original image).
+app.post("/api/images/revert", (req, res) => {
+  const original = (req.body.original || "").trim();
+  if (!original) return res.status(400).json({ error: "Missing 'original' field" });
+  const overrides = readOverrides();
+  const prev = overrides[original] || null;
+  delete overrides[original];
+  writeOverrides(overrides);
+  logCompliance("image_reverted", { original, previous: prev });
+  res.json({ original, reverted: prev });
+});
+
+// ══════════════════════════════════════════════
 //  API — COMPLIANCE
 // ══════════════════════════════════════════════
 function logCompliance(action, detail) {

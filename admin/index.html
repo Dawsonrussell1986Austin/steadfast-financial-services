@@ -115,8 +115,21 @@
     <!-- ═══════ IMAGES ═══════ -->
     <section class="panel" id="panel-images" style="display:none;">
       <div class="panel-header">
-        <h2>Upload Images</h2>
+        <h2>Site Images</h2>
+        <button class="btn-admin" id="btnRefreshImages">Refresh</button>
       </div>
+      <p class="panel-desc">
+        Every image used on each page. Click <strong>Replace</strong> to upload a new image — it swaps in site-wide
+        immediately and can be reverted. Originals are never deleted.
+      </p>
+      <div id="imagesInventory" class="images-inventory">
+        <p style="color:#5c6a63;padding:20px;">Loading image inventory…</p>
+      </div>
+
+      <div class="panel-header" style="margin-top:40px;">
+        <h2>Generic Upload</h2>
+      </div>
+      <p class="panel-desc">Upload an image without linking it to an existing one. Useful for team photos or new articles.</p>
       <form id="uploadForm" class="upload-area">
         <label>Destination
           <select id="uploadDir">

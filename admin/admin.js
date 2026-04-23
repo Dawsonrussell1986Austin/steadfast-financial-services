@@ -13,6 +13,7 @@
       if (id === "articles") loadArticles();
       if (id === "team") loadTeam();
       if (id === "content") loadContent();
+      if (id === "images") loadImagesInventory();
       if (id === "compliance") loadCompliance();
     });
   });
@@ -280,6 +281,107 @@
         uploadResult.classList.add("show");
       });
   });
+
+  // ═══════════════════════════════════════
+  //  IMAGE INVENTORY
+  // ═══════════════════════════════════════
+  const inventoryEl = document.getElementById("imagesInventory");
+  const refreshBtn = document.getElementById("btnRefreshImages");
+  if (refreshBtn) refreshBtn.addEventListener("click", loadImagesInventory);
+
+  function loadImagesInventory() {
+    if (!inventoryEl) return;
+    inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">Loading image inventory…</p>';
+    fetch("/api/images/inventory")
+      .then((r) => r.json())
+      .then((data) => {
+        const pages = data.pages || [];
+        if (!pages.length) {
+          inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">No images found.</p>';
+          return;
+        }
+        inventoryEl.innerHTML = pages
+          .map((p) => {
+            if (!p.images.length) return "";
+            const cards = p.images
+              .map((img) => {
+                const effective = img.override || img.src;
+                const kindBadge = '<span class="img-kind">' + esc(img.kind) + "</span>";
+                const overrideNotice = img.override
+                  ? '<div class="img-override">Overridden → ' + esc(img.override) + "</div>"
+                  : "";
+                const revertBtn = img.override
+                  ? '<button class="btn-admin btn-danger" data-revert="' + esc(img.src) + '">Revert</button>'
+                  : "";
+                return (
+                  '<div class="image-card">' +
+                    '<div class="image-thumb" style="background-image:url(\'/' + encodeURI(effective) + "?t=" + Date.now() + "')\"></div>" +
+                    '<div class="image-meta">' +
+                      kindBadge +
+                      '<div class="img-src" title="' + esc(img.src) + '">' + esc(img.src) + "</div>" +
+                      (img.alt ? '<div class="img-alt">' + esc(img.alt) + "</div>" : "") +
+                      overrideNotice +
+                    "</div>" +
+                    '<div class="image-actions">' +
+                      '<label class="btn-admin btn-primary">' +
+                        "Replace" +
+                        '<input type="file" accept="image/*" data-replace="' + esc(img.src) + '" style="display:none" />' +
+                      "</label>" +
+                      revertBtn +
+                    "</div>" +
+                  "</div>"
+                );
+              })
+              .join("");
+            return (
+              '<div class="image-page-group">' +
+                '<h3 class="image-page-title">' + esc(p.label) + ' <span class="image-page-file">' + esc(p.file) + "</span></h3>" +
+                '<div class="image-grid">' + cards + "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        // Wire up replace inputs
+        inventoryEl.querySelectorAll("input[data-replace]").forEach((input) => {
+          input.addEventListener("change", (e) => {
+            const original = input.getAttribute("data-replace");
+            const file = e.target.files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append("original", original);
+            fd.append("file", file);
+            input.disabled = true;
+            fetch("/api/images/replace", { method: "POST", body: fd })
+              .then((r) => r.json())
+              .then((data) => {
+                if (data.error) alert("Replace failed: " + data.error);
+                loadImagesInventory();
+              })
+              .catch(() => {
+                alert("Upload failed.");
+                input.disabled = false;
+              });
+          });
+        });
+
+        // Wire up revert buttons
+        inventoryEl.querySelectorAll("button[data-revert]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Restore the original image?")) return;
+            const original = btn.getAttribute("data-revert");
+            fetch("/api/images/revert", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ original }),
+            }).then(() => loadImagesInventory());
+          });
+        });
+      })
+      .catch(() => {
+        inventoryEl.innerHTML = '<p style="color:#a03;padding:20px;">Failed to load inventory.</p>';
+      });
+  }
 
   // ═══════════════════════════════════════
   //  COMPLIANCE
