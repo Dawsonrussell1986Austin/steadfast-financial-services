@@ -34,6 +34,15 @@ const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour
 export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
+  try {
+    return await run(req, res);
+  } catch (err) {
+    console.error("[screenshot] uncaught", err);
+    return res.status(500).json({ error: err?.message || String(err), stack: err?.stack });
+  }
+}
+
+async function run(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
