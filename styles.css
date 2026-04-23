@@ -188,9 +188,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   height: 100%;
   position: relative;
 }
-.primary-nav-left { flex: 1; min-width: 0; }
+.primary-nav-left { flex: 1 1 0; min-width: 0; }
 .nav-right-group {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -200,15 +200,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .nav-contact-btn { white-space: nowrap; }
 .brand {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
   padding: 0;
-  z-index: 2;
 }
 /* The logo sizing — bounded by the header height so it never bleeds over */
 .brand-logo {
