@@ -9,6 +9,10 @@
     "api/images/inventory.js": {
       "maxDuration": 10,
       "includeFiles": "{*.html,assets/partials.js}"
+    },
+    "api/compliance/screenshot.js": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "rewrites": [

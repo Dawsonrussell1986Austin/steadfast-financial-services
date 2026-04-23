@@ -21,7 +21,7 @@ yarn-error.log*
 .env.*.local
 
 # Compliance archives (local only — screenshots + approval uploads)
-compliance/
+/compliance/
 
 # Supabase CLI artifacts (keep config.toml + migrations; ignore local state)
 supabase/.branches/

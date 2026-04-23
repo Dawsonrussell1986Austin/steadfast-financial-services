@@ -430,9 +430,74 @@ uploadForm.addEventListener("submit", async (e) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-//  COMPLIANCE — still served by the local Node server (Puppeteer).
-//  Works only when running node server.js; otherwise shows a notice.
+//  COMPLIANCE
+//  Screenshots are produced by the /api/compliance/screenshot Vercel
+//  function (Puppeteer + @sparticuz/chromium). Both screenshots and
+//  approval uploads live in private Supabase Storage buckets; signed
+//  URLs are generated client-side for viewing.
 // ═══════════════════════════════════════════════════════════════
+const SCREENSHOTS_BUCKET = "compliance-screenshots";
+const APPROVALS_BUCKET = "compliance-approvals";
+const SIGNED_URL_TTL = 60 * 60; // 1 hour
+
+async function listBucketRecursively(bucket, prefix = "") {
+  const { data, error } = await supabase.storage.from(bucket).list(prefix, {
+    limit: 1000,
+    sortBy: { column: "created_at", order: "desc" },
+  });
+  if (error) throw error;
+  const files = [];
+  for (const entry of data || []) {
+    // Folders in Supabase Storage return with id === null.
+    if (entry.id === null) {
+      const sub = await listBucketRecursively(bucket, prefix ? `${prefix}/${entry.name}` : entry.name);
+      files.push(...sub);
+    } else {
+      files.push({
+        name: entry.name,
+        path: prefix ? `${prefix}/${entry.name}` : entry.name,
+        created_at: entry.created_at,
+      });
+    }
+  }
+  return files;
+}
+
+async function renderArchive(bucket, elId, emptyMsg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  try {
+    const files = await listBucketRecursively(bucket);
+    if (!files.length) {
+      el.innerHTML = '<p style="color:#5c6a63;padding:12px;">' + emptyMsg + "</p>";
+      return;
+    }
+    files.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const paths = files.map((f) => f.path);
+    const { data: signed, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrls(paths, SIGNED_URL_TTL);
+    if (error) throw error;
+    const urls = Object.fromEntries((signed || []).map((s) => [s.path, s.signedUrl]));
+    el.innerHTML = files
+      .map((f) => {
+        const when = f.created_at ? new Date(f.created_at).toLocaleString() : "";
+        const href = urls[f.path] || "#";
+        return (
+          '<div class="archive-item">' +
+            '<a href="' + href + '" target="_blank" rel="noopener">' + escapeHtml(f.name) + "</a>" +
+            '<span class="archive-date">' + when + "</span>" +
+          "</div>"
+        );
+      })
+      .join("");
+  } catch (err) {
+    el.innerHTML =
+      '<p style="color:#a03;padding:12px;">Could not load ' + escapeHtml(bucket) +
+      ": " + escapeHtml(err.message || String(err)) + "</p>";
+  }
+}
+
 async function loadCompliance() {
   const { data: log } = await supabase
     .from("compliance_log")
@@ -456,37 +521,10 @@ async function loadCompliance() {
         .join("");
     }
   }
-
-  // Screenshot + approvals still require local server; fail quietly if not reachable.
-  for (const [endpoint, elId, emptyMsg] of [
-    ["/api/compliance/screenshots", "screenshotsList", "No screenshots yet."],
-    ["/api/compliance/approvals", "approvalsList", "No approval documents uploaded."],
-  ]) {
-    try {
-      const r = await fetch(endpoint);
-      if (!r.ok) throw new Error();
-      const files = await r.json();
-      const el = document.getElementById(elId);
-      if (!el) continue;
-      if (!files.length) {
-        el.innerHTML = '<p style="color:#5c6a63;padding:12px;">' + emptyMsg + "</p>";
-      } else {
-        el.innerHTML = files
-          .map(
-            (f) =>
-              '<div class="archive-item"><a href="' +
-              f.url +
-              '" target="_blank">' +
-              escapeHtml(f.file) +
-              "</a></div>"
-          )
-          .join("");
-      }
-    } catch {
-      const el = document.getElementById(elId);
-      if (el) el.innerHTML = '<p style="color:#5c6a63;padding:12px;">Run <code>node server.js</code> locally to use compliance screenshots.</p>';
-    }
-  }
+  await Promise.all([
+    renderArchive(SCREENSHOTS_BUCKET, "screenshotsList", "No screenshots yet."),
+    renderArchive(APPROVALS_BUCKET, "approvalsList", "No approval documents uploaded."),
+  ]);
 }
 
 const screenshotBtn = document.getElementById("btnScreenshot");
@@ -494,17 +532,25 @@ if (screenshotBtn) {
   screenshotBtn.addEventListener("click", async () => {
     const page = document.getElementById("screenshotPage").value;
     const status = document.getElementById("screenshotStatus");
-    status.textContent = "Capturing…";
+    status.textContent = "Capturing… (first shot takes ~20s while Chromium warms up)";
     status.className = "status-msg";
     try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("Not signed in.");
       const r = await fetch("/api/compliance/screenshot", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
         body: JSON.stringify({ page }),
       });
       const data = await r.json();
-      if (data.error) throw new Error(data.error);
-      status.textContent = "Screenshot saved: " + data.file;
+      if (!r.ok) throw new Error(data.error || "HTTP " + r.status);
+      status.innerHTML =
+        'Screenshot saved: <a href="' + data.signedUrl + '" target="_blank" rel="noopener">' +
+        escapeHtml(data.file) + "</a>";
       loadCompliance();
     } catch (err) {
       status.textContent = "Failed: " + (err.message || err);
@@ -519,16 +565,28 @@ if (approvalForm) {
     e.preventDefault();
     const file = document.getElementById("approvalFile").files[0];
     if (!file) return alert("Choose a file.");
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("note", document.getElementById("approvalNote").value);
+    const note = document.getElementById("approvalNote").value || "";
     const status = document.getElementById("approvalStatus");
     status.textContent = "Uploading…";
+    status.className = "status-msg";
     try {
-      const r = await fetch("/api/compliance/approval", { method: "POST", body: fd });
-      const data = await r.json();
-      if (data.error) throw new Error(data.error);
-      status.textContent = "Uploaded: " + data.file;
+      const now = new Date();
+      const ext = (file.name.split(".").pop() || "bin").toLowerCase();
+      const safe = file.name.replace(/\.[^.]+$/, "").replace(/[^a-z0-9-_]/gi, "-").toLowerCase();
+      const objectPath =
+        now.getUTCFullYear() + "/" +
+        String(now.getUTCMonth() + 1).padStart(2, "0") + "/" +
+        "approval-" + safe + "-" + now.getTime() + "." + ext;
+      const up = await supabase.storage.from(APPROVALS_BUCKET).upload(objectPath, file, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      await supabase.from("compliance_log").insert({
+        action: "approval_uploaded",
+        detail: { path: objectPath, original_name: file.name, note },
+      });
+      status.textContent = "Uploaded: " + file.name;
       approvalForm.reset();
       loadCompliance();
     } catch (err) {
