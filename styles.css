@@ -221,6 +221,49 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .primary-nav-left ul { justify-content: flex-end; }
 .primary-nav-right ul { justify-content: flex-start; }
+
+/* Dropdown submenu (Resources) */
+.primary-nav .has-submenu { position: relative; }
+.submenu-caret { font-size: 10px; margin-left: 2px; opacity: 0.75; }
+.primary-nav .submenu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -6px);
+  min-width: 210px;
+  background: #fff;
+  padding: 8px 0;
+  margin: 8px 0 0;
+  border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(11, 58, 42, 0.16);
+  border: 1px solid var(--line);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+  z-index: 60;
+  display: block;
+  flex-direction: column;
+}
+.primary-nav .has-submenu:hover > .submenu,
+.primary-nav .has-submenu:focus-within > .submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s;
+}
+.primary-nav .submenu li { display: block; }
+.primary-nav .submenu a {
+  display: block;
+  padding: 10px 22px;
+  color: var(--ink) !important;
+  text-shadow: none !important;
+  font-size: 14px;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.primary-nav .submenu a:hover,
+.primary-nav .submenu a.is-active { background: var(--cream-soft); color: var(--green-700) !important; }
+.primary-nav .submenu a::after { display: none; }
 .primary-nav a {
   font-size: 14px;
   font-weight: 500;
@@ -1083,14 +1126,25 @@ ul { margin: 0; padding: 0; list-style: none; }
   gap: 32px;
 }
 .article-card {
+  display: block;
   background: var(--cream-soft);
   border-radius: 24px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
 }
 .article-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.article-readmore {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--ff-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-700);
+}
 .article-img {
   height: 220px;
   background-size: cover;
@@ -1127,6 +1181,46 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--muted);
   padding: 60px 0;
 }
+
+/* Single-article detail page */
+.article-page {
+  padding: calc(var(--nav-h) + 48px) 0 90px;
+  background: #fff;
+}
+.article-container { max-width: 780px; }
+.article-header { margin: 28px 0 36px; }
+.article-header h1 {
+  font-family: var(--ff-serif);
+  font-size: clamp(2rem, 4.4vw, 3rem);
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--green-900);
+  margin: 12px 0 14px;
+}
+.article-meta { font-size: 0.9rem; color: var(--muted); }
+.article-hero-img {
+  height: 380px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  margin-bottom: 40px;
+  background-color: var(--cream-darker);
+}
+.article-content { font-size: 1.05rem; line-height: 1.78; color: var(--ink); }
+.article-lede {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--green-800);
+  margin-bottom: 26px;
+}
+.article-content p { margin-bottom: 18px; }
+.article-footer {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.article-not-found { padding: 60px 0; text-align: center; }
+.article-not-found h2 { margin-bottom: 16px; color: var(--green-900); }
 @media (max-width: 720px) {
   .articles-grid { grid-template-columns: 1fr; }
 }
@@ -1174,6 +1268,22 @@ ul { margin: 0; padding: 0; list-style: none; }
   .primary-nav a { color: var(--ink) !important; padding: 14px 4px; font-size: 17px; display: block; text-shadow: none !important; }
   .primary-nav a::after { display: none; }
   .primary-nav-right { top: calc(var(--nav-h) + 150px); border-top: 1px solid var(--line); padding-top: 12px; }
+  /* Submenu inline on mobile */
+  .primary-nav .submenu {
+    position: static;
+    transform: none;
+    box-shadow: none;
+    border: 0;
+    background: transparent;
+    padding: 2px 0 6px;
+    margin: 0;
+    opacity: 1;
+    visibility: visible;
+    min-width: 0;
+    display: block;
+  }
+  .primary-nav .submenu a { padding: 10px 16px; font-size: 15px; }
+  .submenu-caret { display: none; }
   .site-header.is-scrolled .primary-nav { background: var(--cream-soft); }
   .nav-toggle { display: flex; flex-direction: column; justify-content: center; }
   .nav-cta .link-muted { display: none; }

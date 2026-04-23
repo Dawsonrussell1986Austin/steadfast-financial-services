@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article — Steadfast Financial Services</title>
+  <meta name="description" content="Insights and commentary from the Steadfast Financial Services team." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo-dark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=13" />
+</head>
+<body data-base="">
+  <div id="site-header-mount"></div>
+
+  <article class="article-page">
+    <div class="container article-container">
+      <p class="crumb"><a href="index.html">Home</a> / <a href="resources.html">Resources</a> / <a href="articles.html">Articles</a> / <span id="articleCrumbTitle">…</span></p>
+
+      <header class="article-header">
+        <span class="article-cat" id="articleCat">…</span>
+        <h1 id="articleTitle">Loading…</h1>
+        <p class="article-meta">
+          <span id="articleDate"></span>
+          <span id="articleAuthorSep" hidden> · </span>
+          <span id="articleAuthor"></span>
+        </p>
+      </header>
+
+      <div class="article-hero-img" id="articleHeroImg" hidden></div>
+
+      <div class="article-content" id="articleContent">
+        <p class="article-lede" id="articleSummary"></p>
+        <div id="articleBody"></div>
+        <p id="articleExternal" hidden>
+          <a class="btn btn-outline" id="articleExternalLink" target="_blank" rel="noopener">Continue reading <span aria-hidden="true">→</span></a>
+        </p>
+      </div>
+
+      <div class="article-not-found" id="articleNotFound" hidden>
+        <h2>Article not found</h2>
+        <p>This article may have moved or been removed.</p>
+        <p><a class="btn btn-primary" href="articles.html">Back to all articles</a></p>
+      </div>
+
+      <footer class="article-footer">
+        <a class="btn btn-outline" href="articles.html"><span aria-hidden="true">←</span> Back to all articles</a>
+      </footer>
+    </div>
+  </article>
+
+  <div id="site-footer-mount"></div>
+  <script src="assets/partials.js?v=6"></script>
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function renderBody(value) {
+      if (!value) return "";
+      return String(value)
+        .split(/\n{2,}/)
+        .map((p) => "<p>" + escapeHtml(p).replace(/\n/g, "<br/>") + "</p>")
+        .join("");
+    }
+
+    function showNotFound() {
+      $("articleContent").hidden = true;
+      $("articleHeroImg").hidden = true;
+      $("articleHeader") && ($("articleHeader").hidden = true);
+      $("articleNotFound").hidden = false;
+      $("articleTitle").textContent = "Article not found";
+      $("articleCat").textContent = "";
+      document.title = "Article not found — Steadfast Financial Services";
+    }
+
+    fetch("data/articles.json", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : [])
+      .then((articles) => {
+        const a = (articles || []).find((x) => String(x.id) === String(id));
+        if (!a) { showNotFound(); return; }
+
+        const dateStr = new Date(a.date).toLocaleDateString("en-US", {
+          year: "numeric", month: "long", day: "numeric"
+        });
+
+        document.title = a.title + " — Steadfast Financial Services";
+        $("articleCrumbTitle").textContent = a.title;
+        $("articleTitle").textContent = a.title;
+        $("articleCat").textContent = a.category || "";
+        $("articleDate").textContent = dateStr;
+        if (a.author) {
+          $("articleAuthor").textContent = a.author;
+          $("articleAuthorSep").hidden = false;
+        }
+
+        if (a.image) {
+          $("articleHeroImg").style.backgroundImage = "url('" + a.image.replace(/'/g, "%27") + "')";
+          $("articleHeroImg").hidden = false;
+        }
+
+        $("articleSummary").textContent = a.summary || "";
+
+        const body = a.body || "";
+        if (body) {
+          $("articleBody").innerHTML = renderBody(body);
+        }
+
+        // If there's an external link (full URL or .pdf etc.), offer a continue-reading CTA.
+        if (a.link && /^(https?:\/\/|\/|[^ ]+\.pdf$)/i.test(a.link) && !/\.html?$/i.test(a.link)) {
+          $("articleExternalLink").setAttribute("href", a.link);
+          $("articleExternal").hidden = false;
+        }
+      })
+      .catch(showNotFound);
+  })();
+  </script>
+</body>
+</html>

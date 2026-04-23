@@ -5,11 +5,15 @@
     if (p.endsWith("/financial-planning.html") || p.includes("financial-planning")) return "financial-planning";
     if (p.endsWith("/investment-management.html") || p.includes("investment-management")) return "investment-management";
     if (p.endsWith("/our-people.html") || p.includes("our-people")) return "our-people";
+    if (p.endsWith("/articles.html") || p.includes("articles")) return "articles";
+    if (p.endsWith("/article.html")) return "articles";
     if (p.endsWith("/resources.html") || p.includes("resources")) return "resources";
-    if (p.endsWith("/links.html") || p.includes("links")) return "links";
+    if (p.endsWith("/links.html") || p.includes("links")) return "resources";
     if (p.endsWith("/contact-us.html") || p.includes("contact-us")) return "contact-us";
     return "home";
   })();
+
+  const RESOURCES_KEYS = new Set(["resources", "articles"]);
 
   const NAV_LEFT = [
     { href: "index.html", label: "Home", key: "home" },
@@ -18,17 +22,39 @@
   ];
   const NAV_RIGHT = [
     { href: "our-people.html", label: "Our People", key: "our-people" },
-    { href: "resources.html", label: "Resources", key: "resources" },
+    {
+      href: "resources.html",
+      label: "Resources",
+      key: "resources-parent",
+      submenu: [
+        { href: "resources.html", label: "Client Links", key: "resources" },
+        { href: "articles.html", label: "Articles", key: "articles" },
+        { href: "https://clientaccess.rjf.com/", label: "Client Login", key: "client-login", external: true },
+      ],
+    },
   ];
 
   const base = document.body.getAttribute("data-base") || "";
 
   const renderLinks = (items) =>
     items
-      .map(
-        (it) =>
-          `<li><a href="${base}${it.href}"${it.key === CURRENT ? ' class="is-active"' : ""}>${it.label}</a></li>`
-      )
+      .map((it) => {
+        if (it.submenu) {
+          const isActive = RESOURCES_KEYS.has(CURRENT);
+          const anchorCls = isActive ? ' class="is-active"' : "";
+          const sub = it.submenu
+            .map((s) => {
+              const href = s.external ? s.href : base + s.href;
+              const extAttrs = s.external ? ' target="_blank" rel="noopener"' : "";
+              const cls = s.key === CURRENT ? ' class="is-active"' : "";
+              return `<li><a href="${href}"${cls}${extAttrs}>${s.label}</a></li>`;
+            })
+            .join("");
+          return `<li class="has-submenu"><a href="${base}${it.href}"${anchorCls}>${it.label} <span class="submenu-caret" aria-hidden="true">▾</span></a><ul class="submenu">${sub}</ul></li>`;
+        }
+        const cls = it.key === CURRENT ? ' class="is-active"' : "";
+        return `<li><a href="${base}${it.href}"${cls}>${it.label}</a></li>`;
+      })
       .join("");
 
   const headerHTML = `
@@ -46,7 +72,6 @@
           <ul>${renderLinks(NAV_RIGHT)}</ul>
         </nav>
         <div class="nav-cta">
-          <a href="https://clientaccess.rjf.com/" target="_blank" rel="noopener" class="link-muted">Client Login</a>
           <a href="${base}contact-us.html" class="btn btn-primary">Contact Us <span aria-hidden="true">+</span></a>
           <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
             <span></span><span></span><span></span>
