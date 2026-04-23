@@ -11,36 +11,46 @@
     return "home";
   })();
 
-  const NAV_ITEMS = [
+  const NAV_LEFT = [
     { href: "financial-planning.html", label: "Financial Planning", key: "financial-planning" },
     { href: "investment-management.html", label: "Investment Management", key: "investment-management" },
+  ];
+  const NAV_RIGHT = [
     { href: "our-people.html", label: "Our People", key: "our-people" },
     { href: "resources.html", label: "Resources", key: "resources" },
   ];
 
   const base = document.body.getAttribute("data-base") || "";
 
-  const navLinks = NAV_ITEMS.map(
-    (it) =>
-      `<li><a href="${base}${it.href}"${it.key === CURRENT ? ' class="is-active"' : ""}>${it.label}</a></li>`
-  ).join("");
+  const renderLinks = (items) =>
+    items
+      .map(
+        (it) =>
+          `<li><a href="${base}${it.href}"${it.key === CURRENT ? ' class="is-active"' : ""}>${it.label}</a></li>`
+      )
+      .join("");
 
   const headerHTML = `
   <header class="site-header" id="siteHeader">
     <div class="nav-container">
+      <nav class="primary-nav primary-nav-left" aria-label="Primary">
+        <ul>${renderLinks(NAV_LEFT)}</ul>
+      </nav>
       <a href="${base}index.html" class="brand" aria-label="Steadfast Financial Services home">
         <img src="${base}assets/logo-white.svg" alt="Steadfast Financial Services" class="brand-logo brand-logo-light" />
         <img src="${base}assets/logo-dark.svg" alt="" aria-hidden="true" class="brand-logo brand-logo-dark" />
       </a>
-      <nav class="primary-nav" aria-label="Primary">
-        <ul>${navLinks}</ul>
-      </nav>
-      <div class="nav-cta">
-        <a href="https://clientaccess.rjf.com/" target="_blank" rel="noopener" class="link-muted">Client Login</a>
-        <a href="${base}contact-us.html" class="btn btn-primary">Contact Us <span aria-hidden="true">+</span></a>
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
+      <div class="nav-right-group">
+        <nav class="primary-nav primary-nav-right" aria-label="Primary">
+          <ul>${renderLinks(NAV_RIGHT)}</ul>
+        </nav>
+        <div class="nav-cta">
+          <a href="https://clientaccess.rjf.com/" target="_blank" rel="noopener" class="link-muted">Client Login</a>
+          <a href="${base}contact-us.html" class="btn btn-primary">Contact Us <span aria-hidden="true">+</span></a>
+          <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
       </div>
     </div>
   </header>`;
@@ -94,10 +104,10 @@
   const toggle = document.getElementById("navToggle");
   if (toggle) {
     toggle.addEventListener("click", () => {
-      const nav = document.querySelector(".primary-nav");
+      const navs = document.querySelectorAll(".primary-nav");
       const expanded = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", String(!expanded));
-      if (nav) nav.classList.toggle("is-open");
+      navs.forEach((n) => n.classList.toggle("is-open"));
       document.body.classList.toggle("nav-open", !expanded);
     });
   }

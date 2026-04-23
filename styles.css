@@ -28,7 +28,7 @@
   --shadow-md: 0 18px 40px rgba(11, 58, 42, 0.14);
   --shadow-lg: 0 30px 70px rgba(11, 58, 42, 0.22);
   --maxw: 1200px;
-  --nav-h: 140px;
+  --nav-h: 200px;
 }
 
 * { box-sizing: border-box; }
@@ -182,23 +182,32 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin: 0 auto;
   padding: 0 28px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
   height: 100%;
   position: relative;
+}
+.nav-right-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%;
 }
 .brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100%;
   padding: 0;
+  grid-column: 2;
 }
 /* The logo sizing — bounded by the header height so it never bleeds over */
 .brand-logo {
   display: block;
-  height: 112px;
-  max-height: calc(var(--nav-h) - 24px);
+  height: 168px;
+  max-height: calc(var(--nav-h) - 12px);
   width: auto;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -208,9 +217,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .primary-nav ul {
   display: flex;
-  justify-content: center;
   gap: 26px;
 }
+.primary-nav-left ul { justify-content: flex-end; }
+.primary-nav-right ul { justify-content: flex-start; }
 .primary-nav a {
   font-size: 14px;
   font-weight: 500;
@@ -333,26 +343,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   max-width: 880px;
   padding: 0 20px;
   animation: fadeUp 1s ease both;
-}
-.hero-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 30px;
-}
-.hero-brand-mark {
-  display: block;
-  height: 140px;
-  width: auto;
-  filter: drop-shadow(0 6px 28px rgba(0, 0, 0, 0.55));
-}
-.hero-brand-wordmark {
-  display: block;
-  height: 60px;
-  width: auto;
-  max-width: 560px;
-  filter: drop-shadow(0 3px 18px rgba(0, 0, 0, 0.55));
 }
 .hero-eyebrow {
   display: inline-block;
@@ -690,6 +680,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   grid-template-columns: repeat(3, 1fr);
   gap: 44px;
 }
+.values-grid.four-up { grid-template-columns: repeat(4, 1fr); gap: 32px; }
 .value { text-align: center; }
 .value-photo {
   width: 168px;
@@ -1145,7 +1136,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* -------------------- Responsive -------------------- */
 @media (max-width: 980px) {
-  .nav-container { grid-template-columns: auto auto; justify-content: space-between; }
+  .nav-container { grid-template-columns: 1fr auto 1fr; justify-content: space-between; gap: 12px; }
+  .nav-right-group { justify-content: flex-end; }
+  .primary-nav-left { justify-content: flex-start; }
   .nav-cta { justify-content: flex-end; }
   .primary-nav {
     position: fixed;
@@ -1173,6 +1166,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .primary-nav ul { flex-direction: column; gap: 4px; }
   .primary-nav a { color: var(--ink) !important; padding: 14px 4px; font-size: 17px; display: block; text-shadow: none !important; }
   .primary-nav a::after { display: none; }
+  .primary-nav-right { top: calc(var(--nav-h) + 150px); border-top: 1px solid var(--line); padding-top: 12px; }
   .site-header.is-scrolled .primary-nav { background: var(--cream-soft); }
   .nav-toggle { display: flex; flex-direction: column; justify-content: center; }
   .nav-cta .link-muted { display: none; }
@@ -1183,6 +1177,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .help-header { grid-template-columns: 1fr; }
   .service-grid { grid-template-columns: repeat(2, 1fr); }
   .values-grid { grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  .values-grid.four-up { grid-template-columns: repeat(2, 1fr); gap: 36px; }
   .value p { max-width: 260px; font-size: 0.9rem; }
   .value-photo { width: 140px; height: 140px; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1207,12 +1202,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 @media (max-width: 560px) {
   .form-row { grid-template-columns: 1fr; }
-  .brand-logo { height: 78px; }
-  :root { --nav-h: 100px; }
+  .brand-logo { height: 117px; }
+  :root { --nav-h: 140px; }
   .hero h1 { font-size: 2.4rem; }
-  .hero-brand-mark { height: 88px; }
-  .hero-brand-wordmark { height: 38px; max-width: 85vw; }
-  .hero-brand { gap: 12px; margin-bottom: 22px; }
   .section { padding: 64px 0; }
   .section-help { padding: 56px 20px; }
   .section-values { padding-bottom: 140px; }
