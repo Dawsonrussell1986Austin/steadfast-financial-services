@@ -1,484 +1,521 @@
-/* Steadfast CMS Admin — Client-side JS */
-(function () {
-  // ── Panel switching ──
-  const tabs = document.querySelectorAll(".admin-tab");
-  const panels = document.querySelectorAll(".panel");
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => t.classList.remove("is-active"));
-      tab.classList.add("is-active");
-      const id = tab.dataset.panel;
-      panels.forEach((p) => (p.style.display = p.id === "panel-" + id ? "" : "none"));
-      // Refresh data when switching
-      if (id === "articles") loadArticles();
-      if (id === "team") loadTeam();
-      if (id === "content") loadContent();
-      if (id === "images") loadImagesInventory();
-      if (id === "compliance") loadCompliance();
-    });
+/* Steadfast CMS Admin — Supabase-backed client.
+ * Requires the user to be signed in via login.html. RLS policies on the
+ * database restrict writes to authenticated users.
+ *
+ * Publishing: the admin edits Supabase tables live. Clicking "Publish" calls
+ * the /api/publish serverless function, which exports the current Supabase
+ * state to data/*.json in the repo and commits via the GitHub API. Vercel
+ * then auto-redeploys the public site. */
+
+import { supabase, requireSession, signOut, escapeHtml } from "./supabase-client.js";
+
+// ── Session gate ──────────────────────────────────────────────
+const session = await requireSession();
+if (!session) {
+  // requireSession already redirected; bail out of module execution.
+  throw new Error("not signed in");
+}
+
+// ── Header actions ────────────────────────────────────────────
+document.getElementById("btnSignOut").addEventListener("click", signOut);
+document.getElementById("btnPublish").addEventListener("click", publish);
+
+// ── Toast helper ──────────────────────────────────────────────
+const toastEl = document.getElementById("toast");
+let toastTimer = null;
+function toast(msg, kind = "info") {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.className = "toast show toast-" + kind;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (toastEl.className = "toast"), 3600);
+}
+
+// ── Panel switching ───────────────────────────────────────────
+const tabs = document.querySelectorAll(".admin-tab");
+const panels = document.querySelectorAll(".panel");
+tabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    tabs.forEach((t) => t.classList.remove("is-active"));
+    tab.classList.add("is-active");
+    const id = tab.dataset.panel;
+    panels.forEach((p) => (p.style.display = p.id === "panel-" + id ? "" : "none"));
+    if (id === "articles") loadArticles();
+    if (id === "team") loadTeam();
+    if (id === "content") loadContent();
+    if (id === "images") loadImagesInventory();
+    if (id === "compliance") loadCompliance();
   });
+});
 
-  // ═══════════════════════════════════════
-  //  ARTICLES
-  // ═══════════════════════════════════════
-  const articlesList = document.getElementById("articlesList");
-  const articleModal = document.getElementById("articleModal");
-  const articleForm = document.getElementById("articleForm");
+// ═══════════════════════════════════════════════════════════════
+//  ARTICLES
+// ═══════════════════════════════════════════════════════════════
+const articlesList = document.getElementById("articlesList");
+const articleModal = document.getElementById("articleModal");
+const articleForm = document.getElementById("articleForm");
 
-  function loadArticles() {
-    fetch("/api/articles")
-      .then((r) => r.json())
-      .then((articles) => {
-        articles.sort((a, b) => new Date(b.date) - new Date(a.date));
-        if (!articles.length) {
-          articlesList.innerHTML = '<p style="color:#5c6a63;padding:20px;">No articles yet. Click "+ New Article" to create one.</p>';
-          return;
-        }
-        articlesList.innerHTML = articles
-          .map(
-            (a) => `
-          <div class="list-card">
-            <div class="list-card-body">
-              <h4><span class="card-badge">${a.category}</span>${esc(a.title)}</h4>
-              <p>${esc(a.summary)}</p>
-            </div>
-            <div class="list-card-meta">${a.date}</div>
-            <div class="list-card-actions">
-              <button class="btn-admin" onclick="editArticle('${a.id}')">Edit</button>
-              <button class="btn-admin btn-danger" onclick="deleteArticle('${a.id}')">Delete</button>
-            </div>
-          </div>`
-          )
-          .join("");
-      });
+async function loadArticles() {
+  const { data: articles, error } = await supabase
+    .from("articles")
+    .select("*")
+    .order("date", { ascending: false });
+  if (error) return toast("Load failed: " + error.message, "error");
+  if (!articles.length) {
+    articlesList.innerHTML = '<p style="color:#5c6a63;padding:20px;">No articles yet. Click "+ New Article" to create one.</p>';
+    return;
   }
+  articlesList.innerHTML = articles
+    .map(
+      (a) => `
+        <div class="list-card">
+          <div class="list-card-body">
+            <h4><span class="card-badge">${escapeHtml(a.category)}</span>${escapeHtml(a.title)}</h4>
+            <p>${escapeHtml(a.summary)}</p>
+          </div>
+          <div class="list-card-meta">${a.date}</div>
+          <div class="list-card-actions">
+            <button class="btn-admin" data-edit-article="${a.id}">Edit</button>
+            <button class="btn-admin btn-danger" data-del-article="${a.id}">Delete</button>
+          </div>
+        </div>`
+    )
+    .join("");
 
-  window.editArticle = function (id) {
-    fetch("/api/articles")
-      .then((r) => r.json())
-      .then((articles) => {
-        const a = articles.find((x) => x.id === id);
-        if (!a) return;
-        document.getElementById("artId").value = a.id;
-        document.getElementById("artTitle").value = a.title;
-        document.getElementById("artDate").value = a.date;
-        document.getElementById("artCategory").value = a.category;
-        document.getElementById("artAuthor").value = a.author || "";
-        document.getElementById("artSummary").value = a.summary;
-        document.getElementById("artImage").value = a.image || "";
-        document.getElementById("artLink").value = a.link || "";
-        document.getElementById("articleModalTitle").textContent = "Edit Article";
-        articleModal.classList.add("is-open");
-      });
+  articlesList.querySelectorAll("[data-edit-article]").forEach((b) =>
+    b.addEventListener("click", () => editArticle(b.getAttribute("data-edit-article")))
+  );
+  articlesList.querySelectorAll("[data-del-article]").forEach((b) =>
+    b.addEventListener("click", () => deleteArticle(b.getAttribute("data-del-article")))
+  );
+}
+
+async function editArticle(id) {
+  const { data: a, error } = await supabase.from("articles").select("*").eq("id", id).single();
+  if (error || !a) return toast("Could not load article.", "error");
+  document.getElementById("artId").value = a.id;
+  document.getElementById("artTitle").value = a.title;
+  document.getElementById("artDate").value = a.date;
+  document.getElementById("artCategory").value = a.category;
+  document.getElementById("artAuthor").value = a.author || "";
+  document.getElementById("artSummary").value = a.summary;
+  document.getElementById("artImage").value = a.image || "";
+  document.getElementById("artLink").value = a.link || "";
+  document.getElementById("articleModalTitle").textContent = "Edit Article";
+  articleModal.classList.add("is-open");
+}
+
+async function deleteArticle(id) {
+  if (!confirm("Delete this article?")) return;
+  const { error } = await supabase.from("articles").delete().eq("id", id);
+  if (error) return toast("Delete failed: " + error.message, "error");
+  toast("Article deleted");
+  loadArticles();
+}
+
+document.getElementById("btnNewArticle").addEventListener("click", () => {
+  articleForm.reset();
+  document.getElementById("artId").value = "";
+  document.getElementById("artDate").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("articleModalTitle").textContent = "New Article";
+  articleModal.classList.add("is-open");
+});
+
+document.getElementById("articleModalClose").addEventListener("click", () =>
+  articleModal.classList.remove("is-open")
+);
+document.getElementById("articleModalCancel").addEventListener("click", () =>
+  articleModal.classList.remove("is-open")
+);
+
+articleForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("artId").value;
+  const body = {
+    title: document.getElementById("artTitle").value,
+    date: document.getElementById("artDate").value,
+    category: document.getElementById("artCategory").value,
+    author: document.getElementById("artAuthor").value,
+    summary: document.getElementById("artSummary").value,
+    image: document.getElementById("artImage").value,
+    link: document.getElementById("artLink").value,
   };
+  const { error } = id
+    ? await supabase.from("articles").update(body).eq("id", id)
+    : await supabase.from("articles").insert(body);
+  if (error) return toast("Save failed: " + error.message, "error");
+  toast(id ? "Article updated" : "Article created");
+  articleModal.classList.remove("is-open");
+  loadArticles();
+});
 
-  window.deleteArticle = function (id) {
-    if (!confirm("Delete this article?")) return;
-    fetch("/api/articles/" + id, { method: "DELETE" }).then(() => loadArticles());
-  };
+// ═══════════════════════════════════════════════════════════════
+//  TEAM
+// ═══════════════════════════════════════════════════════════════
+const teamList = document.getElementById("teamList");
+const teamModal = document.getElementById("teamModal");
+const teamForm = document.getElementById("teamForm");
+let teamData = [];
 
-  document.getElementById("btnNewArticle").addEventListener("click", () => {
-    articleForm.reset();
-    document.getElementById("artId").value = "";
-    document.getElementById("artDate").value = new Date().toISOString().slice(0, 10);
-    document.getElementById("articleModalTitle").textContent = "New Article";
-    articleModal.classList.add("is-open");
-  });
-
-  document.getElementById("articleModalClose").addEventListener("click", () => articleModal.classList.remove("is-open"));
-  document.getElementById("articleModalCancel").addEventListener("click", () => articleModal.classList.remove("is-open"));
-
-  articleForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const id = document.getElementById("artId").value;
-    const body = {
-      title: document.getElementById("artTitle").value,
-      date: document.getElementById("artDate").value,
-      category: document.getElementById("artCategory").value,
-      author: document.getElementById("artAuthor").value,
-      summary: document.getElementById("artSummary").value,
-      image: document.getElementById("artImage").value,
-      link: document.getElementById("artLink").value,
-    };
-    const url = id ? "/api/articles/" + id : "/api/articles";
-    const method = id ? "PUT" : "POST";
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then(() => {
-      articleModal.classList.remove("is-open");
-      loadArticles();
-    });
-  });
-
-  // ═══════════════════════════════════════
-  //  TEAM
-  // ═══════════════════════════════════════
-  const teamList = document.getElementById("teamList");
-  const teamModal = document.getElementById("teamModal");
-  const teamForm = document.getElementById("teamForm");
-  let teamData = [];
-
-  function loadTeam() {
-    fetch("/api/team")
-      .then((r) => r.json())
-      .then((team) => {
-        teamData = team;
-        if (!team.length) {
-          teamList.innerHTML = '<p style="color:#5c6a63;padding:20px;">No team data loaded. Add team members or import from the site.</p>';
-          return;
-        }
-        teamList.innerHTML = team
-          .map(
-            (m, i) => `
-          <div class="list-card">
-            <div class="list-card-body">
-              <h4>${esc(m.name)}</h4>
-              <p>${esc(m.title)} — ${esc(m.creds || "")}</p>
-            </div>
-            <div class="list-card-actions">
-              <button class="btn-admin" onclick="editTeam(${i})">Edit</button>
-              <button class="btn-admin btn-danger" onclick="deleteTeam(${i})">Remove</button>
-            </div>
-          </div>`
-          )
-          .join("");
-      });
+async function loadTeam() {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (error) return toast("Load failed: " + error.message, "error");
+  teamData = data || [];
+  if (!teamData.length) {
+    teamList.innerHTML = '<p style="color:#5c6a63;padding:20px;">No team members yet.</p>';
+    return;
   }
+  teamList.innerHTML = teamData
+    .map(
+      (m) => `
+        <div class="list-card">
+          <div class="list-card-body">
+            <h4>${escapeHtml(m.name)}</h4>
+            <p>${escapeHtml(m.title)} — ${escapeHtml(m.creds || "")}</p>
+          </div>
+          <div class="list-card-actions">
+            <button class="btn-admin" data-edit-team="${m.id}">Edit</button>
+            <button class="btn-admin btn-danger" data-del-team="${m.id}">Remove</button>
+          </div>
+        </div>`
+    )
+    .join("");
+  teamList.querySelectorAll("[data-edit-team]").forEach((b) =>
+    b.addEventListener("click", () => editTeam(b.getAttribute("data-edit-team")))
+  );
+  teamList.querySelectorAll("[data-del-team]").forEach((b) =>
+    b.addEventListener("click", () => deleteTeam(b.getAttribute("data-del-team")))
+  );
+}
 
-  window.editTeam = function (idx) {
-    const m = teamData[idx];
-    if (!m) return;
-    document.getElementById("tmIdx").value = idx;
-    document.getElementById("tmName").value = m.name;
-    document.getElementById("tmTitle").value = m.title;
-    document.getElementById("tmCreds").value = m.creds || "";
-    document.getElementById("tmBio").value = m.bio || "";
-    document.getElementById("tmEdu").value = m.education || "";
-    document.getElementById("tmPersonal").value = m.personal || "";
-    document.getElementById("tmPhoto").value = m.photo || "";
-    document.getElementById("teamModalTitle").textContent = "Edit " + m.name;
-    teamModal.classList.add("is-open");
+function editTeam(id) {
+  const m = teamData.find((x) => x.id === id);
+  if (!m) return;
+  document.getElementById("tmIdx").value = m.id;
+  document.getElementById("tmName").value = m.name;
+  document.getElementById("tmTitle").value = m.title;
+  document.getElementById("tmCreds").value = m.creds || "";
+  document.getElementById("tmBio").value = m.bio || "";
+  document.getElementById("tmEdu").value = m.education || "";
+  document.getElementById("tmPersonal").value = m.personal || "";
+  document.getElementById("tmPhoto").value = m.photo || "";
+  document.getElementById("teamModalTitle").textContent = "Edit " + m.name;
+  teamModal.classList.add("is-open");
+}
+
+async function deleteTeam(id) {
+  if (!confirm("Remove this team member?")) return;
+  const { error } = await supabase.from("team_members").delete().eq("id", id);
+  if (error) return toast("Delete failed: " + error.message, "error");
+  toast("Member removed");
+  loadTeam();
+}
+
+document.getElementById("btnNewTeam").addEventListener("click", () => {
+  teamForm.reset();
+  document.getElementById("tmIdx").value = "";
+  document.getElementById("teamModalTitle").textContent = "Add Team Member";
+  teamModal.classList.add("is-open");
+});
+
+document.getElementById("teamModalClose").addEventListener("click", () =>
+  teamModal.classList.remove("is-open")
+);
+document.getElementById("teamModalCancel").addEventListener("click", () =>
+  teamModal.classList.remove("is-open")
+);
+
+teamForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("tmIdx").value;
+  const maxOrder = teamData.reduce((n, m) => Math.max(n, m.sort_order || 0), 0);
+  const member = {
+    name: document.getElementById("tmName").value,
+    title: document.getElementById("tmTitle").value,
+    creds: document.getElementById("tmCreds").value,
+    bio: document.getElementById("tmBio").value,
+    education: document.getElementById("tmEdu").value,
+    personal: document.getElementById("tmPersonal").value,
+    photo: document.getElementById("tmPhoto").value,
   };
+  const { error } = id
+    ? await supabase.from("team_members").update(member).eq("id", id)
+    : await supabase.from("team_members").insert({ ...member, sort_order: maxOrder + 10 });
+  if (error) return toast("Save failed: " + error.message, "error");
+  toast(id ? "Member updated" : "Member added");
+  teamModal.classList.remove("is-open");
+  loadTeam();
+});
 
-  window.deleteTeam = function (idx) {
-    if (!confirm("Remove this team member?")) return;
-    teamData.splice(idx, 1);
-    fetch("/api/team", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(teamData),
-    }).then(() => loadTeam());
-  };
+// ═══════════════════════════════════════════════════════════════
+//  SITE CONTENT
+// ═══════════════════════════════════════════════════════════════
+const CONTENT_KEYS = [
+  { key: "hero_headline",      label: "Home — Hero Headline" },
+  { key: "hero_subtext",       label: "Home — Hero Subtext" },
+  { key: "whatwedo_headline",  label: "Home — What We Do Headline" },
+  { key: "whatwedo_body",      label: "Home — What We Do Body" },
+  { key: "whoweare_headline",  label: "Home — Who We Are Headline" },
+  { key: "whoweare_body",      label: "Home — Who We Are Body" },
+  { key: "values_headline",    label: "Home — Values Headline" },
+  { key: "values_body",        label: "Home — Values Subtext" },
+  { key: "contact_headline",   label: "Home — Contact Headline" },
+  { key: "contact_body",       label: "Home — Contact Body" },
+  { key: "fp_lede",            label: "Financial Planning — Intro" },
+  { key: "im_lede",            label: "Investment Management — Intro" },
+  { key: "team_headline",      label: "Our People — Team Headline" },
+  { key: "team_body",          label: "Our People — Team Body" },
+];
 
-  document.getElementById("btnNewTeam").addEventListener("click", () => {
-    teamForm.reset();
-    document.getElementById("tmIdx").value = "-1";
-    document.getElementById("teamModalTitle").textContent = "Add Team Member";
-    teamModal.classList.add("is-open");
+const contentFields = document.getElementById("contentFields");
+
+async function loadContent() {
+  const { data, error } = await supabase.from("site_content").select("key, value");
+  if (error) return toast("Load failed: " + error.message, "error");
+  const map = Object.fromEntries((data || []).map((r) => [r.key, r.value]));
+  contentFields.innerHTML = CONTENT_KEYS.map(
+    (k) => `
+      <div class="content-field">
+        <label>${k.label}</label>
+        <textarea data-key="${k.key}" rows="3">${escapeHtml(map[k.key] || "")}</textarea>
+      </div>`
+  ).join("");
+}
+
+document.getElementById("btnSaveContent").addEventListener("click", async () => {
+  const rows = [];
+  contentFields.querySelectorAll("textarea").forEach((ta) => {
+    rows.push({ key: ta.dataset.key, value: ta.value });
   });
+  const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
+  if (error) return toast("Save failed: " + error.message, "error");
+  toast("Content saved");
+});
 
-  document.getElementById("teamModalClose").addEventListener("click", () => teamModal.classList.remove("is-open"));
-  document.getElementById("teamModalCancel").addEventListener("click", () => teamModal.classList.remove("is-open"));
+// ═══════════════════════════════════════════════════════════════
+//  IMAGES — inventory + upload
+//  Uploads go to the Supabase 'site-images' bucket. Image overrides
+//  map an original HTML reference to the public URL of the upload.
+// ═══════════════════════════════════════════════════════════════
+const inventoryEl = document.getElementById("imagesInventory");
+const refreshBtn = document.getElementById("btnRefreshImages");
+if (refreshBtn) refreshBtn.addEventListener("click", loadImagesInventory);
 
-  teamForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const idx = parseInt(document.getElementById("tmIdx").value, 10);
-    const member = {
-      name: document.getElementById("tmName").value,
-      title: document.getElementById("tmTitle").value,
-      creds: document.getElementById("tmCreds").value,
-      bio: document.getElementById("tmBio").value,
-      education: document.getElementById("tmEdu").value,
-      personal: document.getElementById("tmPersonal").value,
-      photo: document.getElementById("tmPhoto").value,
-    };
-    if (idx >= 0 && idx < teamData.length) {
-      teamData[idx] = member;
-    } else {
-      teamData.push(member);
+async function loadImagesInventory() {
+  if (!inventoryEl) return;
+  inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">Loading image inventory…</p>';
+  try {
+    const res = await fetch("/api/images/inventory");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const { data: overrideRows } = await supabase.from("image_overrides").select("*");
+    const overrides = Object.fromEntries((overrideRows || []).map((r) => [r.original, r.replacement]));
+
+    const pages = data.pages || [];
+    if (!pages.length) {
+      inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">No images found.</p>';
+      return;
     }
-    fetch("/api/team", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(teamData),
-    }).then(() => {
-      teamModal.classList.remove("is-open");
-      loadTeam();
-    });
-  });
-
-  // ═══════════════════════════════════════
-  //  SITE CONTENT
-  // ═══════════════════════════════════════
-  const CONTENT_KEYS = [
-    { key: "hero_headline", label: "Home — Hero Headline" },
-    { key: "hero_subtext", label: "Home — Hero Subtext" },
-    { key: "whatwedo_headline", label: "Home — What We Do Headline" },
-    { key: "whatwedo_body", label: "Home — What We Do Body" },
-    { key: "whoweare_headline", label: "Home — Who We Are Headline" },
-    { key: "whoweare_body", label: "Home — Who We Are Body" },
-    { key: "values_headline", label: "Home — Values Headline" },
-    { key: "values_body", label: "Home — Values Subtext" },
-    { key: "contact_headline", label: "Home — Contact Headline" },
-    { key: "contact_body", label: "Home — Contact Body" },
-    { key: "fp_lede", label: "Financial Planning — Intro" },
-    { key: "im_lede", label: "Investment Management — Intro" },
-    { key: "team_headline", label: "Our People — Team Headline" },
-    { key: "team_body", label: "Our People — Team Body" },
-  ];
-
-  const contentFields = document.getElementById("contentFields");
-
-  function loadContent() {
-    fetch("/api/content")
-      .then((r) => r.json())
-      .then((data) => {
-        contentFields.innerHTML = CONTENT_KEYS.map(
-          (k) => `
-          <div class="content-field">
-            <label>${k.label}</label>
-            <textarea data-key="${k.key}" rows="3">${esc(data[k.key] || "")}</textarea>
-          </div>`
-        ).join("");
-      });
-  }
-
-  document.getElementById("btnSaveContent").addEventListener("click", () => {
-    const body = {};
-    contentFields.querySelectorAll("textarea").forEach((ta) => {
-      body[ta.dataset.key] = ta.value;
-    });
-    fetch("/api/content", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then(() => alert("Content saved."));
-  });
-
-  // ═══════════════════════════════════════
-  //  IMAGE UPLOAD
-  // ═══════════════════════════════════════
-  const uploadForm = document.getElementById("uploadForm");
-  const uploadResult = document.getElementById("uploadResult");
-
-  uploadForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const file = document.getElementById("uploadFile").files[0];
-    if (!file) return alert("Choose a file first.");
-    const dir = document.getElementById("uploadDir").value;
-    const fd = new FormData();
-    fd.append("image", file);
-    fetch("/api/upload?dir=" + dir, { method: "POST", body: fd })
-      .then((r) => r.json())
-      .then((data) => {
-        uploadResult.textContent = "Uploaded: " + data.path;
-        uploadResult.classList.add("show");
-      })
-      .catch(() => {
-        uploadResult.textContent = "Upload failed.";
-        uploadResult.classList.add("show");
-      });
-  });
-
-  // ═══════════════════════════════════════
-  //  IMAGE INVENTORY
-  // ═══════════════════════════════════════
-  const inventoryEl = document.getElementById("imagesInventory");
-  const refreshBtn = document.getElementById("btnRefreshImages");
-  if (refreshBtn) refreshBtn.addEventListener("click", loadImagesInventory);
-
-  function loadImagesInventory() {
-    if (!inventoryEl) return;
-    inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">Loading image inventory…</p>';
-    fetch("/api/images/inventory")
-      .then((r) => r.json())
-      .then((data) => {
-        const pages = data.pages || [];
-        if (!pages.length) {
-          inventoryEl.innerHTML = '<p style="color:#5c6a63;padding:20px;">No images found.</p>';
-          return;
-        }
-        inventoryEl.innerHTML = pages
-          .map((p) => {
-            if (!p.images.length) return "";
-            const cards = p.images
-              .map((img) => {
-                const effective = img.override || img.src;
-                const kindBadge = '<span class="img-kind">' + esc(img.kind) + "</span>";
-                const overrideNotice = img.override
-                  ? '<div class="img-override">Overridden → ' + esc(img.override) + "</div>"
-                  : "";
-                const revertBtn = img.override
-                  ? '<button class="btn-admin btn-danger" data-revert="' + esc(img.src) + '">Revert</button>'
-                  : "";
-                return (
-                  '<div class="image-card">' +
-                    '<div class="image-thumb" style="background-image:url(\'/' + encodeURI(effective) + "?t=" + Date.now() + "')\"></div>" +
-                    '<div class="image-meta">' +
-                      kindBadge +
-                      '<div class="img-src" title="' + esc(img.src) + '">' + esc(img.src) + "</div>" +
-                      (img.alt ? '<div class="img-alt">' + esc(img.alt) + "</div>" : "") +
-                      overrideNotice +
-                    "</div>" +
-                    '<div class="image-actions">' +
-                      '<label class="btn-admin btn-primary">' +
-                        "Replace" +
-                        '<input type="file" accept="image/*" data-replace="' + esc(img.src) + '" style="display:none" />' +
-                      "</label>" +
-                      revertBtn +
-                    "</div>" +
-                  "</div>"
-                );
-              })
-              .join("");
+    inventoryEl.innerHTML = pages
+      .map((p) => {
+        if (!p.images.length) return "";
+        const cards = p.images
+          .map((img) => {
+            const over = overrides[img.src];
+            const effective = over || "/" + img.src;
+            const kindBadge = '<span class="img-kind">' + escapeHtml(img.kind) + "</span>";
+            const overrideNotice = over
+              ? '<div class="img-override">Overridden → ' + escapeHtml(over) + "</div>"
+              : "";
+            const revertBtn = over
+              ? '<button class="btn-admin btn-danger" data-revert="' + escapeHtml(img.src) + '">Revert</button>'
+              : "";
             return (
-              '<div class="image-page-group">' +
-                '<h3 class="image-page-title">' + esc(p.label) + ' <span class="image-page-file">' + esc(p.file) + "</span></h3>" +
-                '<div class="image-grid">' + cards + "</div>" +
+              '<div class="image-card">' +
+                '<div class="image-thumb" style="background-image:url(\'' + effective + "?t=" + Date.now() + "')\"></div>" +
+                '<div class="image-meta">' +
+                  kindBadge +
+                  '<div class="img-src" title="' + escapeHtml(img.src) + '">' + escapeHtml(img.src) + "</div>" +
+                  (img.alt ? '<div class="img-alt">' + escapeHtml(img.alt) + "</div>" : "") +
+                  overrideNotice +
+                "</div>" +
+                '<div class="image-actions">' +
+                  '<label class="btn-admin btn-primary">Replace' +
+                    '<input type="file" accept="image/*" data-replace="' + escapeHtml(img.src) + '" style="display:none" />' +
+                  "</label>" +
+                  revertBtn +
+                "</div>" +
               "</div>"
             );
           })
           .join("");
-
-        // Wire up replace inputs
-        inventoryEl.querySelectorAll("input[data-replace]").forEach((input) => {
-          input.addEventListener("change", (e) => {
-            const original = input.getAttribute("data-replace");
-            const file = e.target.files[0];
-            if (!file) return;
-            const fd = new FormData();
-            fd.append("original", original);
-            fd.append("file", file);
-            input.disabled = true;
-            fetch("/api/images/replace", { method: "POST", body: fd })
-              .then((r) => r.json())
-              .then((data) => {
-                if (data.error) alert("Replace failed: " + data.error);
-                loadImagesInventory();
-              })
-              .catch(() => {
-                alert("Upload failed.");
-                input.disabled = false;
-              });
-          });
-        });
-
-        // Wire up revert buttons
-        inventoryEl.querySelectorAll("button[data-revert]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            if (!confirm("Restore the original image?")) return;
-            const original = btn.getAttribute("data-revert");
-            fetch("/api/images/revert", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ original }),
-            }).then(() => loadImagesInventory());
-          });
-        });
+        return (
+          '<div class="image-page-group">' +
+            '<h3 class="image-page-title">' + escapeHtml(p.label) + ' <span class="image-page-file">' + escapeHtml(p.file) + "</span></h3>" +
+            '<div class="image-grid">' + cards + "</div>" +
+          "</div>"
+        );
       })
-      .catch(() => {
-        inventoryEl.innerHTML = '<p style="color:#a03;padding:20px;">Failed to load inventory.</p>';
+      .join("");
+
+    inventoryEl.querySelectorAll("input[data-replace]").forEach((input) => {
+      input.addEventListener("change", async (e) => {
+        const original = input.getAttribute("data-replace");
+        const file = e.target.files[0];
+        if (!file) return;
+        input.disabled = true;
+        try {
+          const ext = file.name.split(".").pop();
+          const safeName = original.replace(/[^a-z0-9]/gi, "-").toLowerCase();
+          const objectPath = `replacements/${safeName}-${Date.now()}.${ext}`;
+          const up = await supabase.storage.from("site-images").upload(objectPath, file, {
+            upsert: false,
+            contentType: file.type,
+          });
+          if (up.error) throw up.error;
+          const { data: pub } = supabase.storage.from("site-images").getPublicUrl(objectPath);
+          const { error } = await supabase
+            .from("image_overrides")
+            .upsert({ original, replacement: pub.publicUrl }, { onConflict: "original" });
+          if (error) throw error;
+          toast("Image replaced");
+          loadImagesInventory();
+        } catch (err) {
+          toast("Replace failed: " + (err.message || err), "error");
+          input.disabled = false;
+        }
       });
+    });
+
+    inventoryEl.querySelectorAll("button[data-revert]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Restore the original image?")) return;
+        const original = btn.getAttribute("data-revert");
+        const { error } = await supabase.from("image_overrides").delete().eq("original", original);
+        if (error) return toast("Revert failed: " + error.message, "error");
+        toast("Reverted");
+        loadImagesInventory();
+      });
+    });
+  } catch (err) {
+    inventoryEl.innerHTML =
+      '<p style="color:#a03;padding:20px;">Inventory scan requires the local dev server (run <code>node server.js</code>) — or deploy this route as a serverless function.</p>';
+  }
+}
+
+const uploadForm = document.getElementById("uploadForm");
+const uploadResult = document.getElementById("uploadResult");
+
+uploadForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = document.getElementById("uploadFile").files[0];
+  if (!file) return alert("Choose a file first.");
+  const dir = document.getElementById("uploadDir").value === "team" ? "team" : "general";
+  try {
+    const ext = file.name.split(".").pop();
+    const safe = file.name.replace(/\.[^.]+$/, "").replace(/[^a-z0-9-_]/gi, "-").toLowerCase();
+    const path = `${dir}/${safe}-${Date.now()}.${ext}`;
+    const up = await supabase.storage.from("site-images").upload(path, file, { contentType: file.type });
+    if (up.error) throw up.error;
+    const { data: pub } = supabase.storage.from("site-images").getPublicUrl(path);
+    uploadResult.innerHTML = 'Uploaded: <a href="' + pub.publicUrl + '" target="_blank">' + pub.publicUrl + "</a>";
+    uploadResult.classList.add("show");
+  } catch (err) {
+    uploadResult.textContent = "Upload failed: " + (err.message || err);
+    uploadResult.classList.add("show");
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPLIANCE — still served by the local Node server (Puppeteer).
+//  Works only when running node server.js; otherwise shows a notice.
+// ═══════════════════════════════════════════════════════════════
+async function loadCompliance() {
+  const { data: log } = await supabase
+    .from("compliance_log")
+    .select("*")
+    .order("timestamp", { ascending: false })
+    .limit(100);
+  const logEl = document.getElementById("complianceLog");
+  if (logEl) {
+    if (!log || !log.length) {
+      logEl.innerHTML = '<p style="color:#5c6a63;padding:16px;">No changes logged yet.</p>';
+    } else {
+      logEl.innerHTML = log
+        .map(
+          (entry) => `
+            <div class="log-row">
+              <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
+              <span class="log-action">${escapeHtml(entry.action)}</span>
+              <span class="log-detail">${escapeHtml(JSON.stringify(entry.detail || {}))}</span>
+            </div>`
+        )
+        .join("");
+    }
   }
 
-  // ═══════════════════════════════════════
-  //  COMPLIANCE
-  // ═══════════════════════════════════════
-  function loadCompliance() {
-    // Screenshots
-    fetch("/api/compliance/screenshots")
-      .then((r) => r.json())
-      .then((files) => {
-        const el = document.getElementById("screenshotsList");
-        if (!files.length) {
-          el.innerHTML = '<p style="color:#5c6a63;padding:12px;">No screenshots yet.</p>';
-          return;
-        }
+  // Screenshot + approvals still require local server; fail quietly if not reachable.
+  for (const [endpoint, elId, emptyMsg] of [
+    ["/api/compliance/screenshots", "screenshotsList", "No screenshots yet."],
+    ["/api/compliance/approvals", "approvalsList", "No approval documents uploaded."],
+  ]) {
+    try {
+      const r = await fetch(endpoint);
+      if (!r.ok) throw new Error();
+      const files = await r.json();
+      const el = document.getElementById(elId);
+      if (!el) continue;
+      if (!files.length) {
+        el.innerHTML = '<p style="color:#5c6a63;padding:12px;">' + emptyMsg + "</p>";
+      } else {
         el.innerHTML = files
           .map(
-            (f) => `
-          <div class="archive-item">
-            <a href="${f.url}" target="_blank">${f.file}</a>
-            <span class="archive-date">${parseTimestamp(f.file)}</span>
-          </div>`
+            (f) =>
+              '<div class="archive-item"><a href="' +
+              f.url +
+              '" target="_blank">' +
+              escapeHtml(f.file) +
+              "</a></div>"
           )
           .join("");
-      });
-
-    // Approvals
-    fetch("/api/compliance/approvals")
-      .then((r) => r.json())
-      .then((files) => {
-        const el = document.getElementById("approvalsList");
-        if (!files.length) {
-          el.innerHTML = '<p style="color:#5c6a63;padding:12px;">No approval documents uploaded.</p>';
-          return;
-        }
-        el.innerHTML = files
-          .map(
-            (f) => `
-          <div class="archive-item">
-            <a href="${f.url}" target="_blank">${f.file}</a>
-          </div>`
-          )
-          .join("");
-      });
-
-    // Change log
-    fetch("/api/compliance/log")
-      .then((r) => r.json())
-      .then((log) => {
-        const el = document.getElementById("complianceLog");
-        if (!log.length) {
-          el.innerHTML = '<p style="color:#5c6a63;padding:16px;">No changes logged yet.</p>';
-          return;
-        }
-        el.innerHTML = log
-          .reverse()
-          .slice(0, 100)
-          .map(
-            (entry) => `
-          <div class="log-row">
-            <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
-            <span class="log-action">${esc(entry.action)}</span>
-            <span class="log-detail">${esc(JSON.stringify(entry.detail))}</span>
-          </div>`
-          )
-          .join("");
-      });
+      }
+    } catch {
+      const el = document.getElementById(elId);
+      if (el) el.innerHTML = '<p style="color:#5c6a63;padding:12px;">Run <code>node server.js</code> locally to use compliance screenshots.</p>';
+    }
   }
+}
 
-  // Screenshot button
-  document.getElementById("btnScreenshot").addEventListener("click", () => {
+const screenshotBtn = document.getElementById("btnScreenshot");
+if (screenshotBtn) {
+  screenshotBtn.addEventListener("click", async () => {
     const page = document.getElementById("screenshotPage").value;
     const status = document.getElementById("screenshotStatus");
-    status.textContent = "Capturing...";
+    status.textContent = "Capturing…";
     status.className = "status-msg";
-    fetch("/api/compliance/screenshot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ page }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.error) {
-          status.textContent = "Error: " + data.error;
-          status.className = "status-msg error";
-        } else {
-          status.textContent = "Screenshot saved: " + data.file;
-          loadCompliance();
-        }
-      })
-      .catch(() => {
-        status.textContent = "Failed to capture screenshot.";
-        status.className = "status-msg error";
+    try {
+      const r = await fetch("/api/compliance/screenshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page }),
       });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error);
+      status.textContent = "Screenshot saved: " + data.file;
+      loadCompliance();
+    } catch (err) {
+      status.textContent = "Failed: " + (err.message || err);
+      status.className = "status-msg error";
+    }
   });
+}
 
-  // Approval upload
-  document.getElementById("approvalForm").addEventListener("submit", (e) => {
+const approvalForm = document.getElementById("approvalForm");
+if (approvalForm) {
+  approvalForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const file = document.getElementById("approvalFile").files[0];
     if (!file) return alert("Choose a file.");
@@ -486,32 +523,50 @@
     fd.append("file", file);
     fd.append("note", document.getElementById("approvalNote").value);
     const status = document.getElementById("approvalStatus");
-    status.textContent = "Uploading...";
-    fetch("/api/compliance/approval", { method: "POST", body: fd })
-      .then((r) => r.json())
-      .then((data) => {
-        status.textContent = "Uploaded: " + data.file;
-        document.getElementById("approvalForm").reset();
-        loadCompliance();
-      })
-      .catch(() => {
-        status.textContent = "Upload failed.";
-        status.className = "status-msg error";
-      });
+    status.textContent = "Uploading…";
+    try {
+      const r = await fetch("/api/compliance/approval", { method: "POST", body: fd });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error);
+      status.textContent = "Uploaded: " + data.file;
+      approvalForm.reset();
+      loadCompliance();
+    } catch (err) {
+      status.textContent = "Failed: " + (err.message || err);
+      status.className = "status-msg error";
+    }
   });
+}
 
-  // ── Helpers ──
-  function esc(str) {
-    if (!str) return "";
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// ═══════════════════════════════════════════════════════════════
+//  PUBLISH
+//  Calls /api/publish — a serverless function that reads Supabase
+//  and commits data/*.json to the repo so Vercel redeploys.
+// ═══════════════════════════════════════════════════════════════
+async function publish() {
+  const btn = document.getElementById("btnPublish");
+  const label = document.getElementById("publishLabel");
+  btn.disabled = true;
+  label.textContent = "Publishing…";
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) throw new Error("Not signed in.");
+    const r = await fetch("/api/publish", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + accessToken },
+    });
+    const result = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(result.error || "Publish failed (HTTP " + r.status + ")");
+    toast("Published! Vercel will redeploy in a moment.", "success");
+    label.textContent = "Publish";
+  } catch (err) {
+    toast("Publish failed: " + err.message, "error");
+    label.textContent = "Publish";
+  } finally {
+    btn.disabled = false;
   }
+}
 
-  function parseTimestamp(filename) {
-    const match = filename.match(/(\d{13})/);
-    if (match) return new Date(parseInt(match[1], 10)).toLocaleString();
-    return "";
-  }
-
-  // ── Initial load ──
-  loadArticles();
-})();
+// ── Initial load ───────────────────────────────────────────────
+loadArticles();

@@ -24,7 +24,13 @@
         <button class="admin-tab" data-panel="images">Images</button>
         <button class="admin-tab" data-panel="compliance">Compliance</button>
       </nav>
-      <a href="/" class="admin-view-site" target="_blank">View Site &rarr;</a>
+      <div class="admin-header-actions">
+        <button class="btn-admin btn-primary" id="btnPublish" title="Push current content to the live site">
+          <span id="publishLabel">Publish</span>
+        </button>
+        <a href="/" class="admin-view-site" target="_blank">View Site &rarr;</a>
+        <button class="btn-admin admin-signout" id="btnSignOut" title="Sign out">Sign Out</button>
+      </div>
     </div>
   </header>
 
@@ -203,6 +209,8 @@
     </section>
   </main>
 
-  <script src="admin.js"></script>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="admin.js"></script>
 </body>
 </html>

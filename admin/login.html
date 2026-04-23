@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Steadfast CMS</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/logo-dark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="login-body">
+  <main class="login-card">
+    <img src="../assets/logo-dark.svg" alt="Steadfast" class="login-logo" />
+    <h1>Content Manager</h1>
+    <p class="login-sub">Sign in to manage site content.</p>
+
+    <form id="loginForm" class="login-form" novalidate>
+      <label>
+        <span>Email</span>
+        <input type="email" id="email" required autocomplete="username" />
+      </label>
+      <label>
+        <span>Password</span>
+        <input type="password" id="password" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn-admin btn-primary login-btn">Sign In</button>
+      <p id="loginError" class="login-error" role="alert"></p>
+    </form>
+
+    <p class="login-hint">Need access? Contact the site administrator — accounts are created from the Supabase dashboard.</p>
+  </main>
+
+  <script type="module">
+    import { supabase } from "./supabase-client.js";
+
+    const form = document.getElementById("loginForm");
+    const errorEl = document.getElementById("loginError");
+    const btn = form.querySelector("button[type=submit]");
+
+    // If already signed in, skip straight to the panel.
+    const { data } = await supabase.auth.getSession();
+    if (data.session) window.location.replace("index.html");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "Signing in…";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errorEl.textContent = error.message || "Sign-in failed.";
+        btn.disabled = false;
+        btn.textContent = "Sign In";
+        return;
+      }
+      window.location.replace("index.html");
+    });
+  </script>
+</body>
+</html>
