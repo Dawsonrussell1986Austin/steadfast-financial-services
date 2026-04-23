@@ -15,12 +15,10 @@
 
   const RESOURCES_KEYS = new Set(["resources", "articles"]);
 
-  const NAV_LEFT = [
+  const NAV_ITEMS = [
     { href: "index.html", label: "Home", key: "home" },
     { href: "financial-planning.html", label: "Financial Planning", key: "financial-planning" },
     { href: "investment-management.html", label: "Investment Management", key: "investment-management" },
-  ];
-  const NAV_RIGHT = [
     { href: "our-people.html", label: "Our People", key: "our-people" },
     {
       href: "resources.html",
@@ -60,23 +58,19 @@
   const headerHTML = `
   <header class="site-header" id="siteHeader">
     <div class="nav-container">
-      <nav class="primary-nav primary-nav-left" aria-label="Primary">
-        <ul>${renderLinks(NAV_LEFT)}</ul>
-      </nav>
       <a href="${base}index.html" class="brand" aria-label="Steadfast Financial Services home">
-        <img src="${base}assets/logo-white.svg" alt="Steadfast Financial Services" class="brand-logo brand-logo-light" />
-        <img src="${base}assets/logo-dark.svg" alt="" aria-hidden="true" class="brand-logo brand-logo-dark" />
+        <span class="brand-mark brand-mark-light" aria-hidden="true"></span>
+        <span class="brand-mark brand-mark-dark" aria-hidden="true"></span>
+        <span class="brand-wordmark">Steadfast Financial Services</span>
       </a>
-      <div class="nav-right-group">
-        <nav class="primary-nav primary-nav-right" aria-label="Primary">
-          <ul>${renderLinks(NAV_RIGHT)}</ul>
-        </nav>
+      <nav class="primary-nav" aria-label="Primary">
+        <ul>${renderLinks(NAV_ITEMS)}</ul>
+      </nav>
+      <div class="nav-cta">
         <a href="${base}contact-us.html" class="btn btn-primary nav-contact-btn">Contact Us <span aria-hidden="true">+</span></a>
-        <div class="nav-cta">
-          <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-            <span></span><span></span><span></span>
-          </button>
-        </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </header>`;
@@ -130,10 +124,10 @@
   const toggle = document.getElementById("navToggle");
   if (toggle) {
     toggle.addEventListener("click", () => {
-      const navs = document.querySelectorAll(".primary-nav");
+      const nav = document.querySelector(".primary-nav");
       const expanded = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", String(!expanded));
-      navs.forEach((n) => n.classList.toggle("is-open"));
+      if (nav) nav.classList.toggle("is-open");
       document.body.classList.toggle("nav-open", !expanded);
     });
   }
