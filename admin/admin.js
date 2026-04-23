@@ -614,11 +614,18 @@ async function publish() {
       method: "POST",
       headers: { Authorization: "Bearer " + accessToken },
     });
-    const result = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(result.error || "Publish failed (HTTP " + r.status + ")");
+    const raw = await r.text();
+    let result = {};
+    try { result = JSON.parse(raw); } catch {}
+    if (!r.ok) {
+      console.error("[publish] HTTP", r.status, r.statusText, "\ncontent-type:", r.headers.get("content-type"), "\nbody:", raw);
+      const detail = result.error || raw.slice(0, 300) || r.statusText;
+      throw new Error("HTTP " + r.status + " — " + detail);
+    }
     toast("Published! Vercel will redeploy in a moment.", "success");
     label.textContent = "Publish";
   } catch (err) {
+    console.error("[publish]", err);
     toast("Publish failed: " + err.message, "error");
     label.textContent = "Publish";
   } finally {
