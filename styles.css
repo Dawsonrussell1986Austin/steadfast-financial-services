@@ -397,6 +397,22 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 0 20px;
   animation: fadeUp 1s ease both;
 }
+.hero-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.hero-brand-img {
+  display: block;
+  height: 336px;
+  width: auto;
+  max-width: 90vw;
+  filter: drop-shadow(0 8px 34px rgba(0, 0, 0, 0.55));
+}
+/* Hide the small nav logo on the home page — the big hero logo is the brand mark there */
+.is-home .site-header .brand { display: none; }
+.is-home .primary-nav-left { flex: 0 0 auto; }
+.is-home .nav-right-group { flex: 0 0 auto; }
 .hero-eyebrow {
   display: inline-block;
   font-size: 10px;
@@ -1310,6 +1326,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   .section-values { padding-bottom: 170px; }
   .team-grid { grid-template-columns: 1fr; }
   .feature-list { grid-template-columns: 1fr; }
+  .hero-brand-img { height: 240px; }
+  .hero-brand { margin-bottom: 22px; }
 }
 
 @media (max-width: 720px) {
@@ -1326,6 +1344,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .brand-logo { height: 117px; }
   :root { --nav-h: 140px; }
   .hero h1 { font-size: 2.4rem; }
+  .hero-brand-img { height: 180px; }
   .section { padding: 64px 0; }
   .section-help { padding: 56px 20px; }
   .section-values { padding-bottom: 140px; }
