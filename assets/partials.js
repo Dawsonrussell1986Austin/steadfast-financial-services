@@ -61,7 +61,10 @@
       <a href="${base}index.html" class="brand" aria-label="Steadfast Financial Services home">
         <span class="brand-mark brand-mark-light" aria-hidden="true"></span>
         <span class="brand-mark brand-mark-dark" aria-hidden="true"></span>
-        <span class="brand-wordmark">Steadfast Financial Services</span>
+        <span class="brand-wordmark">
+          <span class="brand-wordmark-top">Steadfast</span>
+          <span class="brand-wordmark-bot">Financial Services</span>
+        </span>
       </a>
       <nav class="primary-nav" aria-label="Primary">
         <ul>${renderLinks(NAV_ITEMS)}</ul>

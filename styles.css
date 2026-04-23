@@ -211,23 +211,35 @@ ul { margin: 0; padding: 0; list-style: none; }
 .site-header.is-scrolled .brand-mark-light { display: none; }
 .site-header.is-scrolled .brand-mark-dark { display: block; }
 .brand-wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   font-family: var(--ff-serif);
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 1.1;
   color: #fff;
   text-transform: uppercase;
   white-space: nowrap;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
+.brand-wordmark-top {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1;
+}
+.brand-wordmark-bot {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  line-height: 1;
+  opacity: 0.92;
+}
 .site-header.is-scrolled .brand-wordmark {
   color: var(--green-900);
   text-shadow: none;
 }
 .primary-nav { flex: 1 1 auto; }
-.primary-nav ul { display: flex; justify-content: flex-end; gap: 26px; }
+.primary-nav ul { display: flex; justify-content: flex-end; gap: 32px; }
 .nav-cta {
   display: flex;
   align-items: center;
