@@ -191,10 +191,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 .nav-right-group {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: flex-start;
+  gap: 22px;
   height: 100%;
 }
+.nav-contact-btn { white-space: nowrap; }
 .brand {
   display: flex;
   align-items: center;
@@ -1287,7 +1288,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .site-header.is-scrolled .primary-nav { background: var(--cream-soft); }
   .nav-toggle { display: flex; flex-direction: column; justify-content: center; }
   .nav-cta .link-muted { display: none; }
-  .nav-cta .btn { padding: 11px 18px; font-size: 13px; }
+  .nav-contact-btn { padding: 11px 18px; font-size: 13px; }
   .grid-2 { grid-template-columns: 1fr; gap: 50px; }
   .grid-2.reverse .col-media { order: 0; }
   .grid-2.reverse .col-copy  { order: 0; }

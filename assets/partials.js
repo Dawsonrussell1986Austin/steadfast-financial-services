@@ -71,8 +71,8 @@
         <nav class="primary-nav primary-nav-right" aria-label="Primary">
           <ul>${renderLinks(NAV_RIGHT)}</ul>
         </nav>
+        <a href="${base}contact-us.html" class="btn btn-primary nav-contact-btn">Contact Us <span aria-hidden="true">+</span></a>
         <div class="nav-cta">
-          <a href="${base}contact-us.html" class="btn btn-primary">Contact Us <span aria-hidden="true">+</span></a>
           <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
             <span></span><span></span><span></span>
           </button>
