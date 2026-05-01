@@ -25,13 +25,21 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 
 const BUCKET = "compliance-screenshots";
 const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour
 
-export const config = { maxDuration: 60 };
+// Public URL of the matching Chromium tarball. Using @sparticuz/chromium-min
+// lets us avoid bundling the binary into the function deployment (which kept
+// stripping libnss3 + friends). The pack is downloaded into /tmp at runtime
+// alongside its bundled shared libraries, so libnss3 etc. are always present.
+const CHROMIUM_PACK_URL =
+  process.env.CHROMIUM_PACK_URL ||
+  "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.x64.tar";
+
+export const config = { maxDuration: 300 };
 
 export default async function handler(req, res) {
   try {
@@ -106,7 +114,7 @@ async function run(req, res) {
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: { width: 1440, height: 900 },
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
       headless: chromium.headless,
     });
     for (const pagePath of pagePaths) {
