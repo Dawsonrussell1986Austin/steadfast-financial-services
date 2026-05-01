@@ -482,36 +482,6 @@ if (contentPreviewRefresh && contentPreviewFrame) {
   contentPreviewRefresh.addEventListener("click", () => setContentPreview(activeContentPage));
 }
 
-const contentPreviewWrap = document.getElementById("contentPreviewFrameWrap");
-
-function updatePreviewScale() {
-  if (!contentPreviewWrap) return;
-  const mode = contentPreviewWrap.getAttribute("data-mode") || "desktop";
-  if (mode === "desktop") {
-    const w = contentPreviewWrap.clientWidth || 1;
-    const scale = Math.min(1, w / 1280);
-    contentPreviewWrap.style.setProperty("--preview-scale", scale.toFixed(4));
-  } else {
-    contentPreviewWrap.style.removeProperty("--preview-scale");
-  }
-}
-
-document.querySelectorAll(".content-preview-mode").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const mode = btn.dataset.mode;
-    document.querySelectorAll(".content-preview-mode").forEach((b) => {
-      b.classList.toggle("is-active", b === btn);
-    });
-    if (contentPreviewWrap) contentPreviewWrap.setAttribute("data-mode", mode);
-    updatePreviewScale();
-  });
-});
-
-if (contentPreviewWrap && typeof ResizeObserver === "function") {
-  new ResizeObserver(updatePreviewScale).observe(contentPreviewWrap);
-}
-window.addEventListener("resize", updatePreviewScale);
-updatePreviewScale();
 
 window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "steadfast:preview-ready") {
