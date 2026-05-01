@@ -18,15 +18,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 
-const CONTENT_KEYS = [
-  "hero_headline", "hero_subtext",
-  "whatwedo_headline", "whatwedo_body",
-  "whoweare_headline", "whoweare_body",
-  "values_headline", "values_body",
-  "contact_headline", "contact_body",
-  "fp_lede", "im_lede",
-  "team_headline", "team_body",
-];
+const RESERVED_KEYS = new Set(["client_links"]);
 
 export default async function handler(req, res) {
   try {
@@ -113,9 +105,19 @@ async function run(req, res) {
       photo: m.photo || "",
     }));
 
-    const contentMap = Object.fromEntries((contentR.data || []).map((r) => [r.key, r.value]));
     const contentJson = {};
-    for (const k of CONTENT_KEYS) contentJson[k] = contentMap[k] || "";
+    for (const row of contentR.data || []) {
+      if (!RESERVED_KEYS.has(row.key)) contentJson[row.key] = row.value || "";
+    }
+
+    let linksJson = [];
+    const linksRow = (contentR.data || []).find((r) => r.key === "client_links");
+    if (linksRow && linksRow.value) {
+      try {
+        const parsed = JSON.parse(linksRow.value);
+        if (Array.isArray(parsed)) linksJson = parsed;
+      } catch (e) {}
+    }
 
     const overridesJson = {};
     for (const r of overridesR.data || []) overridesJson[r.original] = r.replacement;
@@ -124,6 +126,7 @@ async function run(req, res) {
       { path: "data/articles.json",         content: JSON.stringify(articlesJson, null, 2) + "\n" },
       { path: "data/team.json",             content: JSON.stringify(teamJson, null, 2) + "\n" },
       { path: "data/content.json",          content: JSON.stringify(contentJson, null, 2) + "\n" },
+      { path: "data/links.json",            content: JSON.stringify(linksJson, null, 2) + "\n" },
       { path: "data/image-overrides.json",  content: JSON.stringify(overridesJson, null, 2) + "\n" },
     ];
 

@@ -24,6 +24,7 @@
         <button class="admin-tab is-active" data-panel="articles">Articles</button>
         <button class="admin-tab" data-panel="team">Team</button>
         <button class="admin-tab" data-panel="content">Site Content</button>
+        <button class="admin-tab" data-panel="links">Client Links</button>
         <button class="admin-tab" data-panel="images">Images</button>
         <button class="admin-tab" data-panel="compliance">Compliance</button>
       </nav>
@@ -143,6 +144,19 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- ═══════ CLIENT LINKS ═══════ -->
+    <section class="panel" id="panel-links" style="display:none;">
+      <div class="panel-header">
+        <h2>Client Links</h2>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-admin" id="btnAddLink">+ Add Link</button>
+          <button class="btn-admin btn-primary" id="btnSaveLinks">Save Changes</button>
+        </div>
+      </div>
+      <p class="panel-desc">Manage the list of resources shown on the Resources / Links page. Use the arrows to reorder.</p>
+      <div id="linksEditor" class="links-editor"></div>
     </section>
 
     <!-- ═══════ IMAGES ═══════ -->

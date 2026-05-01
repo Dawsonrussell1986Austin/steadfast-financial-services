@@ -270,11 +270,15 @@ ul { margin: 0; padding: 0; list-style: none; }
   order: 3;
   flex: 0 0 100%;
   height: auto;
-  gap: 22px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
   justify-content: center;
-  margin-top: 90px;
+  margin-top: 80px;
   margin-bottom: 24px;
 }
+.site-header.is-home .brand-wordmark { align-items: center; }
 .site-header.is-home .brand-mark { width: 128px; height: 128px; background-size: auto 218px; }
 .site-header.is-home .brand-wordmark-top { font-size: 44px; }
 .site-header.is-home .brand-wordmark-bot { font-size: 22px; }
