@@ -252,14 +252,16 @@ ul { margin: 0; padding: 0; list-style: none; }
 .site-header.is-home { height: auto; }
 .site-header.is-home .nav-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto auto;
   grid-template-rows: var(--nav-h) auto;
   align-items: center;
-  row-gap: 4px;
+  justify-content: space-between;
+  row-gap: 6px;
   padding-bottom: 18px;
 }
-.site-header.is-home .primary-nav { grid-row: 1; grid-column: 1; }
-.site-header.is-home .primary-nav ul { justify-content: flex-start; }
+.site-header.is-home .primary-nav { grid-row: 1; grid-column: 1; flex: 0 0 auto; }
+.site-header.is-home .primary-nav ul { justify-content: flex-start; flex-wrap: nowrap; gap: 26px; }
+.site-header.is-home .primary-nav a { white-space: nowrap; }
 .site-header.is-home .nav-cta { grid-row: 1; grid-column: 2; justify-self: end; }
 .site-header.is-home .brand {
   grid-row: 2;
@@ -267,9 +269,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   justify-self: center;
   height: auto;
 }
-.site-header.is-home .brand-mark { width: 84px; height: 84px; background-size: auto 132px; }
-.site-header.is-home .brand-wordmark-top { font-size: 26px; }
-.site-header.is-home .brand-wordmark-bot { font-size: 12px; }
 
 /* Dropdown submenu (Resources) */
 .primary-nav .has-submenu { position: relative; }
