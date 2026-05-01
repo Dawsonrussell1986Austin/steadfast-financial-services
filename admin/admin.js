@@ -43,6 +43,7 @@ tabs.forEach((tab) => {
     if (id === "articles") loadArticles();
     if (id === "team") loadTeam();
     if (id === "content") loadContent();
+    if (id === "messages") loadMessages();
     if (id === "links") loadClientLinks();
     if (id === "images") loadImagesInventory();
     if (id === "compliance") loadCompliance();
@@ -569,6 +570,53 @@ document.getElementById("btnSaveContent").addEventListener("click", async () => 
   toast("Content saved");
   setContentPreview(activeContentPage);
 });
+
+// ═══════════════════════════════════════════════════════════════
+//  MESSAGES — contact form submissions
+// ═══════════════════════════════════════════════════════════════
+const messagesList = document.getElementById("messagesList");
+const btnRefreshMessages = document.getElementById("btnRefreshMessages");
+
+async function loadMessages() {
+  if (!messagesList) return;
+  messagesList.innerHTML = '<p style="color:#5c6a63;padding:12px;">Loading messages…</p>';
+  const { data, error } = await supabase
+    .from("contact_submissions")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) {
+    messagesList.innerHTML = '<p class="status-msg error" style="padding:12px;">Could not load messages: ' + escapeHtml(error.message) + '</p>';
+    return;
+  }
+  if (!data || !data.length) {
+    messagesList.innerHTML = '<p style="color:#5c6a63;padding:12px;">No messages yet.</p>';
+    return;
+  }
+  messagesList.innerHTML = data
+    .map((m) => {
+      const when = m.created_at ? new Date(m.created_at).toLocaleString() : "";
+      const phone = m.phone ? ' · <a href="tel:' + escapeHtml(m.phone) + '">' + escapeHtml(m.phone) + "</a>" : "";
+      const source = m.source ? '<span class="msg-source">' + escapeHtml(m.source) + "</span>" : "";
+      return `
+        <article class="message-card">
+          <header class="message-card-head">
+            <div>
+              <strong>${escapeHtml(m.name || "—")}</strong>
+              ${source}
+            </div>
+            <time>${escapeHtml(when)}</time>
+          </header>
+          <div class="message-card-meta">
+            <a href="mailto:${escapeHtml(m.email || "")}">${escapeHtml(m.email || "")}</a>${phone}
+          </div>
+          <p class="message-card-body">${escapeHtml(m.message || "")}</p>
+        </article>`;
+    })
+    .join("");
+}
+
+if (btnRefreshMessages) btnRefreshMessages.addEventListener("click", loadMessages);
 
 // ═══════════════════════════════════════════════════════════════
 //  CLIENT LINKS — group/label/sublabel/url, reorderable

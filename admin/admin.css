@@ -561,6 +561,49 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
 }
 .capture-list li { padding: 4px 0; }
 
+/* ── Messages inbox ── */
+.messages-list {
+  display: grid;
+  gap: 12px;
+}
+.message-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+.message-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.message-card-head time { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+.msg-source {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: var(--cream-soft);
+  color: var(--green-700);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.message-card-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.message-card-body {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
 /* ── Client Links editor ── */
 .links-editor {
   display: grid;

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=32" />
+  <link rel="stylesheet" href="styles.css?v=33" />
 </head>
 <body data-base="">
   <div id="site-header-mount"></div>
@@ -48,7 +48,7 @@
         </ul>
       </div>
 
-      <form class="contact-form" onsubmit="event.preventDefault(); alert('Thanks! We\'ll be in touch.');">
+      <form class="contact-form" data-contact-form data-source="contact-us">
         <div class="form-row">
           <label>
             <span>First Name</span>
@@ -74,13 +74,14 @@
           <textarea name="message" rows="5" required placeholder="Tell us a little about your goals or questions..."></textarea>
         </label>
         <button type="submit" class="btn btn-primary btn-lg">Send Message <span aria-hidden="true">→</span></button>
+        <p class="contact-form-status" data-contact-status></p>
       </form>
     </div>
   </section>
 
 
   <div id="site-footer-mount"></div>
-  <script src="assets/partials.js?v=11"></script>
-  <script src="assets/cms.js?v=4"></script>
+  <script src="assets/partials.js?v=12"></script>
+  <script src="assets/cms.js?v=5"></script>
 </body>
 </html>

@@ -143,16 +143,27 @@
     try { window.parent.postMessage({ type: "steadfast:preview-ready" }, "*"); } catch (e) {}
   }
 
-  fetch(base + "data/image-overrides.json", { cache: "no-store" })
+  let imageOverrides = null;
+  const overridesPromise = fetch(base + "data/image-overrides.json", { cache: "no-store" })
     .then((r) => (r.ok ? r.json() : null))
-    .then((data) => data && applyImageOverrides(data))
-    .catch(() => {});
+    .then((data) => {
+      imageOverrides = data || {};
+      applyImageOverrides(imageOverrides);
+      return imageOverrides;
+    })
+    .catch(() => {
+      imageOverrides = {};
+      return imageOverrides;
+    });
 
   if (document.getElementById("teamGrid")) {
-    fetch(base + "data/team.json", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && renderTeam(data))
-      .catch(() => {});
+    Promise.all([
+      fetch(base + "data/team.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      overridesPromise,
+    ]).then(([team]) => {
+      if (team) renderTeam(team);
+      if (imageOverrides) applyImageOverrides(imageOverrides);
+    });
   }
 
   function renderClientLinks(items) {

@@ -189,6 +189,39 @@
     }, 320);
   });
 
+  // -------- Contact form submission to /api/contact --------
+  document.querySelectorAll("form[data-contact-form]").forEach((form) => {
+    const status = form.querySelector("[data-contact-status]");
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      if (status) {
+        status.textContent = "Sending…";
+        status.className = "contact-form-status";
+      }
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.source = form.getAttribute("data-source") || "contact-form";
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error || ("HTTP " + res.status));
+        form.reset();
+        if (status) {
+          status.textContent = "Thanks! We'll be in touch shortly.";
+          status.className = "contact-form-status is-success";
+        }
+      } catch (err) {
+        if (status) {
+          status.textContent = "Sorry, we couldn't send that. Please try again or email Matt@steadfastwealth.com.";
+          status.className = "contact-form-status is-error";
+        }
+      }
+    });
+  });
+
   // When returning via bfcache, re-trigger fade-in
   window.addEventListener("pageshow", (ev) => {
     if (ev.persisted) {
