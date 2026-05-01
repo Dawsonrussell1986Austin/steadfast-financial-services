@@ -110,10 +110,30 @@
     });
   }
 
+  let liveContent = {};
   fetch(base + "data/content.json", { cache: "no-store" })
     .then((r) => (r.ok ? r.json() : null))
-    .then((data) => data && applyContent(data))
+    .then((data) => {
+      if (data) {
+        liveContent = data;
+        applyContent(liveContent);
+      }
+    })
     .catch(() => {});
+
+  // Live preview channel: when this page is embedded in the admin Site Content
+  // editor, the parent posts unsaved edits and we re-apply them on the fly.
+  window.addEventListener("message", (event) => {
+    const msg = event.data;
+    if (!msg || typeof msg !== "object") return;
+    if (msg.type !== "steadfast:preview-content") return;
+    const next = Object.assign({}, liveContent, msg.content || {});
+    applyContent(next);
+  });
+  // Announce readiness so the parent can push the current draft.
+  if (window.parent && window.parent !== window) {
+    try { window.parent.postMessage({ type: "steadfast:preview-ready" }, "*"); } catch (e) {}
+  }
 
   fetch(base + "data/image-overrides.json", { cache: "no-store" })
     .then((r) => (r.ok ? r.json() : null))
