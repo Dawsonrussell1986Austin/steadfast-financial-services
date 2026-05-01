@@ -211,9 +211,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 .site-header.is-scrolled .brand-mark-light { display: none; }
 .site-header.is-scrolled .brand-mark-dark { display: block; }
 .brand-wordmark {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   gap: 3px;
+  width: max-content;
   font-family: var(--ff-serif);
   color: #fff;
   text-transform: uppercase;
@@ -228,12 +229,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   line-height: 1;
 }
 .brand-wordmark-bot {
+  display: block;
+  width: 100%;
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.05em;
   line-height: 1;
   opacity: 0.92;
+  text-align: justify;
+  text-align-last: justify;
 }
+.brand-wordmark-top { display: block; }
 .site-header.is-scrolled .brand-wordmark {
   color: var(--green-900);
   text-shadow: none;
@@ -294,7 +300,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   width: 100%;
   font-size: 26px;
   letter-spacing: 0.18em;
-  text-align: center;
+  text-align: justify;
+  text-align-last: justify;
 }
 /* Push the home hero content below the taller stacked header */
 body.is-home .hero { padding-top: 540px; }
