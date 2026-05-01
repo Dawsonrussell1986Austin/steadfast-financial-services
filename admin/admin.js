@@ -254,21 +254,23 @@ teamForm.addEventListener("submit", async (e) => {
 //  SITE CONTENT
 // ═══════════════════════════════════════════════════════════════
 const CONTENT_KEYS = [
-  { key: "hero_headline",      label: "Home — Hero Headline" },
-  { key: "hero_subtext",       label: "Home — Hero Subtext" },
-  { key: "whatwedo_headline",  label: "Home — What We Do Headline" },
-  { key: "whatwedo_body",      label: "Home — What We Do Body" },
-  { key: "whoweare_headline",  label: "Home — Who We Are Headline" },
-  { key: "whoweare_body",      label: "Home — Who We Are Body" },
-  { key: "values_headline",    label: "Home — Values Headline" },
-  { key: "values_body",        label: "Home — Values Subtext" },
-  { key: "contact_headline",   label: "Home — Contact Headline" },
-  { key: "contact_body",       label: "Home — Contact Body" },
-  { key: "fp_lede",            label: "Financial Planning — Intro" },
-  { key: "im_lede",            label: "Investment Management — Intro" },
-  { key: "team_headline",      label: "Our People — Team Headline" },
-  { key: "team_body",          label: "Our People — Team Body" },
+  { key: "hero_headline",      label: "Hero Headline",        page: "Home" },
+  { key: "hero_subtext",       label: "Hero Subtext",         page: "Home" },
+  { key: "whatwedo_headline",  label: "What We Do Headline",  page: "Home" },
+  { key: "whatwedo_body",      label: "What We Do Body",      page: "Home" },
+  { key: "whoweare_headline",  label: "Who We Are Headline",  page: "Home" },
+  { key: "whoweare_body",      label: "Who We Are Body",      page: "Home" },
+  { key: "values_headline",    label: "Values Headline",      page: "Home" },
+  { key: "values_body",        label: "Values Subtext",       page: "Home" },
+  { key: "contact_headline",   label: "Contact Headline",     page: "Home" },
+  { key: "contact_body",       label: "Contact Body",         page: "Home" },
+  { key: "fp_lede",            label: "Intro",                page: "Financial Planning" },
+  { key: "im_lede",            label: "Intro",                page: "Investment Management" },
+  { key: "team_headline",      label: "Team Headline",        page: "Our People" },
+  { key: "team_body",          label: "Team Body",            page: "Our People" },
 ];
+
+const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People"];
 
 const contentFields = document.getElementById("contentFields");
 
@@ -276,13 +278,31 @@ async function loadContent() {
   const { data, error } = await supabase.from("site_content").select("key, value");
   if (error) return toast("Load failed: " + error.message, "error");
   const map = Object.fromEntries((data || []).map((r) => [r.key, r.value]));
-  contentFields.innerHTML = CONTENT_KEYS.map(
-    (k) => `
-      <div class="content-field">
-        <label>${k.label}</label>
-        <textarea data-key="${k.key}" rows="3">${escapeHtml(map[k.key] || "")}</textarea>
-      </div>`
-  ).join("");
+
+  const byPage = CONTENT_KEYS.reduce((acc, k) => {
+    (acc[k.page] = acc[k.page] || []).push(k);
+    return acc;
+  }, {});
+
+  contentFields.innerHTML = PAGE_ORDER
+    .filter((page) => byPage[page] && byPage[page].length)
+    .map((page) => {
+      const fields = byPage[page]
+        .map(
+          (k) => `
+            <div class="content-field">
+              <label>${escapeHtml(k.label)}</label>
+              <textarea data-key="${k.key}" rows="3">${escapeHtml(map[k.key] || "")}</textarea>
+            </div>`
+        )
+        .join("");
+      return `
+        <section class="content-page-group">
+          <h3 class="content-page-title">${escapeHtml(page)}</h3>
+          <div class="content-page-fields">${fields}</div>
+        </section>`;
+    })
+    .join("");
 }
 
 document.getElementById("btnSaveContent").addEventListener("click", async () => {

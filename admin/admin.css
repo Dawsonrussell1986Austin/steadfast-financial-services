@@ -299,7 +299,27 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
 /* ── Content Editor ── */
 .content-editor {
   display: grid;
-  gap: 20px;
+  gap: 32px;
+}
+.content-page-group {
+  background: var(--cream-soft);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 24px 26px;
+}
+.content-page-title {
+  margin: 0 0 16px;
+  font-family: var(--ff-serif, Georgia, serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--green-700, #124e34);
+  letter-spacing: -0.005em;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.content-page-fields {
+  display: grid;
+  gap: 16px;
 }
 .content-field {
   background: var(--white);
