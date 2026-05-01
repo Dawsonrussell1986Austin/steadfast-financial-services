@@ -406,7 +406,7 @@ const CONTENT_KEYS = [
 
   // ── Footer ─────────────────────────────────────────────────
   { key: "footer_left_h",        label: "Left Column — Heading",          page: "Footer",
-    default: "Serving Central Florida & Beyond" },
+    default: "Serving since 1998" },
   { key: "footer_left_body",     label: "Left Column — Body",             page: "Footer",
     default: "Fee-Only Financial Planning\n& Investment Advisory" },
   { key: "footer_email",         label: "Center — Email",                 page: "Footer",

@@ -86,7 +86,7 @@
     <div class="footer-accent"></div>
     <div class="container footer-grid">
       <div class="footer-col">
-        <h4 data-cms="footer_left_h">Serving Central Florida &amp; Beyond</h4>
+        <h4 data-cms="footer_left_h">Serving since 1998</h4>
         <p data-cms="footer_left_body" data-cms-mode="br"><strong>Fee-Only Financial Planning</strong><br /><strong>&amp; Investment Advisory</strong></p>
       </div>
       <div class="footer-col footer-brand">
