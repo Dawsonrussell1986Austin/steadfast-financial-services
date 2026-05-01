@@ -272,8 +272,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   height: auto;
   gap: 22px;
   justify-content: center;
-  margin-top: 56px;
-  margin-bottom: 56px;
+  margin-top: 90px;
+  margin-bottom: 24px;
 }
 .site-header.is-home .brand-mark { width: 128px; height: 128px; background-size: auto 218px; }
 .site-header.is-home .brand-wordmark-top { font-size: 44px; }
