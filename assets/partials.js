@@ -10,7 +10,11 @@
     if (p.endsWith("/resources.html") || p.includes("resources")) return "resources";
     if (p.endsWith("/links.html") || p.includes("links")) return "resources";
     if (p.endsWith("/contact-us.html") || p.includes("contact-us")) return "contact-us";
-    return "home";
+    if (p.endsWith("/disclosures.html") || p.includes("disclosures")) return "disclosures";
+    // Only the index page (or root) counts as home; everything else uses the
+    // standard top-left brand layout.
+    const isHome = p === "/" || p === "" || p.endsWith("/index.html") || p.endsWith("/index");
+    return isHome ? "home" : "subpage";
   })();
 
   const RESOURCES_KEYS = new Set(["resources", "articles"]);
