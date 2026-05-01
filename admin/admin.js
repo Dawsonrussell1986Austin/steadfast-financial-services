@@ -348,6 +348,24 @@ function previewSrcFor(page) {
   return url + "?preview=1&t=" + Date.now();
 }
 
+function currentDraftContent() {
+  const draft = {};
+  contentFields.querySelectorAll("textarea[data-key]").forEach((ta) => {
+    draft[ta.dataset.key] = ta.value;
+  });
+  return draft;
+}
+
+function postDraftToPreview() {
+  if (!contentPreviewFrame || !contentPreviewFrame.contentWindow) return;
+  try {
+    contentPreviewFrame.contentWindow.postMessage(
+      { type: "steadfast:preview-content", content: currentDraftContent() },
+      "*"
+    );
+  } catch (e) {}
+}
+
 function setContentPreview(page) {
   if (!contentPreviewFrame) return;
   contentPreviewFrame.src = previewSrcFor(page);
@@ -356,6 +374,21 @@ function setContentPreview(page) {
 
 if (contentPreviewRefresh && contentPreviewFrame) {
   contentPreviewRefresh.addEventListener("click", () => setContentPreview(activeContentPage));
+}
+
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "steadfast:preview-ready") {
+    postDraftToPreview();
+  }
+});
+
+let draftPostTimer = null;
+if (contentFields) {
+  contentFields.addEventListener("input", (e) => {
+    if (!e.target.matches("textarea[data-key]")) return;
+    clearTimeout(draftPostTimer);
+    draftPostTimer = setTimeout(postDraftToPreview, 200);
+  });
 }
 
 function renderContentSidebar(activePages) {
