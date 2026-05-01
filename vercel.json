@@ -15,8 +15,7 @@
     },
     "api/compliance/screenshot.js": {
       "maxDuration": 300,
-      "memory": 2048,
-      "includeFiles": "node_modules/@sparticuz/chromium/**"
+      "memory": 2048
     }
   },
   "rewrites": [
