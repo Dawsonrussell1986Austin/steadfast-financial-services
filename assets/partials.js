@@ -219,7 +219,8 @@
         }
       } catch (err) {
         if (status) {
-          status.textContent = "Sorry, we couldn't send that. Please try again or email Matt@steadfastwealth.com.";
+          const detail = err && err.message ? " (" + err.message + ")" : "";
+          status.textContent = "Sorry, we couldn't send that" + detail + ". Please try again or email Matt@steadfastwealth.com.";
           status.className = "contact-form-status is-error";
         }
       }
