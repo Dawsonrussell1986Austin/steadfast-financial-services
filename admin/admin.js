@@ -274,10 +274,35 @@ const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our 
 
 const contentFields = document.getElementById("contentFields");
 const contentSidebar = document.getElementById("contentSidebar");
+const contentPreviewFrame = document.getElementById("contentPreviewFrame");
+const contentPreviewLabel = document.getElementById("contentPreviewLabel");
+const contentPreviewRefresh = document.getElementById("contentPreviewRefresh");
 let activeContentPage = PAGE_ORDER[0];
+
+const PAGE_URL = {
+  "Home": "/index.html",
+  "Financial Planning": "/financial-planning.html",
+  "Investment Management": "/investment-management.html",
+  "Our People": "/our-people.html",
+};
 
 function pageSlug(page) {
   return page.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function previewSrcFor(page) {
+  const url = PAGE_URL[page] || "/index.html";
+  return url + "?preview=1&t=" + Date.now();
+}
+
+function setContentPreview(page) {
+  if (!contentPreviewFrame) return;
+  contentPreviewFrame.src = previewSrcFor(page);
+  if (contentPreviewLabel) contentPreviewLabel.textContent = "Live preview · " + page;
+}
+
+if (contentPreviewRefresh && contentPreviewFrame) {
+  contentPreviewRefresh.addEventListener("click", () => setContentPreview(activeContentPage));
 }
 
 function renderContentSidebar(activePages) {
@@ -297,6 +322,7 @@ function renderContentSidebar(activePages) {
       contentFields.querySelectorAll(".content-page-group").forEach((sec) => {
         sec.classList.toggle("is-visible", sec.dataset.page === activeContentPage);
       });
+      setContentPreview(activeContentPage);
     });
   });
 }
@@ -335,6 +361,7 @@ async function loadContent() {
     .join("");
 
   renderContentSidebar(activePages);
+  setContentPreview(activeContentPage);
 }
 
 document.getElementById("btnSaveContent").addEventListener("click", async () => {
@@ -345,6 +372,7 @@ document.getElementById("btnSaveContent").addEventListener("click", async () => 
   const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
   if (error) return toast("Save failed: " + error.message, "error");
   toast("Content saved");
+  setContentPreview(activeContentPage);
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -550,6 +578,68 @@ async function renderArchive(bucket, elId, emptyMsg) {
   }
 }
 
+const ACTION_LABELS = {
+  publish: "Published changes to live site",
+  approval_uploaded: "Compliance approval uploaded",
+  screenshot_captured: "Screenshot captured",
+  content_saved: "Site content updated",
+};
+
+const FILE_LABELS = {
+  "data/articles.json": "Articles",
+  "data/team.json": "Team",
+  "data/content.json": "Site Content",
+  "data/image-overrides.json": "Image Overrides",
+};
+
+function actionLabel(action) {
+  if (!action) return "Update";
+  return ACTION_LABELS[action] || action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatLogDetail(detail) {
+  if (!detail || typeof detail !== "object") return "";
+  const parts = [];
+  if (detail.by) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">By</span> ${escapeHtml(detail.by)}</span>`);
+  }
+  if (Array.isArray(detail.files) && detail.files.length) {
+    const names = detail.files.map((f) => FILE_LABELS[f] || f.replace(/^data\//, "").replace(/\.json$/, ""));
+    parts.push(
+      `<span class="log-meta-item"><span class="log-meta-label">Sections</span> ${names.map(escapeHtml).join(", ")}</span>`
+    );
+  }
+  if (detail.original_name) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">File</span> ${escapeHtml(detail.original_name)}</span>`);
+  }
+  if (detail.page) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">Page</span> ${escapeHtml(detail.page)}</span>`);
+  }
+  if (detail.note) {
+    parts.push(`<span class="log-meta-item log-meta-note">${escapeHtml(detail.note)}</span>`);
+  }
+  if (detail.commit) {
+    const shortSha = String(detail.commit).slice(0, 7);
+    parts.push(
+      `<span class="log-meta-item log-meta-commit" title="${escapeHtml(detail.commit)}"><span class="log-meta-label">Revision</span> ${escapeHtml(shortSha)}</span>`
+    );
+  }
+  return parts.join("");
+}
+
+function formatLogTime(ts) {
+  if (!ts) return "";
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return escapeHtml(String(ts));
+  return d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 async function loadCompliance() {
   const { data: log } = await supabase
     .from("compliance_log")
@@ -562,14 +652,17 @@ async function loadCompliance() {
       logEl.innerHTML = '<p style="color:#5c6a63;padding:16px;">No changes logged yet.</p>';
     } else {
       logEl.innerHTML = log
-        .map(
-          (entry) => `
-            <div class="log-row">
-              <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
-              <span class="log-action">${escapeHtml(entry.action)}</span>
-              <span class="log-detail">${escapeHtml(JSON.stringify(entry.detail || {}))}</span>
-            </div>`
-        )
+        .map((entry) => {
+          const meta = formatLogDetail(entry.detail);
+          return `
+            <article class="log-row">
+              <header class="log-row-head">
+                <span class="log-action">${escapeHtml(actionLabel(entry.action))}</span>
+                <time class="log-time">${escapeHtml(formatLogTime(entry.timestamp))}</time>
+              </header>
+              ${meta ? `<div class="log-meta">${meta}</div>` : ""}
+            </article>`;
+        })
         .join("");
     }
   }
