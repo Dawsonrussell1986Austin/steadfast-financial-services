@@ -386,9 +386,47 @@ const CONTENT_KEYS = [
     default: "Built By Experience,\nDriven By Service" },
   { key: "team_body",            label: "Team — Body",                    page: "Our People",
     default: "Since 1998, Steadfast has been led by advisors who value deep client relationships, lifelong learning, and the privilege of stewarding other people's resources well." },
+
+  // ── Contact ────────────────────────────────────────────────
+  { key: "contact_hero_h1",      label: "Hero Headline",                  page: "Contact",
+    default: "Contact Us" },
+  { key: "contact_hero_sub",     label: "Hero Subtext",                   page: "Contact",
+    default: "We'd love to hear from you. Reach out to start a conversation about your financial goals." },
+  { key: "contact_intro_h2",     label: "Intro — Headline",               page: "Contact",
+    default: "Let's Start\nThe Conversation" },
+  { key: "contact_intro_body",   label: "Intro — Body",                   page: "Contact",
+    default: "Whether you have a question about our services, want to schedule a discovery meeting, or simply need a steady sounding board, we're here to help. Expect a personal response — not an auto-reply." },
+  { key: "contact_email",        label: "Email Address",                  page: "Contact",
+    default: "Matt@steadfastwealth.com" },
+  { key: "contact_phone",        label: "Phone Number",                   page: "Contact",
+    default: "(407) 786-0092" },
+  { key: "contact_fax",          label: "Fax Line",                       page: "Contact",
+    default: "Fax: (407) 358-5468" },
+
+  // ── Footer ─────────────────────────────────────────────────
+  { key: "footer_left_h",        label: "Left Column — Heading",          page: "Footer",
+    default: "Serving Central Florida & Beyond" },
+  { key: "footer_left_body",     label: "Left Column — Body",             page: "Footer",
+    default: "Fee-Only Financial Planning\n& Investment Advisory" },
+  { key: "footer_email",         label: "Center — Email",                 page: "Footer",
+    default: "Matt@steadfastwealth.com" },
+  { key: "footer_right_h",       label: "Right Column — Heading",         page: "Footer",
+    default: "Connect" },
+  { key: "footer_phone",         label: "Office Phone",                   page: "Footer",
+    default: "(407) 786-0092" },
+  { key: "footer_fax",           label: "Fax",                            page: "Footer",
+    default: "(407) 358-5468" },
+  { key: "footer_brokercheck",   label: "BrokerCheck Line",               page: "Footer",
+    default: "Check the background of your financial professional on FINRA's BrokerCheck." },
+  { key: "footer_disclaimer",    label: "Disclaimer",                     page: "Footer",
+    default: "Steadfast Financial Services is a fee-only registered investment advisor. The content on this site is developed from sources believed to be providing accurate information and is not intended as tax or legal advice. Please consult legal or tax professionals for specific information regarding your individual situation." },
+  { key: "footer_copy",          label: "Copyright Prefix",               page: "Footer",
+    default: "© Copyright" },
+  { key: "footer_copy_suffix",   label: "Copyright Suffix",               page: "Footer",
+    default: "Steadfast. All Rights Reserved." },
 ];
 
-const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People"];
+const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People", "Contact", "Footer"];
 
 const contentFields = document.getElementById("contentFields");
 const contentSidebar = document.getElementById("contentSidebar");
@@ -402,6 +440,8 @@ const PAGE_URL = {
   "Financial Planning": "/financial-planning.html",
   "Investment Management": "/investment-management.html",
   "Our People": "/our-people.html",
+  "Contact": "/contact-us.html",
+  "Footer": "/index.html#footer",
 };
 
 function pageSlug(page) {
@@ -442,6 +482,19 @@ if (contentPreviewRefresh && contentPreviewFrame) {
 }
 
 const contentPreviewWrap = document.getElementById("contentPreviewFrameWrap");
+
+function updatePreviewScale() {
+  if (!contentPreviewWrap) return;
+  const mode = contentPreviewWrap.getAttribute("data-mode") || "desktop";
+  if (mode === "desktop") {
+    const w = contentPreviewWrap.clientWidth || 1;
+    const scale = Math.min(1, w / 1280);
+    contentPreviewWrap.style.setProperty("--preview-scale", scale.toFixed(4));
+  } else {
+    contentPreviewWrap.style.removeProperty("--preview-scale");
+  }
+}
+
 document.querySelectorAll(".content-preview-mode").forEach((btn) => {
   btn.addEventListener("click", () => {
     const mode = btn.dataset.mode;
@@ -449,8 +502,15 @@ document.querySelectorAll(".content-preview-mode").forEach((btn) => {
       b.classList.toggle("is-active", b === btn);
     });
     if (contentPreviewWrap) contentPreviewWrap.setAttribute("data-mode", mode);
+    updatePreviewScale();
   });
 });
+
+if (contentPreviewWrap && typeof ResizeObserver === "function") {
+  new ResizeObserver(updatePreviewScale).observe(contentPreviewWrap);
+}
+window.addEventListener("resize", updatePreviewScale);
+updatePreviewScale();
 
 window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "steadfast:preview-ready") {
