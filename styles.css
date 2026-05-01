@@ -280,15 +280,20 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .site-header.is-home .brand-wordmark { align-items: center; }
 .site-header.is-home .brand-mark { width: 192px; height: 192px; background-size: auto 327px; }
-.site-header.is-home .brand-wordmark { display: inline-flex; }
+.site-header.is-home .brand-wordmark {
+  display: inline-flex;
+  width: max-content;
+}
 .site-header.is-home .brand-wordmark-top {
   font-size: 66px;
   letter-spacing: 0.2em;
+  text-align: center;
 }
 .site-header.is-home .brand-wordmark-bot {
-  font-size: 28px;
+  display: block;
+  width: 100%;
+  font-size: 26px;
   letter-spacing: 0.18em;
-  align-self: stretch;
   text-align: justify;
   text-align-last: justify;
 }
