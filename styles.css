@@ -294,8 +294,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   width: 100%;
   font-size: 26px;
   letter-spacing: 0.18em;
-  text-align: justify;
-  text-align-last: justify;
+  text-align: center;
 }
 /* Push the home hero content below the taller stacked header */
 body.is-home .hero { padding-top: 540px; }
