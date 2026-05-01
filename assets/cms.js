@@ -154,4 +154,45 @@
       .then((data) => data && renderTeam(data))
       .catch(() => {});
   }
+
+  function renderClientLinks(items) {
+    const mount = document.getElementById("clientLinksMount");
+    if (!mount || !Array.isArray(items) || !items.length) return;
+    const groups = items.reduce((acc, l) => {
+      const g = l.group || "Resources";
+      (acc[g] = acc[g] || []).push(l);
+      return acc;
+    }, {});
+    mount.innerHTML = Object.keys(groups)
+      .map((groupName) => {
+        const items = groups[groupName]
+          .map((l) => {
+            const isExternal = /^https?:\/\//i.test(l.url || "");
+            const ext = isExternal ? ' target="_blank" rel="noopener"' : "";
+            const href = l.url || "#";
+            const sub = l.sublabel ? "<small>" + escapeHtml(l.sublabel) + "</small>" : "";
+            return (
+              "<li><a href=\"" + escapeHtml(href) + "\"" + ext + ">" +
+                "<div>" + escapeHtml(l.label || "") + sub + "</div>" +
+                "<span class=\"arrow\" aria-hidden=\"true\">→</span>" +
+              "</a></li>"
+            );
+          })
+          .join("");
+        return (
+          "<div class=\"link-group\">" +
+            "<h3>" + escapeHtml(groupName) + "</h3>" +
+            "<ul>" + items + "</ul>" +
+          "</div>"
+        );
+      })
+      .join("");
+  }
+
+  if (document.getElementById("clientLinksMount")) {
+    fetch(base + "data/links.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data && renderClientLinks(data))
+      .catch(() => {});
+  }
 })();

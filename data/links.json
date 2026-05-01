@@ -1,0 +1,26 @@
+[
+  {
+    "group": "Client Resources",
+    "label": "Investor Access",
+    "sublabel": "Access your Raymond James account",
+    "url": "https://clientaccess.rjf.com/"
+  },
+  {
+    "group": "Client Resources",
+    "label": "eMoneyAdvisor",
+    "sublabel": "Access to your financial plan",
+    "url": "https://wealth.emaplan.com/"
+  },
+  {
+    "group": "Financial Interest",
+    "label": "Crown Ministries",
+    "sublabel": "Biblically-based financial stewardship",
+    "url": "https://www.crown.org/"
+  },
+  {
+    "group": "Steadfast Disclosures",
+    "label": "Disclosures",
+    "sublabel": "Disclosure statements and ADV filings",
+    "url": "#disclosures"
+  }
+]

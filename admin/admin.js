@@ -43,6 +43,7 @@ tabs.forEach((tab) => {
     if (id === "articles") loadArticles();
     if (id === "team") loadTeam();
     if (id === "content") loadContent();
+    if (id === "links") loadClientLinks();
     if (id === "images") loadImagesInventory();
     if (id === "compliance") loadCompliance();
   });
@@ -598,6 +599,113 @@ document.getElementById("btnSaveContent").addEventListener("click", async () => 
   toast("Content saved");
   setContentPreview(activeContentPage);
 });
+
+// ═══════════════════════════════════════════════════════════════
+//  CLIENT LINKS — group/label/sublabel/url, reorderable
+// ═══════════════════════════════════════════════════════════════
+const DEFAULT_CLIENT_LINKS = [
+  { group: "Client Resources", label: "Investor Access",  sublabel: "Access your Raymond James account",  url: "https://clientaccess.rjf.com/" },
+  { group: "Client Resources", label: "eMoneyAdvisor",    sublabel: "Access to your financial plan",       url: "https://wealth.emaplan.com/" },
+  { group: "Financial Interest", label: "Crown Ministries", sublabel: "Biblically-based financial stewardship", url: "https://www.crown.org/" },
+  { group: "Steadfast Disclosures", label: "Disclosures", sublabel: "Disclosure statements and ADV filings", url: "#disclosures" },
+];
+
+let clientLinks = [];
+
+const linksEditor = document.getElementById("linksEditor");
+
+function renderClientLinks() {
+  if (!linksEditor) return;
+  if (!clientLinks.length) {
+    linksEditor.innerHTML = '<p style="color:#5c6a63;padding:16px;">No links yet. Click "+ Add Link" to create one.</p>';
+    return;
+  }
+  linksEditor.innerHTML = clientLinks
+    .map(
+      (l, i) => `
+        <div class="link-card" data-index="${i}">
+          <div class="link-card-fields">
+            <label>Group <input type="text" data-field="group" value="${escapeHtml(l.group || "")}" placeholder="e.g. Client Resources" /></label>
+            <label>Label <input type="text" data-field="label" value="${escapeHtml(l.label || "")}" /></label>
+            <label>Sublabel <input type="text" data-field="sublabel" value="${escapeHtml(l.sublabel || "")}" placeholder="Short description" /></label>
+            <label>URL <input type="text" data-field="url" value="${escapeHtml(l.url || "")}" placeholder="https://..." /></label>
+          </div>
+          <div class="link-card-actions">
+            <button type="button" class="btn-admin" data-action="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" class="btn-admin" data-action="down" title="Move down" ${i === clientLinks.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" class="btn-admin btn-danger" data-action="delete" title="Remove">Delete</button>
+          </div>
+        </div>`
+    )
+    .join("");
+}
+
+if (linksEditor) {
+  linksEditor.addEventListener("input", (e) => {
+    const card = e.target.closest(".link-card");
+    if (!card) return;
+    const i = Number(card.dataset.index);
+    const field = e.target.dataset.field;
+    if (!field || isNaN(i) || !clientLinks[i]) return;
+    clientLinks[i][field] = e.target.value;
+  });
+  linksEditor.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const card = btn.closest(".link-card");
+    const i = Number(card.dataset.index);
+    if (isNaN(i)) return;
+    const action = btn.dataset.action;
+    if (action === "up" && i > 0) {
+      [clientLinks[i - 1], clientLinks[i]] = [clientLinks[i], clientLinks[i - 1]];
+    } else if (action === "down" && i < clientLinks.length - 1) {
+      [clientLinks[i + 1], clientLinks[i]] = [clientLinks[i], clientLinks[i + 1]];
+    } else if (action === "delete") {
+      if (!confirm("Remove this link?")) return;
+      clientLinks.splice(i, 1);
+    } else {
+      return;
+    }
+    renderClientLinks();
+  });
+}
+
+const btnAddLink = document.getElementById("btnAddLink");
+if (btnAddLink) {
+  btnAddLink.addEventListener("click", () => {
+    clientLinks.push({ group: "Client Resources", label: "", sublabel: "", url: "" });
+    renderClientLinks();
+  });
+}
+
+const btnSaveLinks = document.getElementById("btnSaveLinks");
+if (btnSaveLinks) {
+  btnSaveLinks.addEventListener("click", async () => {
+    const value = JSON.stringify(clientLinks);
+    const { error } = await supabase
+      .from("site_content")
+      .upsert([{ key: "client_links", value }], { onConflict: "key" });
+    if (error) return toast("Save failed: " + error.message, "error");
+    toast("Client links saved");
+  });
+}
+
+async function loadClientLinks() {
+  const { data, error } = await supabase
+    .from("site_content")
+    .select("value")
+    .eq("key", "client_links")
+    .maybeSingle();
+  if (error && error.code !== "PGRST116") {
+    toast("Load failed: " + error.message, "error");
+  }
+  let parsed = null;
+  if (data && data.value) {
+    try { parsed = JSON.parse(data.value); } catch (e) {}
+  }
+  clientLinks = Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_CLIENT_LINKS.map((l) => ({ ...l }));
+  renderClientLinks();
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  IMAGES — inventory + upload
