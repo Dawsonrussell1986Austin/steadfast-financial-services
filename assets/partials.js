@@ -120,21 +120,22 @@
   if (headerMount) headerMount.outerHTML = headerHTML;
   if (footerMount) footerMount.outerHTML = footerHTML;
 
-  // Stretch the bottom wordmark line so it spans the exact width of the top
-  // line (S of STEADFAST → T of STEADFAST). Pure CSS justify is unreliable
-  // with single-line text in some browsers, so we compute it.
+  // Spread the bottom wordmark line so it spans the exact width of the top
+  // line (S of STEADFAST → T of STEADFAST) by computing letter-spacing —
+  // every letter and space gets the same gap, no awkward word break.
   const fitWordmarks = () => {
     document.querySelectorAll(".brand-wordmark").forEach((wm) => {
       const top = wm.querySelector(".brand-wordmark-top");
       const bot = wm.querySelector(".brand-wordmark-bot");
       if (!top || !bot) return;
-      bot.style.transform = "";
-      bot.style.transformOrigin = "left center";
-      bot.style.display = "inline-block";
+      bot.style.letterSpacing = "0";
       const tW = top.getBoundingClientRect().width;
       const bW = bot.getBoundingClientRect().width;
-      if (tW > 0 && bW > 0) {
-        bot.style.transform = "scaleX(" + (tW / bW).toFixed(4) + ")";
+      const text = (bot.textContent || "").replace(/\s+$/, "");
+      const gaps = Math.max(text.length - 1, 1);
+      if (tW > 0 && bW > 0 && tW > bW) {
+        const extraPerGap = (tW - bW) / gaps;
+        bot.style.letterSpacing = extraPerGap.toFixed(2) + "px";
       }
     });
   };
