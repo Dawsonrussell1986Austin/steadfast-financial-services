@@ -266,17 +266,20 @@ ul { margin: 0; padding: 0; list-style: none; }
 .site-header.is-home .primary-nav ul { justify-content: center; flex-wrap: nowrap; gap: 26px; }
 .site-header.is-home .primary-nav a { white-space: nowrap; }
 .site-header.is-home .nav-cta { flex: 0 0 auto; order: 2; }
-.site-header.is-home .brand { order: 3; flex: 0 0 100%; }
 .site-header.is-home .brand {
+  order: 3;
+  flex: 0 0 100%;
   height: auto;
   gap: 22px;
   justify-content: center;
+  margin-top: 56px;
+  margin-bottom: 56px;
 }
 .site-header.is-home .brand-mark { width: 128px; height: 128px; background-size: auto 218px; }
 .site-header.is-home .brand-wordmark-top { font-size: 44px; }
 .site-header.is-home .brand-wordmark-bot { font-size: 22px; }
 /* Push the home hero content below the taller stacked header */
-body.is-home .hero { padding-top: 320px; }
+body.is-home .hero { padding-top: 420px; }
 
 /* Dropdown submenu (Resources) */
 .primary-nav .has-submenu { position: relative; }
