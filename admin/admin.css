@@ -393,22 +393,29 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
   flex: 1;
   background: #f4f1e6;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: stretch;
+  align-items: flex-start;
 }
 .content-preview-frame {
-  width: 100%;
-  height: 100%;
   border: 0;
   display: block;
   background: #fff;
-  transition: width 0.2s ease, max-width 0.2s ease;
+}
+.content-preview-frame-wrap[data-mode="desktop"] {
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.content-preview-frame-wrap[data-mode="desktop"] .content-preview-frame {
+  width: 1280px;
+  height: 3200px;
+  transform-origin: top left;
+  transform: scale(var(--preview-scale, 1));
 }
 .content-preview-frame-wrap[data-mode="mobile"] {
   padding: 18px;
-  align-items: flex-start;
 }
 .content-preview-frame-wrap[data-mode="mobile"] .content-preview-frame {
   width: 390px;

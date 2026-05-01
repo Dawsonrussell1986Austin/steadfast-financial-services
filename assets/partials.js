@@ -86,27 +86,27 @@
     <div class="footer-accent"></div>
     <div class="container footer-grid">
       <div class="footer-col">
-        <h4>Serving Central Florida &amp; Beyond</h4>
-        <p><strong>Fee-Only Financial Planning</strong><br /><strong>&amp; Investment Advisory</strong></p>
+        <h4 data-cms="footer_left_h">Serving Central Florida &amp; Beyond</h4>
+        <p data-cms="footer_left_body" data-cms-mode="br"><strong>Fee-Only Financial Planning</strong><br /><strong>&amp; Investment Advisory</strong></p>
       </div>
       <div class="footer-col footer-brand">
         <img src="${base}assets/logo-dark.svg" alt="Steadfast Financial Services" />
-        <a href="mailto:Matt@steadfastwealth.com"><strong>Matt@steadfastwealth.com</strong></a>
+        <a href="mailto:Matt@steadfastwealth.com"><strong data-cms="footer_email">Matt@steadfastwealth.com</strong></a>
       </div>
       <div class="footer-col footer-right">
-        <h4>Connect</h4>
-        <p>Office: <a href="tel:14077860092"><strong>(407) 786-0092</strong></a><br/>Fax: <strong>(407) 358-5468</strong></p>
+        <h4 data-cms="footer_right_h">Connect</h4>
+        <p>Office: <a href="tel:14077860092"><strong data-cms="footer_phone">(407) 786-0092</strong></a><br/>Fax: <strong data-cms="footer_fax">(407) 358-5468</strong></p>
       </div>
     </div>
     <div class="container footer-fine">
-      <p>Check the background of your financial professional on FINRA's BrokerCheck.</p>
-      <p class="fine-print">
+      <p data-cms="footer_brokercheck">Check the background of your financial professional on FINRA's BrokerCheck.</p>
+      <p class="fine-print" data-cms="footer_disclaimer">
         Steadfast Financial Services is a fee-only registered investment advisor. The content on this
         site is developed from sources believed to be providing accurate information and is not
         intended as tax or legal advice. Please consult legal or tax professionals for specific
         information regarding your individual situation.
       </p>
-      <p class="copy">© Copyright <span id="year"></span> Steadfast. All Rights Reserved.</p>
+      <p class="copy"><span data-cms="footer_copy">© Copyright</span> <span id="year"></span> <span data-cms="footer_copy_suffix">Steadfast. All Rights Reserved.</span></p>
     </div>
   </footer>`;
 
