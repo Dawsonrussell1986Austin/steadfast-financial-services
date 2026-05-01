@@ -267,7 +267,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   grid-column: 1 / -1;
   justify-self: center;
   height: auto;
+  gap: 22px;
 }
+.site-header.is-home .brand-mark { width: 128px; height: 128px; background-size: auto 218px; }
+.site-header.is-home .brand-wordmark-top { font-size: 44px; }
+.site-header.is-home .brand-wordmark-bot { font-size: 22px; }
 
 /* Dropdown submenu (Resources) */
 .primary-nav .has-submenu { position: relative; }
