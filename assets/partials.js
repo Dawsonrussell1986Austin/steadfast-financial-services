@@ -120,6 +120,30 @@
   if (headerMount) headerMount.outerHTML = headerHTML;
   if (footerMount) footerMount.outerHTML = footerHTML;
 
+  // Stretch the bottom wordmark line so it spans the exact width of the top
+  // line (S of STEADFAST → T of STEADFAST). Pure CSS justify is unreliable
+  // with single-line text in some browsers, so we compute it.
+  const fitWordmarks = () => {
+    document.querySelectorAll(".brand-wordmark").forEach((wm) => {
+      const top = wm.querySelector(".brand-wordmark-top");
+      const bot = wm.querySelector(".brand-wordmark-bot");
+      if (!top || !bot) return;
+      bot.style.transform = "";
+      bot.style.transformOrigin = "left center";
+      bot.style.display = "inline-block";
+      const tW = top.getBoundingClientRect().width;
+      const bW = bot.getBoundingClientRect().width;
+      if (tW > 0 && bW > 0) {
+        bot.style.transform = "scaleX(" + (tW / bW).toFixed(4) + ")";
+      }
+    });
+  };
+  fitWordmarks();
+  window.addEventListener("resize", fitWordmarks);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitWordmarks).catch(() => {});
+  }
+
   // Header scroll state
   const header = document.getElementById("siteHeader");
   const setHeaderState = () => {
