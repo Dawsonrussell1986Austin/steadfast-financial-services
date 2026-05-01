@@ -280,8 +280,18 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .site-header.is-home .brand-wordmark { align-items: center; }
 .site-header.is-home .brand-mark { width: 192px; height: 192px; background-size: auto 327px; }
-.site-header.is-home .brand-wordmark-top { font-size: 66px; }
-.site-header.is-home .brand-wordmark-bot { font-size: 33px; }
+.site-header.is-home .brand-wordmark { display: inline-flex; }
+.site-header.is-home .brand-wordmark-top {
+  font-size: 66px;
+  letter-spacing: 0.2em;
+}
+.site-header.is-home .brand-wordmark-bot {
+  font-size: 28px;
+  letter-spacing: 0.18em;
+  align-self: stretch;
+  text-align: justify;
+  text-align-last: justify;
+}
 /* Push the home hero content below the taller stacked header */
 body.is-home .hero { padding-top: 540px; }
 
@@ -872,6 +882,14 @@ body.is-home .hero { padding-top: 540px; }
 .contact-form textarea { resize: vertical; min-height: 110px; }
 .contact-form .full { margin-bottom: 26px; }
 .contact-form button { margin-top: 6px; }
+.contact-form-status {
+  margin: 14px 0 0;
+  font-size: 0.92rem;
+  min-height: 1.2em;
+  color: var(--muted);
+}
+.contact-form-status.is-success { color: var(--green-600); }
+.contact-form-status.is-error { color: #b3261e; }
 
 /* -------------------- Footer -------------------- */
 .site-footer {

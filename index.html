@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=32" />
+  <link rel="stylesheet" href="styles.css?v=33" />
 </head>
 <body data-base="">
   <div id="site-header-mount"></div>
@@ -140,18 +140,18 @@
         <h2 class="display">Institutional Resources.<br/>Personal Service.</h2>
         <p>
           Partnering with Raymond James as custodian affords Steadfast complete freedom to serve you
-          how we see best, backed by the stability, support, and institutional strength of a premier
-          financial services firm. Raymond James values clients first, acts with integrity, values
-          independence, and thinks long‑term. Reasons for confidence:
+          how we see best and back us with the stability, support, and institutional strength of a
+          premier financial services firm. Raymond James values clients first, acting with
+          integrity, value independence, and thinking long‑term. Reasons for confidence:
         </p>
         <ul class="feature-list">
-          <li>Independence and strength</li>
-          <li>Financial stability</li>
-          <li>Strong compliance and cyber security</li>
+          <li>Independence and Strength</li>
+          <li>Financial Stability</li>
+          <li>Strong Compliance and Cyber Security</li>
           <li>Advanced portfolio reporting tools</li>
           <li>Secure online account access</li>
           <li>Broad investment access</li>
-          <li>Institutional fund access, so lower fees</li>
+          <li>Provides institutional fund access, so lower fees</li>
         </ul>
         <a href="https://clientaccess.rjf.com/" target="_blank" rel="noopener" class="btn btn-outline">Client Login <span aria-hidden="true">→</span></a>
       </div>
@@ -274,7 +274,7 @@
           </li>
         </ul>
       </div>
-      <form class="contact-form" onsubmit="event.preventDefault(); alert('Thanks! We\'ll be in touch.');">
+      <form class="contact-form" data-contact-form data-source="home">
         <div class="form-row">
           <label>
             <span>Name</span>
@@ -290,12 +290,13 @@
           <textarea name="message" rows="4" required></textarea>
         </label>
         <button type="submit" class="btn btn-primary">Send <span aria-hidden="true">→</span></button>
+        <p class="contact-form-status" data-contact-status></p>
       </form>
     </div>
   </section>
 
   <div id="site-footer-mount"></div>
-  <script src="assets/partials.js?v=11"></script>
-  <script src="assets/cms.js?v=4"></script>
+  <script src="assets/partials.js?v=12"></script>
+  <script src="assets/cms.js?v=5"></script>
 </body>
 </html>

@@ -24,6 +24,7 @@
         <button class="admin-tab is-active" data-panel="articles">Articles</button>
         <button class="admin-tab" data-panel="team">Team</button>
         <button class="admin-tab" data-panel="content">Site Content</button>
+        <button class="admin-tab" data-panel="messages">Messages</button>
         <button class="admin-tab" data-panel="links">Client Links</button>
         <button class="admin-tab" data-panel="images">Images</button>
         <button class="admin-tab" data-panel="compliance">Compliance</button>
@@ -140,6 +141,16 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- ═══════ MESSAGES ═══════ -->
+    <section class="panel" id="panel-messages" style="display:none;">
+      <div class="panel-header">
+        <h2>Contact Form Messages</h2>
+        <button class="btn-admin" id="btnRefreshMessages">Refresh</button>
+      </div>
+      <p class="panel-desc">Submissions from the contact forms on the home and Contact Us pages.</p>
+      <div id="messagesList" class="messages-list"></div>
     </section>
 
     <!-- ═══════ CLIENT LINKS ═══════ -->
