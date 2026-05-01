@@ -56,6 +56,7 @@
       .join("");
 
   const homeClass = CURRENT === "home" ? " is-home" : "";
+  if (CURRENT === "home") document.body.classList.add("is-home");
 
   const headerHTML = `
   <header class="site-header${homeClass}" id="siteHeader">
