@@ -55,8 +55,10 @@
       })
       .join("");
 
+  const homeClass = CURRENT === "home" ? " is-home" : "";
+
   const headerHTML = `
-  <header class="site-header" id="siteHeader">
+  <header class="site-header${homeClass}" id="siteHeader">
     <div class="nav-container">
       <a href="${base}index.html" class="brand" aria-label="Steadfast Financial Services home">
         <span class="brand-mark brand-mark-light" aria-hidden="true"></span>
