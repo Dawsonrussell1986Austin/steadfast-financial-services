@@ -405,6 +405,14 @@ const CONTENT_KEYS = [
   { key: "contact_fax",          label: "Fax Line",                       page: "Contact",
     default: "Fax: (407) 358-5468" },
 
+  // ── Disclosures ────────────────────────────────────────────
+  { key: "disc_hero_h1",         label: "Hero Headline",                  page: "Disclosures",
+    default: "Disclosures" },
+  { key: "disc_hero_sub",        label: "Hero Subtext",                   page: "Disclosures",
+    default: "Disclosure statements and registration information for Steadfast Financial Services." },
+  { key: "disc_body",            label: "Disclosure Statements",          page: "Disclosures",
+    default: "This website is a publication of Steadfast Financial Services, Inc. The firm is registered as an investment adviser with the state of Florida and only conducts business in states where it is properly registered or is excluded from registration requirements. Registration is not an endorsement of the firm by securities regulators and does not mean the adviser has achieved a specific level of skill or ability. The firm is not engaged in the practice of law.\n\nContent should not be viewed as personalized investment advice. All expressions of opinion reflect the judgment of the authors on the date of publication and may change in response to market conditions. You should consult with a professional advisor before implementing any strategies discussed. Content should not be viewed as an offer to buy or sell any of the securities mentioned or as legal or tax advice. You should always consult an attorney or tax professional regarding your specific legal or tax situation.\n\nHyperlinks on this website are provided as a convenience. We cannot be held responsible for information, services or products found on websites linked to ours.\n\nAll investments have the potential for profit or loss. Different types of investments involve higher and lower levels of risk. There is no guarantee that a specific investment or strategy will be suitable or profitable for an investor's portfolio. There are no assurances that a portfolio will match or exceed any particular benchmark. Asset allocation and diversification will not necessarily improve an investor's returns and cannot eliminate the risk of investment losses." },
+
   // ── Footer ─────────────────────────────────────────────────
   { key: "footer_left_h",        label: "Left Column — Heading",          page: "Footer",
     default: "Serving since 1998" },
@@ -428,7 +436,7 @@ const CONTENT_KEYS = [
     default: "Steadfast. All Rights Reserved." },
 ];
 
-const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People", "Contact", "Footer"];
+const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People", "Contact", "Disclosures", "Footer"];
 
 const contentFields = document.getElementById("contentFields");
 const contentSidebar = document.getElementById("contentSidebar");
@@ -443,6 +451,7 @@ const PAGE_URL = {
   "Investment Management": "/investment-management.html",
   "Our People": "/our-people.html",
   "Contact": "/contact-us.html",
+  "Disclosures": "/disclosures.html",
   "Footer": "/index.html#footer",
 };
 
