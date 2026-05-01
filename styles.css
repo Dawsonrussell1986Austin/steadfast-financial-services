@@ -239,6 +239,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: justify;
   text-align-last: justify;
 }
+.brand-wordmark-top { display: block; }
 .site-header.is-scrolled .brand-wordmark {
   color: var(--green-900);
   text-shadow: none;
