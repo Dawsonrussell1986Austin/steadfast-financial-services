@@ -132,9 +132,13 @@
         <div class="content-preview" aria-label="Page preview">
           <div class="content-preview-bar">
             <span class="content-preview-label" id="contentPreviewLabel">Live preview</span>
+            <div class="content-preview-toggle" role="group" aria-label="Preview viewport">
+              <button type="button" class="content-preview-mode is-active" data-mode="desktop">Desktop</button>
+              <button type="button" class="content-preview-mode" data-mode="mobile">Mobile</button>
+            </div>
             <button type="button" class="btn-admin content-preview-refresh" id="contentPreviewRefresh" title="Reload preview">Reload</button>
           </div>
-          <div class="content-preview-frame-wrap">
+          <div class="content-preview-frame-wrap" id="contentPreviewFrameWrap" data-mode="desktop">
             <iframe id="contentPreviewFrame" class="content-preview-frame" title="Live page preview" loading="lazy"></iframe>
           </div>
         </div>

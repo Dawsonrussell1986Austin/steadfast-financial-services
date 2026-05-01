@@ -307,20 +307,85 @@ teamForm.addEventListener("submit", async (e) => {
 //  SITE CONTENT
 // ═══════════════════════════════════════════════════════════════
 const CONTENT_KEYS = [
-  { key: "hero_headline",      label: "Hero Headline",        page: "Home" },
-  { key: "hero_subtext",       label: "Hero Subtext",         page: "Home" },
-  { key: "whatwedo_headline",  label: "What We Do Headline",  page: "Home" },
-  { key: "whatwedo_body",      label: "What We Do Body",      page: "Home" },
-  { key: "whoweare_headline",  label: "Who We Are Headline",  page: "Home" },
-  { key: "whoweare_body",      label: "Who We Are Body",      page: "Home" },
-  { key: "values_headline",    label: "Values Headline",      page: "Home" },
-  { key: "values_body",        label: "Values Subtext",       page: "Home" },
-  { key: "contact_headline",   label: "Contact Headline",     page: "Home" },
-  { key: "contact_body",       label: "Contact Body",         page: "Home" },
-  { key: "fp_lede",            label: "Intro",                page: "Financial Planning" },
-  { key: "im_lede",            label: "Intro",                page: "Investment Management" },
-  { key: "team_headline",      label: "Team Headline",        page: "Our People" },
-  { key: "team_body",          label: "Team Body",            page: "Our People" },
+  // ── Home ───────────────────────────────────────────────────
+  { key: "hero_headline",        label: "Hero Headline",                  page: "Home",
+    default: "A Steady Hand For Your Financial Journey" },
+  { key: "hero_eyebrow",         label: "Hero Eyebrow",                   page: "Home",
+    default: "SINCE 1998 · FEE-ONLY FIDUCIARY" },
+  { key: "hero_subtext",         label: "Hero Subtext",                   page: "Home",
+    default: "Financial resources aren't an end in themselves — they're a tool for accomplishing goals. Through thoughtful planning and disciplined investment management, we chart a steady course toward lasting financial peace of mind." },
+  { key: "whatwedo_eyebrow",     label: "What We Do — Eyebrow",           page: "Home",
+    default: "WHAT WE DO" },
+  { key: "whatwedo_headline",    label: "What We Do — Headline",          page: "Home",
+    default: "Built Around You.\nBacked By Experience." },
+  { key: "whatwedo_body",        label: "What We Do — Body",              page: "Home",
+    default: "We deliver comprehensive, tax-aware financial planning and disciplined investment management — whether as a comprehensive financial plan or an investment management engagement. Our advice and counsel is driven by your priorities, and applied uniquely to you.\n\nSince 1998, we've partnered with individuals, business owners, foundations, and families who rely on us for wise, independent financial counsel — one rooted in close relationships, low client-to-advisor ratios, and a steady, personal level of service you can count on for the long term." },
+  { key: "howwehelp_headline",   label: "How We Help — Headline",         page: "Home",
+    default: "Comprehensive Services\nAligned With Your Goals" },
+  { key: "howwehelp_lead",       label: "How We Help — Lead",             page: "Home",
+    default: "Whether you're building wealth, raising a family, or moving confidently into retirement, our services are designed to help you pursue your financial objectives through disciplined investment management and thorough planning." },
+  { key: "whoweare_headline",    label: "Who We Are — Headline",          page: "Home",
+    default: "Built On Trust.\nFocused On Results." },
+  { key: "whoweare_body",        label: "Who We Are — Body",              page: "Home",
+    default: "Your relationship with your advisor should be built on trust and transparency. We combine personalized service with deep investment expertise so you feel confident in both our approach and our commitment to your long-term success.\n\nFounded in 1998 and now led by Matthew McGahey, CFP®, ChFC®, RICP®, CKA®, Steadfast has served families and individuals across Central Florida and beyond — offering independent, fee-only counsel you can rely on through every stage of life." },
+  { key: "values_headline",      label: "Values — Headline",              page: "Home",
+    default: "The Principles That Guide Our Work" },
+  { key: "values_body",          label: "Values — Subtext",               page: "Home",
+    default: "Our philosophy is simple: everyone deserves access to advanced planning and disciplined investment strategies. We're committed to hard-working families who value a partnership approach to wealth management." },
+  { key: "contact_headline",     label: "Contact — Headline",             page: "Home",
+    default: "Ready To See What\nSteady Guidance Can Do?" },
+  { key: "contact_body",         label: "Contact — Body",                 page: "Home",
+    default: "Your financial journey deserves a trusted partner. Through fee-only planning and disciplined investment management, we'll help you pursue your goals with clarity and confidence. Contact us today to discuss how our approach could work for your unique situation." },
+
+  // ── Financial Planning ─────────────────────────────────────
+  { key: "fp_hero_h1",           label: "Hero Headline",                  page: "Financial Planning",
+    default: "Financial Planning" },
+  { key: "fp_hero_sub",          label: "Hero Subtext",                   page: "Financial Planning",
+    default: "Comprehensive guidance through every major planning area — so your resources work toward the goals that matter most." },
+  { key: "fp_lede",              label: "Approach Intro",                 page: "Financial Planning",
+    default: "For financial planning clients, we offer comprehensive coverage of all major areas of financial planning. We collaborate throughout the process by presenting multiple alternatives and educating you on tax code changes, risk management, and the decisions you face at each stage of life. For married couples, active participation from both spouses is strongly encouraged." },
+  { key: "fp_included_h2",       label: "What's Included — Headline",     page: "Financial Planning",
+    default: "All Major Planning Areas,\nUnder One Trusted Roof" },
+  { key: "fp_included_body",     label: "What's Included — Body",         page: "Financial Planning",
+    default: "Our planning engagements cover the full picture — from goal setting and cash flow to survivor needs and estate planning — so nothing important falls through the cracks." },
+  { key: "fp_included_list",     label: "What's Included — List (one per line)", page: "Financial Planning",
+    default: "Goal setting and decision making\nNet worth review & comparative analysis\nRetirement planning\nIncome tax projections & planning\nCash flow projections\nEstate tax planning\nSurvivor needs analysis\nInvestment analysis & recommendations\nGift planning\nCollege education planning" },
+  { key: "fp_process_h2",        label: "How We Work — Headline",         page: "Financial Planning",
+    default: "A Collaborative,\nTransparent Process" },
+  { key: "fp_process_lead",      label: "How We Work — Lead",             page: "Financial Planning",
+    default: "Planning is a conversation — not a transaction. We believe clarity comes from an open dialogue about your full financial picture, education, considering the alternatives, making a plan, and updating it along the way." },
+  { key: "fp_pricing_h2",        label: "Pricing — Headline",             page: "Financial Planning",
+    default: "Time- & Complexity-Based,\nNever Commission-Based" },
+  { key: "fp_pricing_body",      label: "Pricing — Body",                 page: "Financial Planning",
+    default: "Because we are a fee-only fiduciary, your fees are transparent and tied to the scope of work — not to product sales. You can choose a single comprehensive engagement or ongoing annual planning with yearly revisions.\n\nEither way, you know exactly what you're paying for. We always work in your best interest — no hidden commissions." },
+
+  // ── Investment Management ──────────────────────────────────
+  { key: "im_hero_h1",           label: "Hero Headline",                  page: "Investment Management",
+    default: "Investment Management" },
+  { key: "im_hero_sub",          label: "Hero Subtext",                   page: "Investment Management",
+    default: "A disciplined process that begins with an analysis of your goals and risk tolerance — and stays focused on the long term." },
+  { key: "im_lede",              label: "Philosophy Intro",               page: "Investment Management",
+    default: "Steadfast uses primarily no-load mutual funds and ETFs selected through rigorous research to identify fund managers with sustainable competitive advantages. Our portfolio allocation strategy combines diversified asset classes suited to each client's timeframe and risk tolerance, grounded in modern portfolio theory principles. We avoid attempts at market timing, but periodically adjust model portfolios tactically when market segments appear meaningfully overvalued or undervalued." },
+  { key: "im_invest_h2",         label: "How We Invest — Headline",       page: "Investment Management",
+    default: "Disciplined Process,\nPersonalized Portfolios" },
+  { key: "im_invest_list",       label: "How We Invest — List (one per line)", page: "Investment Management",
+    default: "Goals & risk-tolerance analysis\nDiversified asset allocation\nLong-term perspective\nNo-load mutual funds & ETFs\nRigorous manager research\nModern portfolio theory principles\nPeriodic tactical adjustments\nQuarterly performance reporting\nOnline client access" },
+  { key: "im_fees_h2",           label: "Fees — Headline",                page: "Investment Management",
+    default: "Transparent,\nTiered Pricing" },
+  { key: "im_fees_lead",         label: "Fees — Lead",                    page: "Investment Management",
+    default: "Straightforward, asset-based fees that decrease as your portfolio grows — aligned with your long-term success and never tied to product commissions." },
+  { key: "im_fees_footnote",     label: "Fees — Reporting Note",          page: "Investment Management",
+    default: "Quarterly reports display holdings and performance versus relevant benchmarks. Clients can request reporting on unmanaged assets and online access for frequent investment monitoring." },
+
+  // ── Our People ─────────────────────────────────────────────
+  { key: "op_hero_h1",           label: "Hero Headline",                  page: "Our People",
+    default: "Our People" },
+  { key: "op_hero_sub",          label: "Hero Subtext",                   page: "Our People",
+    default: "Advisors who measure success by the relationships they build and the lives they impact." },
+  { key: "team_headline",        label: "Team — Headline",                page: "Our People",
+    default: "Built By Experience,\nDriven By Service" },
+  { key: "team_body",            label: "Team — Body",                    page: "Our People",
+    default: "Since 1998, Steadfast has been led by advisors who value deep client relationships, lifelong learning, and the privilege of stewarding other people's resources well." },
 ];
 
 const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People"];
@@ -376,6 +441,17 @@ if (contentPreviewRefresh && contentPreviewFrame) {
   contentPreviewRefresh.addEventListener("click", () => setContentPreview(activeContentPage));
 }
 
+const contentPreviewWrap = document.getElementById("contentPreviewFrameWrap");
+document.querySelectorAll(".content-preview-mode").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const mode = btn.dataset.mode;
+    document.querySelectorAll(".content-preview-mode").forEach((b) => {
+      b.classList.toggle("is-active", b === btn);
+    });
+    if (contentPreviewWrap) contentPreviewWrap.setAttribute("data-mode", mode);
+  });
+});
+
 window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "steadfast:preview-ready") {
     postDraftToPreview();
@@ -429,13 +505,15 @@ async function loadContent() {
   contentFields.innerHTML = activePages
     .map((page) => {
       const fields = byPage[page]
-        .map(
-          (k) => `
+        .map((k) => {
+          const value = map[k.key] != null && map[k.key] !== "" ? map[k.key] : (k.default || "");
+          const rows = Math.max(2, Math.min(8, Math.ceil((value || "").length / 90) + 1));
+          return `
             <div class="content-field">
               <label>${escapeHtml(k.label)}</label>
-              <textarea data-key="${k.key}" rows="3">${escapeHtml(map[k.key] || "")}</textarea>
-            </div>`
-        )
+              <textarea data-key="${k.key}" rows="${rows}">${escapeHtml(value)}</textarea>
+            </div>`;
+        })
         .join("");
       const visibleCls = page === activeContentPage ? " is-visible" : "";
       return `
@@ -863,7 +941,7 @@ async function publish() {
       const detail = result.error || raw.slice(0, 300) || r.statusText;
       throw new Error("HTTP " + r.status + " — " + detail);
     }
-    toast("Published! Vercel will redeploy in a moment.", "success");
+    toast("Published! Site will update shortly.", "success");
     label.textContent = "Publish";
   } catch (err) {
     console.error("[publish]", err);
