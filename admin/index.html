@@ -114,8 +114,11 @@
         <h2>Site Content</h2>
         <button class="btn-admin btn-primary" id="btnSaveContent">Save All Changes</button>
       </div>
-      <p class="panel-desc">Edit text content across the site. Changes are saved to a data file and can be loaded dynamically.</p>
-      <div id="contentFields" class="content-editor"></div>
+      <p class="panel-desc">Edit text content across the site. Pick a page on the left to focus on its fields.</p>
+      <div class="content-layout">
+        <aside class="content-sidebar" id="contentSidebar" aria-label="Pages"></aside>
+        <div id="contentFields" class="content-editor"></div>
+      </div>
     </section>
 
     <!-- ═══════ IMAGES ═══════ -->

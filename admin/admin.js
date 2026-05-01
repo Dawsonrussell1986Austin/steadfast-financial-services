@@ -273,6 +273,33 @@ const CONTENT_KEYS = [
 const PAGE_ORDER = ["Home", "Financial Planning", "Investment Management", "Our People"];
 
 const contentFields = document.getElementById("contentFields");
+const contentSidebar = document.getElementById("contentSidebar");
+let activeContentPage = PAGE_ORDER[0];
+
+function pageSlug(page) {
+  return page.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function renderContentSidebar(activePages) {
+  if (!contentSidebar) return;
+  contentSidebar.innerHTML = activePages
+    .map((page) => {
+      const cls = page === activeContentPage ? "content-page-link is-active" : "content-page-link";
+      return `<button type="button" class="${cls}" data-page="${escapeHtml(page)}">${escapeHtml(page)}</button>`;
+    })
+    .join("");
+  contentSidebar.querySelectorAll(".content-page-link").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeContentPage = btn.dataset.page;
+      contentSidebar.querySelectorAll(".content-page-link").forEach((b) => {
+        b.classList.toggle("is-active", b.dataset.page === activeContentPage);
+      });
+      contentFields.querySelectorAll(".content-page-group").forEach((sec) => {
+        sec.classList.toggle("is-visible", sec.dataset.page === activeContentPage);
+      });
+    });
+  });
+}
 
 async function loadContent() {
   const { data, error } = await supabase.from("site_content").select("key, value");
@@ -284,8 +311,10 @@ async function loadContent() {
     return acc;
   }, {});
 
-  contentFields.innerHTML = PAGE_ORDER
-    .filter((page) => byPage[page] && byPage[page].length)
+  const activePages = PAGE_ORDER.filter((page) => byPage[page] && byPage[page].length);
+  if (!activePages.includes(activeContentPage)) activeContentPage = activePages[0];
+
+  contentFields.innerHTML = activePages
     .map((page) => {
       const fields = byPage[page]
         .map(
@@ -296,13 +325,16 @@ async function loadContent() {
             </div>`
         )
         .join("");
+      const visibleCls = page === activeContentPage ? " is-visible" : "";
       return `
-        <section class="content-page-group">
+        <section class="content-page-group${visibleCls}" data-page="${escapeHtml(page)}">
           <h3 class="content-page-title">${escapeHtml(page)}</h3>
           <div class="content-page-fields">${fields}</div>
         </section>`;
     })
     .join("");
+
+  renderContentSidebar(activePages);
 }
 
 document.getElementById("btnSaveContent").addEventListener("click", async () => {
