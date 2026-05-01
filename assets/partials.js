@@ -121,25 +121,26 @@
   if (footerMount) footerMount.outerHTML = footerHTML;
 
   // Spread the bottom wordmark line so it spans the exact width of the top
-  // line (S of STEADFAST → T of STEADFAST) by computing letter-spacing —
-  // every letter and space gets the same gap, no awkward word break.
+  // line (S of STEADFAST → T of STEADFAST). CSS has a sensible default
+  // letter-spacing for both nav sizes; this fine-tunes pixel-perfect once
+  // layout (and webfonts) settle.
   const fitWordmarks = () => {
     document.querySelectorAll(".brand-wordmark").forEach((wm) => {
       const top = wm.querySelector(".brand-wordmark-top");
       const bot = wm.querySelector(".brand-wordmark-bot");
       if (!top || !bot) return;
-      bot.style.letterSpacing = "0";
+      bot.style.letterSpacing = "0px";
+      bot.style.transform = "";
       const tW = top.getBoundingClientRect().width;
       const bW = bot.getBoundingClientRect().width;
-      const text = (bot.textContent || "").replace(/\s+$/, "");
+      const text = (bot.textContent || "").replace(/\s+/g, " ").trim();
       const gaps = Math.max(text.length - 1, 1);
-      if (tW > 0 && bW > 0 && tW > bW) {
-        const extraPerGap = (tW - bW) / gaps;
-        bot.style.letterSpacing = extraPerGap.toFixed(2) + "px";
+      if (tW > 4 && bW > 4 && tW > bW) {
+        bot.style.letterSpacing = ((tW - bW) / gaps).toFixed(2) + "px";
       }
     });
   };
-  fitWordmarks();
+  requestAnimationFrame(() => requestAnimationFrame(fitWordmarks));
   window.addEventListener("resize", fitWordmarks);
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(fitWordmarks).catch(() => {});
