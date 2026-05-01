@@ -1317,6 +1317,17 @@ body.is-home .hero { padding-top: 540px; }
   .site-header.is-home .nav-container { display: flex; grid-template-columns: none; }
   .nav-cta { justify-content: flex-end; }
   .brand-wordmark { display: none; }
+  /* Mobile home brand: keep the wordmark and shrink the lockup so it fits */
+  .site-header.is-home .brand-wordmark { display: inline-flex; }
+  .site-header.is-home .brand-mark {
+    width: 96px;
+    height: 96px;
+    background-size: auto 164px;
+  }
+  .site-header.is-home .brand-wordmark-top { font-size: 30px; letter-spacing: 0.18em; }
+  .site-header.is-home .brand-wordmark-bot { font-size: 12px; letter-spacing: 0.16em; }
+  .site-header.is-home .brand { margin-top: 24px; margin-bottom: 16px; gap: 10px; }
+  body.is-home .hero { padding-top: 300px; }
   .primary-nav {
     position: fixed;
     top: var(--nav-h);
