@@ -11,8 +11,9 @@
       "includeFiles": "{*.html,assets/partials.js}"
     },
     "api/compliance/screenshot.js": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 300,
+      "memory": 2048,
+      "includeFiles": "node_modules/@sparticuz/chromium/bin/**"
     }
   },
   "rewrites": [

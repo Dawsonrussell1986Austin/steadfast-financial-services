@@ -43,8 +43,26 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
   font-weight: 600;
   font-size: 15px;
   white-space: nowrap;
+  color: #fff;
+  text-decoration: none;
 }
-.admin-logo { height: 36px; width: auto; }
+.admin-brand:hover { opacity: 0.92; }
+.admin-logo { height: 44px; width: auto; }
+.admin-brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.admin-brand-name {
+  font-family: var(--ff-serif, Georgia, serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.admin-brand-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
 .admin-nav {
   display: flex;
   gap: 4px;
@@ -131,19 +149,23 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 20px 24px;
-  display: flex;
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   transition: box-shadow 0.2s;
 }
 .list-card:hover { box-shadow: 0 4px 16px rgba(11,58,42,0.08); }
-.list-card-body { flex: 1; min-width: 0; }
+.list-card-body { min-width: 0; }
 .list-card-body h4 {
   font-size: 1rem;
   font-weight: 600;
   color: var(--green-900);
   margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .list-card-body p {
   font-size: 0.88rem;
@@ -151,6 +173,7 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
 }
 .list-card-meta {
   font-size: 0.8rem;
@@ -160,6 +183,15 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
 .list-card-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
+}
+@media (max-width: 720px) {
+  .list-card {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+  .list-card-meta { order: 1; }
+  .list-card-actions { order: 2; }
 }
 .card-badge {
   display: inline-block;
@@ -505,6 +537,40 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
   min-height: 20px;
 }
 .status-msg.error { color: var(--danger); }
+.capture-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+.capture-list li { padding: 4px 0; }
+
+/* ── Image upload widget ── */
+.image-upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+}
+.image-upload input[type="text"] { flex: 1 1 220px; }
+.image-upload-status {
+  font-size: 0.82rem;
+  color: var(--green-600);
+}
+.image-upload-status.error { color: var(--danger); }
+.image-upload-preview {
+  margin-top: 10px;
+}
+.image-upload-preview img {
+  max-width: 240px;
+  max-height: 160px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  display: block;
+}
 
 /* Log Table */
 .log-table {

@@ -64,9 +64,26 @@ async function run(req, res) {
   if (userErr || !userResult?.user) return res.status(401).json({ error: "Invalid session" });
   const user = userResult.user;
 
-  // ── 2. Resolve the URL to screenshot ────────────────────────
-  const rawPage = (req.body?.page ?? "/").trim() || "/";
-  const pagePath = rawPage.startsWith("/") ? rawPage : "/" + rawPage;
+  // ── 2. Resolve the URLs to screenshot ───────────────────────
+  const DEFAULT_PAGES = [
+    "/",
+    "/financial-planning",
+    "/investment-management",
+    "/our-people",
+    "/resources",
+    "/articles",
+    "/links",
+    "/contact-us",
+  ];
+  const requested = Array.isArray(req.body?.pages) && req.body.pages.length
+    ? req.body.pages
+    : req.body?.page
+    ? [req.body.page]
+    : DEFAULT_PAGES;
+  const pagePaths = requested.map((p) => {
+    const s = String(p || "/").trim() || "/";
+    return s.startsWith("/") ? s : "/" + s;
+  });
   const baseUrl =
     process.env.SCREENSHOT_BASE_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
@@ -75,11 +92,16 @@ async function run(req, res) {
       error: "No base URL available. Set SCREENSHOT_BASE_URL or deploy on Vercel.",
     });
   }
-  const targetUrl = baseUrl.replace(/\/$/, "") + pagePath;
+  const cleanBase = baseUrl.replace(/\/$/, "");
 
-  // ── 3. Launch Chromium + capture ────────────────────────────
+  // ── 3. Launch Chromium once + capture each page ─────────────
+  const now = new Date();
+  const yyyy = now.getUTCFullYear();
+  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const runId = now.getTime();
+  const captures = [];
+
   let browser;
-  let buffer;
   try {
     browser = await puppeteer.launch({
       args: chromium.args,
@@ -87,50 +109,65 @@ async function run(req, res) {
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
     });
-    const page = await browser.newPage();
-    await page.goto(targetUrl, { waitUntil: "networkidle2", timeout: 25000 });
-    buffer = await page.screenshot({ fullPage: true, type: "png" });
+    for (const pagePath of pagePaths) {
+      const targetUrl = cleanBase + pagePath;
+      const page = await browser.newPage();
+      try {
+        await page.goto(targetUrl, { waitUntil: "networkidle2", timeout: 25000 });
+        const buffer = await page.screenshot({ fullPage: true, type: "png" });
+        const slug = pagePath.replace(/[^a-z0-9]/gi, "-").replace(/^-+|-+$/g, "") || "home";
+        const filename = `archive-${runId}-${slug}.png`;
+        const objectPath = `${yyyy}/${mm}/${runId}/${filename}`;
+        const up = await admin.storage.from(BUCKET).upload(objectPath, buffer, {
+          contentType: "image/png",
+          upsert: false,
+        });
+        if (up.error) throw new Error(up.error.message);
+        const signed = await admin.storage.from(BUCKET).createSignedUrl(objectPath, SIGNED_URL_TTL_SECONDS);
+        captures.push({
+          page: pagePath,
+          target_url: targetUrl,
+          file: filename,
+          path: objectPath,
+          signedUrl: signed.data?.signedUrl || null,
+          ok: true,
+        });
+      } catch (err) {
+        captures.push({
+          page: pagePath,
+          target_url: targetUrl,
+          ok: false,
+          error: err?.message || String(err),
+        });
+      } finally {
+        await page.close().catch(() => {});
+      }
+    }
   } catch (err) {
     if (browser) await browser.close().catch(() => {});
     return res.status(500).json({ error: "Capture failed: " + (err.message || String(err)) });
   }
   await browser.close().catch(() => {});
 
-  // ── 4. Upload to Supabase Storage ───────────────────────────
-  const now = new Date();
-  const yyyy = now.getUTCFullYear();
-  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const slug = pagePath.replace(/[^a-z0-9]/gi, "-").replace(/^-+|-+$/g, "") || "home";
-  const filename = `screenshot-${slug}-${now.getTime()}.png`;
-  const objectPath = `${yyyy}/${mm}/${filename}`;
-
-  const up = await admin.storage.from(BUCKET).upload(objectPath, buffer, {
-    contentType: "image/png",
-    upsert: false,
-  });
-  if (up.error) {
-    return res.status(500).json({ error: "Storage upload failed: " + up.error.message });
-  }
-
-  const signed = await admin.storage.from(BUCKET).createSignedUrl(objectPath, SIGNED_URL_TTL_SECONDS);
-  const signedUrl = signed.data?.signedUrl || null;
-
-  // ── 5. Audit log ────────────────────────────────────────────
+  // ── 4. Audit log ────────────────────────────────────────────
+  const ok = captures.filter((c) => c.ok);
+  const failed = captures.filter((c) => !c.ok);
   await admin.from("compliance_log").insert({
-    action: "screenshot_taken",
+    action: "screenshot_archive",
     detail: {
-      page: pagePath,
-      target_url: targetUrl,
+      run_id: runId,
+      pages_captured: ok.map((c) => c.page),
+      pages_failed: failed.map((c) => ({ page: c.page, error: c.error })),
       bucket: BUCKET,
-      path: objectPath,
+      base_url: cleanBase,
       by: user.email || user.id,
     },
   });
 
   return res.status(200).json({
-    file: filename,
-    path: objectPath,
-    signedUrl,
-    targetUrl,
+    runId,
+    captures,
+    okCount: ok.length,
+    failCount: failed.length,
   });
 }
