@@ -102,6 +102,8 @@ async function editArticle(id) {
   document.getElementById("artImage").value = a.image || "";
   document.getElementById("artLink").value = a.link || "";
   document.getElementById("articleModalTitle").textContent = "Edit Article";
+  if (artImageStatusEl) artImageStatusEl.textContent = "";
+  renderArtImagePreview();
   articleModal.classList.add("is-open");
 }
 
@@ -118,6 +120,8 @@ document.getElementById("btnNewArticle").addEventListener("click", () => {
   document.getElementById("artId").value = "";
   document.getElementById("artDate").value = new Date().toISOString().slice(0, 10);
   document.getElementById("articleModalTitle").textContent = "New Article";
+  if (artImageStatusEl) artImageStatusEl.textContent = "";
+  renderArtImagePreview();
   articleModal.classList.add("is-open");
 });
 
@@ -127,6 +131,55 @@ document.getElementById("articleModalClose").addEventListener("click", () =>
 document.getElementById("articleModalCancel").addEventListener("click", () =>
   articleModal.classList.remove("is-open")
 );
+
+const artImageEl = document.getElementById("artImage");
+const artImageFileEl = document.getElementById("artImageFile");
+const artImageUploadBtn = document.getElementById("artImageUploadBtn");
+const artImageStatusEl = document.getElementById("artImageStatus");
+const artImagePreviewEl = document.getElementById("artImagePreview");
+
+function renderArtImagePreview() {
+  if (!artImagePreviewEl) return;
+  const url = artImageEl.value.trim();
+  artImagePreviewEl.innerHTML = url
+    ? `<img src="${escapeHtml(url)}" alt="Article image preview" />`
+    : "";
+}
+artImageEl.addEventListener("input", renderArtImagePreview);
+
+if (artImageUploadBtn && artImageFileEl) {
+  artImageUploadBtn.addEventListener("click", () => artImageFileEl.click());
+  artImageFileEl.addEventListener("change", async () => {
+    const file = artImageFileEl.files[0];
+    if (!file) return;
+    artImageStatusEl.textContent = "Uploading…";
+    artImageStatusEl.className = "image-upload-status";
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const safe = file.name.replace(/\.[^.]+$/, "").replace(/[^a-z0-9-_]/gi, "-").toLowerCase().slice(0, 60);
+      const now = new Date();
+      const objectPath =
+        "articles/" +
+        now.getUTCFullYear() + "/" +
+        String(now.getUTCMonth() + 1).padStart(2, "0") + "/" +
+        safe + "-" + now.getTime() + "." + ext;
+      const up = await supabase.storage.from("site-images").upload(objectPath, file, {
+        contentType: file.type || "image/" + ext,
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      const { data: pub } = supabase.storage.from("site-images").getPublicUrl(objectPath);
+      artImageEl.value = pub.publicUrl;
+      renderArtImagePreview();
+      artImageStatusEl.textContent = "Uploaded";
+    } catch (err) {
+      artImageStatusEl.textContent = "Failed: " + (err.message || err);
+      artImageStatusEl.className = "image-upload-status error";
+    } finally {
+      artImageFileEl.value = "";
+    }
+  });
+}
 
 articleForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -675,10 +728,10 @@ async function loadCompliance() {
 const screenshotBtn = document.getElementById("btnScreenshot");
 if (screenshotBtn) {
   screenshotBtn.addEventListener("click", async () => {
-    const page = document.getElementById("screenshotPage").value;
     const status = document.getElementById("screenshotStatus");
-    status.textContent = "Capturing… (first shot takes ~20s while Chromium warms up)";
+    status.textContent = "Capturing every page… this takes about a minute.";
     status.className = "status-msg";
+    screenshotBtn.disabled = true;
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess.session?.access_token;
@@ -689,17 +742,27 @@ if (screenshotBtn) {
           "Content-Type": "application/json",
           Authorization: "Bearer " + token,
         },
-        body: JSON.stringify({ page }),
+        body: JSON.stringify({}),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "HTTP " + r.status);
+      const lines = (data.captures || []).map((c) => {
+        if (c.ok) {
+          return '<li><a href="' + c.signedUrl + '" target="_blank" rel="noopener">' +
+            escapeHtml(c.page) + "</a></li>";
+        }
+        return '<li class="status-msg error">' + escapeHtml(c.page) + " — " +
+          escapeHtml(c.error || "failed") + "</li>";
+      }).join("");
       status.innerHTML =
-        'Screenshot saved: <a href="' + data.signedUrl + '" target="_blank" rel="noopener">' +
-        escapeHtml(data.file) + "</a>";
+        "Captured " + data.okCount + " of " + (data.okCount + data.failCount) +
+        " pages.<ul class=\"capture-list\">" + lines + "</ul>";
       loadCompliance();
     } catch (err) {
       status.textContent = "Failed: " + (err.message || err);
       status.className = "status-msg error";
+    } finally {
+      screenshotBtn.disabled = false;
     }
   });
 }

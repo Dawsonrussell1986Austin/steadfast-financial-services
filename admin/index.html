@@ -13,10 +13,13 @@
 <body>
   <header class="admin-header">
     <div class="admin-header-inner">
-      <div class="admin-brand">
-        <img src="/assets/logo-dark.svg" alt="Steadfast" class="admin-logo" />
-        <span>Content Manager</span>
-      </div>
+      <a href="/" class="admin-brand" aria-label="Steadfast home">
+        <img src="/assets/logo-white.svg" alt="Steadfast" class="admin-logo" />
+        <span class="admin-brand-text">
+          <span class="admin-brand-name">Steadfast</span>
+          <span class="admin-brand-sub">Content Manager</span>
+        </span>
+      </a>
       <nav class="admin-nav">
         <button class="admin-tab is-active" data-panel="articles">Articles</button>
         <button class="admin-tab" data-panel="team">Team</button>
@@ -65,7 +68,15 @@
             </div>
             <label>Author <input type="text" id="artAuthor" /></label>
             <label>Summary <textarea id="artSummary" rows="3" required></textarea></label>
-            <label>Image URL <input type="text" id="artImage" placeholder="Paste URL or upload below" /></label>
+            <label>Article Image
+              <div class="image-upload">
+                <input type="text" id="artImage" placeholder="Image URL (or upload a file)" />
+                <input type="file" id="artImageFile" accept="image/*" hidden />
+                <button type="button" class="btn-admin" id="artImageUploadBtn">Upload Image</button>
+                <span class="image-upload-status" id="artImageStatus"></span>
+              </div>
+              <div class="image-upload-preview" id="artImagePreview"></div>
+            </label>
             <label>Link (optional) <input type="text" id="artLink" placeholder="External URL or page path" /></label>
             <div class="modal-actions">
               <button type="button" class="btn-admin" id="articleModalCancel">Cancel</button>
@@ -172,19 +183,10 @@
 
       <div class="compliance-grid">
         <div class="compliance-card">
-          <h3>Take Screenshot</h3>
-          <p>Capture a full-page screenshot of any page for your compliance archive.</p>
+          <h3>Capture Site Archive</h3>
+          <p>Capture a full-page screenshot of every public page in one run, stamped with the same archive date.</p>
           <div class="form-row">
-            <select id="screenshotPage">
-              <option value="/">Home</option>
-              <option value="/financial-planning">Financial Planning</option>
-              <option value="/investment-management">Investment Management</option>
-              <option value="/our-people">Our People</option>
-              <option value="/insights">Insights</option>
-              <option value="/links">Links</option>
-              <option value="/contact-us">Contact Us</option>
-            </select>
-            <button class="btn-admin btn-primary" id="btnScreenshot">Capture</button>
+            <button class="btn-admin btn-primary" id="btnScreenshot">Capture Full Site</button>
           </div>
           <div id="screenshotStatus" class="status-msg"></div>
         </div>
