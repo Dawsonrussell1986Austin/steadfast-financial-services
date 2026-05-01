@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     null;
   const userAgent = req.headers["user-agent"] || null;
 
-  const { error } = await admin.from("contact_submissions").insert({
+  const payload = {
     name: fullName,
     first_name: firstName || null,
     last_name: lastName || null,
@@ -69,16 +69,42 @@ export default async function handler(req, res) {
     source,
     ip,
     user_agent: userAgent,
+  };
+
+  // Primary store: dedicated contact_submissions table.
+  let primaryError = null;
+  const primary = await admin.from("contact_submissions").insert(payload);
+  if (primary.error) primaryError = primary.error;
+
+  // Always mirror into compliance_log so the message is captured even if the
+  // dedicated table is missing or RLS blocks the insert. Admin Messages reads
+  // from this fallback too.
+  const logRes = await admin.from("compliance_log").insert({
+    action: "contact_submission",
+    detail: {
+      name: fullName,
+      first_name: firstName || null,
+      last_name: lastName || null,
+      email,
+      phone: phone || null,
+      message,
+      source,
+      ip,
+      user_agent: userAgent,
+    },
   });
 
-  if (error) {
-    return res.status(500).json({ error: "Save failed: " + error.message });
+  if (primaryError && logRes.error) {
+    return res.status(500).json({
+      error:
+        "Save failed: " +
+        primaryError.message +
+        (logRes.error ? " | log: " + logRes.error.message : ""),
+    });
   }
 
-  await admin.from("compliance_log").insert({
-    action: "contact_submission",
-    detail: { from: email, name: fullName, source },
+  return res.status(200).json({
+    ok: true,
+    storedIn: primaryError ? "compliance_log" : "contact_submissions",
   });
-
-  return res.status(200).json({ ok: true });
 }

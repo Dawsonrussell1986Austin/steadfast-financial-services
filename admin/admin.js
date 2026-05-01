@@ -589,20 +589,59 @@ const btnRefreshMessages = document.getElementById("btnRefreshMessages");
 async function loadMessages() {
   if (!messagesList) return;
   messagesList.innerHTML = '<p style="color:#5c6a63;padding:12px;">Loading messages…</p>';
-  const { data, error } = await supabase
+
+  // Primary: dedicated contact_submissions table.
+  const primary = await supabase
     .from("contact_submissions")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(200);
-  if (error) {
-    messagesList.innerHTML = '<p class="status-msg error" style="padding:12px;">Could not load messages: ' + escapeHtml(error.message) + '</p>';
+  let rows = !primary.error && Array.isArray(primary.data) ? primary.data : [];
+
+  // Fallback: compliance_log entries with action = contact_submission. Used
+  // when contact_submissions table doesn't exist yet, so messages are never
+  // lost on the way to the inbox.
+  const fallback = await supabase
+    .from("compliance_log")
+    .select("*")
+    .eq("action", "contact_submission")
+    .order("timestamp", { ascending: false })
+    .limit(200);
+  if (!fallback.error && Array.isArray(fallback.data)) {
+    const seenAt = new Set(rows.map((r) => r.created_at));
+    fallback.data.forEach((entry) => {
+      const d = entry.detail || {};
+      const createdAt = entry.timestamp;
+      if (seenAt.has(createdAt)) return;
+      rows.push({
+        id: entry.id,
+        created_at: createdAt,
+        name: d.name || "",
+        first_name: d.first_name || null,
+        last_name: d.last_name || null,
+        email: d.email || d.from || "",
+        phone: d.phone || null,
+        message: d.message || "",
+        source: d.source || "contact-form",
+        _from_log: true,
+      });
+    });
+  }
+
+  rows.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  if (primary.error && fallback.error) {
+    messagesList.innerHTML =
+      '<p class="status-msg error" style="padding:12px;">Could not load messages: ' +
+      escapeHtml(primary.error.message) +
+      "</p>";
     return;
   }
-  if (!data || !data.length) {
+  if (!rows.length) {
     messagesList.innerHTML = '<p style="color:#5c6a63;padding:12px;">No messages yet.</p>';
     return;
   }
-  messagesList.innerHTML = data
+  messagesList.innerHTML = rows
     .map((m) => {
       const when = m.created_at ? new Date(m.created_at).toLocaleString() : "";
       const phone = m.phone ? ' · <a href="tel:' + escapeHtml(m.phone) + '">' + escapeHtml(m.phone) + "</a>" : "";
