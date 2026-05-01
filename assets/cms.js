@@ -32,6 +32,14 @@
       const mode = el.getAttribute("data-cms-mode") || "text";
       if (mode === "paragraphs") el.innerHTML = toParagraphs(value);
       else if (mode === "br") el.innerHTML = toBreaks(value);
+      else if (mode === "list") {
+        el.innerHTML = String(value)
+          .split(/\n/)
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => "<li>" + escapeHtml(line) + "</li>")
+          .join("");
+      }
       else el.textContent = value;
     });
   }
