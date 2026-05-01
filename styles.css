@@ -251,23 +251,26 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* Home page: nav row on top, brand stacked below it (centered) */
 .site-header.is-home { height: auto; }
 .site-header.is-home .nav-container {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  grid-template-rows: var(--nav-h) auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
+  column-gap: 32px;
   row-gap: 6px;
+  height: auto;
+  min-height: var(--nav-h);
+  padding-top: 18px;
   padding-bottom: 18px;
 }
-.site-header.is-home .primary-nav { grid-row: 1; grid-column: 2; flex: 0 0 auto; }
+.site-header.is-home .primary-nav { flex: 0 0 auto; order: 1; }
 .site-header.is-home .primary-nav ul { justify-content: center; flex-wrap: nowrap; gap: 26px; }
 .site-header.is-home .primary-nav a { white-space: nowrap; }
-.site-header.is-home .nav-cta { grid-row: 1; grid-column: 3; justify-self: end; }
+.site-header.is-home .nav-cta { flex: 0 0 auto; order: 2; }
+.site-header.is-home .brand { order: 3; flex: 0 0 100%; }
 .site-header.is-home .brand {
-  grid-row: 2;
-  grid-column: 1 / -1;
-  justify-self: center;
   height: auto;
   gap: 22px;
+  justify-content: center;
 }
 .site-header.is-home .brand-mark { width: 128px; height: 128px; background-size: auto 218px; }
 .site-header.is-home .brand-wordmark-top { font-size: 44px; }
