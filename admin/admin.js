@@ -47,6 +47,7 @@ tabs.forEach((tab) => {
     if (id === "links") loadClientLinks();
     if (id === "images") loadImagesInventory();
     if (id === "compliance") loadCompliance();
+    if (id === "team-access") loadAdmins();
   });
 });
 
@@ -1189,6 +1190,125 @@ async function publish() {
   } finally {
     btn.disabled = false;
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TEAM ACCESS  (admin user management via /api/admin/users)
+// ═══════════════════════════════════════════════════════════════
+const adminsList = document.getElementById("adminsList");
+const inviteForm = document.getElementById("inviteForm");
+const inviteStatus = document.getElementById("inviteStatus");
+const refreshAdminsBtn = document.getElementById("btnRefreshAdmins");
+
+async function adminAuthHeaders() {
+  const { data: sess } = await supabase.auth.getSession();
+  const token = sess.session?.access_token;
+  if (!token) throw new Error("Not signed in.");
+  return { Authorization: "Bearer " + token, "Content-Type": "application/json" };
+}
+
+async function parseResponse(r) {
+  const raw = await r.text();
+  let data = {};
+  try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
+  if (!r.ok) {
+    throw new Error(data.error || raw.slice(0, 200) || ("HTTP " + r.status));
+  }
+  return data;
+}
+
+function fmtDate(s) {
+  if (!s) return "—";
+  try { return new Date(s).toLocaleString(); } catch { return s; }
+}
+
+async function loadAdmins() {
+  if (!adminsList) return;
+  adminsList.innerHTML = '<p style="color:#5c6a63;padding:20px;">Loading admins…</p>';
+  try {
+    const headers = await adminAuthHeaders();
+    const r = await fetch("/api/admin/users", { headers });
+    const { users } = await parseResponse(r);
+    if (!users.length) {
+      adminsList.innerHTML = '<p style="color:#5c6a63;padding:20px;">No admins yet.</p>';
+      return;
+    }
+    adminsList.innerHTML = users.map((u) => {
+      const status = u.confirmed_at
+        ? '<span class="admin-pill admin-pill-active">Active</span>'
+        : '<span class="admin-pill admin-pill-pending">Invite pending</span>';
+      const self = u.is_self ? ' <span class="admin-pill admin-pill-self">You</span>' : "";
+      const removeBtn = u.is_self
+        ? ""
+        : `<button class="btn-admin admin-remove" data-id="${escapeHtml(u.id)}" data-email="${escapeHtml(u.email)}">Remove</button>`;
+      return `
+        <div class="list-card admin-card">
+          <div class="list-card-body">
+            <h3>${escapeHtml(u.email || "(no email)")} ${status}${self}</h3>
+            <p class="muted">Last sign-in: ${escapeHtml(fmtDate(u.last_sign_in_at))} · Added: ${escapeHtml(fmtDate(u.created_at))}</p>
+          </div>
+          <div class="list-card-actions">${removeBtn}</div>
+        </div>`;
+    }).join("");
+    adminsList.querySelectorAll(".admin-remove").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const email = btn.dataset.email;
+        if (!confirm(`Remove access for ${email}? They will no longer be able to sign in.`)) return;
+        btn.disabled = true;
+        try {
+          const headers = await adminAuthHeaders();
+          const r = await fetch("/api/admin/users?id=" + encodeURIComponent(id), {
+            method: "DELETE",
+            headers,
+          });
+          await parseResponse(r);
+          toast("Removed " + email, "success");
+          loadAdmins();
+        } catch (err) {
+          btn.disabled = false;
+          toast("Remove failed: " + err.message, "error");
+        }
+      });
+    });
+  } catch (err) {
+    adminsList.innerHTML =
+      '<p class="status-msg error" style="padding:20px;">Couldn\'t load admins: ' +
+      escapeHtml(err.message) + "</p>";
+  }
+}
+
+if (refreshAdminsBtn) refreshAdminsBtn.addEventListener("click", loadAdmins);
+
+if (inviteForm) {
+  inviteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById("inviteEmail");
+    const email = emailInput.value.trim();
+    if (!email) return;
+    inviteStatus.textContent = "Sending invite…";
+    inviteStatus.className = "status-msg";
+    const submitBtn = inviteForm.querySelector("button[type=submit]");
+    submitBtn.disabled = true;
+    try {
+      const headers = await adminAuthHeaders();
+      const r = await fetch("/api/admin/users", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ email }),
+      });
+      await parseResponse(r);
+      inviteStatus.textContent = "Invite sent to " + email + ".";
+      inviteStatus.className = "status-msg success";
+      emailInput.value = "";
+      loadAdmins();
+    } catch (err) {
+      inviteStatus.textContent = "Invite failed: " + err.message;
+      inviteStatus.className = "status-msg error";
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
 }
 
 // ── Initial load ───────────────────────────────────────────────
