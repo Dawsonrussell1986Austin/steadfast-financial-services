@@ -1089,8 +1089,13 @@ if (screenshotBtn) {
         },
         body: JSON.stringify({}),
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "HTTP " + r.status);
+      const raw = await r.text();
+      let data = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON (e.g. Vercel crash page) */ }
+      if (!r.ok) {
+        const detail = data.error || raw.slice(0, 200) || ("HTTP " + r.status);
+        throw new Error(detail);
+      }
       const lines = (data.captures || []).map((c) => {
         if (c.ok) {
           return '<li><a href="' + c.signedUrl + '" target="_blank" rel="noopener">' +
