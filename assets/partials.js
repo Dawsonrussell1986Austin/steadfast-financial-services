@@ -65,13 +65,10 @@
   const headerHTML = `
   <header class="site-header${homeClass}" id="siteHeader">
     <div class="nav-container">
-      <a href="${base}index.html" class="brand" aria-label="Steadfast Financial Services home">
-        <span class="brand-mark brand-mark-light" aria-hidden="true"></span>
-        <span class="brand-mark brand-mark-dark" aria-hidden="true"></span>
-        <span class="brand-wordmark">
-          <span class="brand-wordmark-top">Steadfast</span>
-          <span class="brand-wordmark-bot">Financial Services</span>
-        </span>
+      <a href="${base}index.html" class="brand brand-img" aria-label="Steadfast Financial Services home">
+        ${CURRENT === "home"
+          ? `<img class="brand-logo brand-logo-home" src="${base}assets/images/STEADFAST_LOGO.png" alt="Steadfast Financial Services" />`
+          : `<img class="brand-logo brand-logo-horizontal" src="${base}assets/images/horizontal.png" alt="Steadfast Financial Services" />`}
       </a>
       <nav class="primary-nav" aria-label="Primary">
         <ul>${renderLinks(NAV_ITEMS)}</ul>

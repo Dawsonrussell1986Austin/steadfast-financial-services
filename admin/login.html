@@ -14,19 +14,16 @@
   <main class="login-card">
     <img src="/assets/logo-dark.svg" alt="Steadfast" class="login-logo" />
     <h1>Content Manager</h1>
-    <p class="login-sub">Sign in to manage site content.</p>
+    <p class="login-sub">Enter your email and we'll send you a sign-in link.</p>
 
     <form id="loginForm" class="login-form" novalidate>
       <label>
         <span>Email</span>
-        <input type="email" id="email" required autocomplete="username" />
+        <input type="email" id="email" required autocomplete="email" placeholder="you@steadfastwealth.com" />
       </label>
-      <label>
-        <span>Password</span>
-        <input type="password" id="password" required autocomplete="current-password" />
-      </label>
-      <button type="submit" class="btn-admin btn-primary login-btn">Sign In</button>
+      <button type="submit" class="btn-admin btn-primary login-btn">Email Me a Sign-In Link</button>
       <p id="loginError" class="login-error" role="alert"></p>
+      <p id="loginSuccess" class="login-success" role="status"></p>
     </form>
   </main>
 
@@ -35,27 +32,34 @@
 
     const form = document.getElementById("loginForm");
     const errorEl = document.getElementById("loginError");
+    const successEl = document.getElementById("loginSuccess");
     const btn = form.querySelector("button[type=submit]");
 
-    // If already signed in, skip straight to the panel.
     const { data } = await supabase.auth.getSession();
     if (data.session) window.location.replace("/admin/");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorEl.textContent = "";
+      successEl.textContent = "";
       btn.disabled = true;
-      btn.textContent = "Signing in…";
+      btn.textContent = "Sending…";
       const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: window.location.origin + "/admin/login.html",
+        },
+      });
       if (error) {
-        errorEl.textContent = error.message || "Sign-in failed.";
+        errorEl.textContent = error.message || "Couldn't send sign-in link.";
         btn.disabled = false;
-        btn.textContent = "Sign In";
+        btn.textContent = "Email Me a Sign-In Link";
         return;
       }
-      window.location.replace("/admin/");
+      successEl.textContent = "Check your inbox for the sign-in link.";
+      btn.textContent = "Link Sent";
     });
   </script>
 </body>

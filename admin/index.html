@@ -28,6 +28,7 @@
         <button class="admin-tab" data-panel="links">Client Links</button>
         <button class="admin-tab" data-panel="images">Images</button>
         <button class="admin-tab" data-panel="compliance">Compliance</button>
+        <button class="admin-tab" data-panel="team-access">Team Access</button>
       </nav>
       <div class="admin-header-actions">
         <button class="btn-admin btn-primary" id="btnPublish" title="Push current content to the live site">
@@ -244,6 +245,31 @@
       <div class="compliance-section">
         <h3>Change Log</h3>
         <div id="complianceLog" class="log-table"></div>
+      </div>
+    </section>
+
+    <!-- ═══════ TEAM ACCESS ═══════ -->
+    <section class="panel" id="panel-team-access" style="display:none;">
+      <div class="panel-header">
+        <h2>Team Access</h2>
+        <button class="btn-admin" id="btnRefreshAdmins">Refresh</button>
+      </div>
+      <p class="panel-desc">
+        Anyone listed here can sign in to this CMS and edit content.
+        Invitees receive a one-click magic link by email.
+      </p>
+
+      <form id="inviteForm" class="invite-form">
+        <label>
+          <span>Invite teammate by email</span>
+          <input type="email" id="inviteEmail" required placeholder="teammate@steadfastwealth.com" />
+        </label>
+        <button type="submit" class="btn-admin btn-primary">Send Invite</button>
+        <p id="inviteStatus" class="status-msg" role="status"></p>
+      </form>
+
+      <div id="adminsList" class="admins-list" style="margin-top:24px;">
+        <p style="color:#5c6a63;padding:20px;">Loading admins…</p>
       </div>
     </section>
   </main>
