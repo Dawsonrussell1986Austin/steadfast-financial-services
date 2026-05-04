@@ -206,6 +206,19 @@ ul { margin: 0; padding: 0; list-style: none; }
   background-position: center top;
   flex-shrink: 0;
 }
+.brand-logo {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  flex-shrink: 0;
+}
+.brand-logo-horizontal {
+  height: 56px;
+}
+.brand-logo-home {
+  height: 220px;
+}
 .brand-mark-light { background-image: url('assets/logo-white.svg'); }
 .brand-mark-dark { background-image: url('assets/logo-dark.svg'); display: none; }
 .site-header.is-scrolled .brand-mark-light { display: none; }
@@ -283,6 +296,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin-bottom: 24px;
 }
 .site-header.is-home .brand-mark { width: 192px; height: 192px; background-size: auto 327px; }
+.site-header.is-home .brand-logo-home {
+  height: 360px;
+  max-width: min(900px, 92vw);
+  object-fit: contain;
+}
 .site-header.is-home .brand-wordmark-top {
   font-size: 66px;
   letter-spacing: 0.45em;
@@ -1322,6 +1340,8 @@ body.is-home .hero { padding-top: 540px; }
   }
   .site-header.is-home .brand-wordmark-top { font-size: 30px; letter-spacing: 0.35em; }
   .site-header.is-home .brand-wordmark-bot { font-size: 12px; letter-spacing: 0.4em; word-spacing: 0.4em; }
+  .site-header.is-home .brand-logo-home { height: 180px; max-width: 92vw; }
+  .brand-logo-horizontal { height: 40px; }
   .site-header.is-home .brand { margin-top: 24px; margin-bottom: 16px; gap: 10px; }
   body.is-home .hero { padding-top: 300px; }
   .primary-nav {
