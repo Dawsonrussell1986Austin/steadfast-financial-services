@@ -1,5 +1,18 @@
 /* Shared header + footer partials injected into every page */
 (function () {
+  // If a Supabase magic-link drops the user on a public page (because the
+  // configured Site URL won the redirect race), forward them to the admin
+  // login page with the auth hash intact so the Supabase client there can
+  // consume the session.
+  if (typeof location !== "undefined" && location.hash && location.hash.includes("access_token=")) {
+    const path = location.pathname.replace(/\/+$/, "");
+    if (!/\/admin\//.test(location.pathname)) {
+      const target = location.origin + "/admin/login.html" + location.hash;
+      location.replace(target);
+      return;
+    }
+  }
+
   const CURRENT = (() => {
     const p = location.pathname.toLowerCase();
     if (p.endsWith("/financial-planning.html") || p.includes("financial-planning")) return "financial-planning";
