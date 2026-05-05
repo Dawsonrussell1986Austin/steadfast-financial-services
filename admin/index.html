@@ -271,6 +271,18 @@
       <div id="adminsList" class="admins-list" style="margin-top:24px;">
         <p style="color:#5c6a63;padding:20px;">Loading admins…</p>
       </div>
+
+      <div class="compliance-section" style="margin-top:48px;border-top:1px solid #e0e6e2;padding-top:24px;">
+        <h3>Resync From Live Site</h3>
+        <p class="panel-desc" style="margin:0 0 12px;">
+          Pull the live <code>data/*.json</code> files from the repo and overwrite the
+          admin's stored content with them. Use this when content was edited directly
+          in code and the admin still shows older copy. Safe to run anytime — it does
+          not change the live site, only the admin's working state.
+        </p>
+        <button class="btn-admin" id="btnSyncFromGit">Resync admin from live site</button>
+        <div id="syncFromGitStatus" class="status-msg" style="margin-top:8px;"></div>
+      </div>
     </section>
   </main>
 
