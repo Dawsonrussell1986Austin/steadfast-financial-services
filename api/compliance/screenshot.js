@@ -106,7 +106,7 @@ async function run(req, res) {
   const now = new Date();
   const yyyy = now.getUTCFullYear();
   const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const runId = now.getTime();
+  const runId = Number.isFinite(req.body?.runId) ? req.body.runId : now.getTime();
   const captures = [];
 
   let browser;

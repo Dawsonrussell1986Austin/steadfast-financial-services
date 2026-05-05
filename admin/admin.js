@@ -1071,33 +1071,54 @@ async function loadCompliance() {
   ]);
 }
 
+const SCREENSHOT_PAGES = [
+  "/",
+  "/financial-planning",
+  "/investment-management",
+  "/our-people",
+  "/resources",
+  "/articles",
+  "/links",
+  "/contact-us",
+];
+
 const screenshotBtn = document.getElementById("btnScreenshot");
 if (screenshotBtn) {
   screenshotBtn.addEventListener("click", async () => {
     const status = document.getElementById("screenshotStatus");
-    status.textContent = "Capturing every page… this takes about a minute.";
     status.className = "status-msg";
     screenshotBtn.disabled = true;
+    const captures = [];
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess.session?.access_token;
       if (!token) throw new Error("Not signed in.");
-      const r = await fetch("/api/compliance/screenshot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify({}),
-      });
-      const raw = await r.text();
-      let data = {};
-      try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON (e.g. Vercel crash page) */ }
-      if (!r.ok) {
-        const detail = data.error || raw.slice(0, 200) || ("HTTP " + r.status);
-        throw new Error(detail);
+      const runId = Date.now();
+      for (let i = 0; i < SCREENSHOT_PAGES.length; i++) {
+        const pagePath = SCREENSHOT_PAGES[i];
+        status.textContent =
+          "Capturing " + (i + 1) + " of " + SCREENSHOT_PAGES.length + ": " + pagePath + "…";
+        const r = await fetch("/api/compliance/screenshot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ page: pagePath, runId }),
+        });
+        const raw = await r.text();
+        let data = {};
+        try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
+        if (!r.ok) {
+          captures.push({ page: pagePath, ok: false, error: data.error || raw.slice(0, 160) || ("HTTP " + r.status) });
+        } else {
+          const c = (data.captures && data.captures[0]) || data;
+          captures.push({ ...c, page: pagePath });
+        }
       }
-      const lines = (data.captures || []).map((c) => {
+      const okCount = captures.filter((c) => c.ok).length;
+      const failCount = captures.length - okCount;
+      const lines = captures.map((c) => {
         if (c.ok) {
           return '<li><a href="' + c.signedUrl + '" target="_blank" rel="noopener">' +
             escapeHtml(c.page) + "</a></li>";
@@ -1106,7 +1127,7 @@ if (screenshotBtn) {
           escapeHtml(c.error || "failed") + "</li>";
       }).join("");
       status.innerHTML =
-        "Captured " + data.okCount + " of " + (data.okCount + data.failCount) +
+        "Captured " + okCount + " of " + (okCount + failCount) +
         " pages.<ul class=\"capture-list\">" + lines + "</ul>";
       loadCompliance();
     } catch (err) {
