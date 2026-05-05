@@ -2,7 +2,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.104.1",
-    "@sparticuz/chromium": "^131.0.1",
+    "@sparticuz/chromium-min": "^131.0.1",
     "puppeteer-core": "^23.11.1"
   }
 }
