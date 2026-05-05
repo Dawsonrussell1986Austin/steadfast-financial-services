@@ -1332,5 +1332,49 @@ if (inviteForm) {
   });
 }
 
+// ── Resync admin from git ──────────────────────────────────────
+const syncBtn = document.getElementById("btnSyncFromGit");
+if (syncBtn) {
+  syncBtn.addEventListener("click", async () => {
+    const status = document.getElementById("syncFromGitStatus");
+    if (
+      !confirm(
+        "This will overwrite the admin's content with whatever is currently in the live data/*.json files. Continue?"
+      )
+    ) {
+      return;
+    }
+    status.textContent = "Syncing…";
+    status.className = "status-msg";
+    syncBtn.disabled = true;
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("Not signed in.");
+      const r = await fetch("/api/admin/sync-from-git", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+      });
+      const raw = await r.text();
+      let data = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch {}
+      if (!r.ok) throw new Error(data.error || ("HTTP " + r.status));
+      const c = data.counts || {};
+      status.textContent =
+        "Synced — team: " + (c.team || 0) +
+        ", content keys: " + (c.content || 0) +
+        ", image overrides: " + (c.image_overrides || 0) +
+        ", articles: " + (c.articles || 0) +
+        ". Reload the admin to see the refreshed values.";
+      status.className = "status-msg success";
+    } catch (err) {
+      status.textContent = "Sync failed: " + (err.message || err);
+      status.className = "status-msg error";
+    } finally {
+      syncBtn.disabled = false;
+    }
+  });
+}
+
 // ── Initial load ───────────────────────────────────────────────
 loadArticles();
