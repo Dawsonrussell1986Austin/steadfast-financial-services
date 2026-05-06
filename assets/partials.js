@@ -2,12 +2,22 @@
 (function () {
   // If a Supabase magic-link drops the user on a public page (because the
   // configured Site URL won the redirect race), forward them to the admin
-  // login page with the auth hash intact so the Supabase client there can
-  // consume the session.
-  if (typeof location !== "undefined" && location.hash && location.hash.includes("access_token=")) {
-    const path = location.pathname.replace(/\/+$/, "");
-    if (!/\/admin\//.test(location.pathname)) {
-      const target = location.origin + "/admin/login.html" + location.hash;
+  // login page with the auth hash/query intact so the Supabase client
+  // there can consume the session. Covers all flow variants:
+  //   #access_token=…    (implicit flow)
+  //   ?code=…            (PKCE flow)
+  //   ?token_hash=…&type=magiclink|recovery|invite|signup  (newer email links)
+  //   #error=…           (forward errors too so the login page can show them)
+  if (typeof location !== "undefined" && !/\/admin\//.test(location.pathname)) {
+    const hash = location.hash || "";
+    const search = location.search || "";
+    const hashHasAuth = /(?:^|[#&])(?:access_token|refresh_token|error|error_code)=/.test(hash);
+    const queryHasAuth =
+      /(?:^|[?&])code=/.test(search) ||
+      (/(?:^|[?&])token_hash=/.test(search) && /(?:^|[?&])type=/.test(search)) ||
+      /(?:^|[?&])error=/.test(search);
+    if (hashHasAuth || queryHasAuth) {
+      const target = location.origin + "/admin/login.html" + search + hash;
       location.replace(target);
       return;
     }
