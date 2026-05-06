@@ -108,6 +108,14 @@
         if (parent && typeof parent.load === "function") parent.load();
       }
     });
+    document.querySelectorAll("a[href]").forEach((a) => {
+      const raw = a.getAttribute("href");
+      if (!raw) return;
+      let decoded = raw;
+      try { decoded = decodeURIComponent(raw); } catch (e) {}
+      const next = resolve(raw) || resolve(decoded);
+      if (next) a.setAttribute("href", /^https?:/i.test(next) ? next : base + next);
+    });
     document.querySelectorAll("[style*='background-image']").forEach((el) => {
       const style = el.getAttribute("style") || "";
       const next = style.replace(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g, (full, url) => {

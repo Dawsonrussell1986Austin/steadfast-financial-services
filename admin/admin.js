@@ -1332,6 +1332,89 @@ if (inviteForm) {
   });
 }
 
+// ── Form ADV PDF replace ───────────────────────────────────────
+//  Reuses the image_overrides table: the disclosures page links to
+//  FORM_ADV_PATH; uploading a new PDF stores a row mapping that path
+//  to the public Supabase Storage URL of the upload. cms.js rewrites
+//  the anchor href on the live page.
+const FORM_ADV_PATH = "assets/uploads/Steadfast Form ADV Part 2A+2B 02-06-2026.pdf";
+
+async function loadFormAdvCurrent() {
+  const el = document.getElementById("formAdvCurrent");
+  if (!el) return;
+  try {
+    const { data, error } = await supabase
+      .from("image_overrides")
+      .select("replacement, updated_at")
+      .eq("original", FORM_ADV_PATH)
+      .maybeSingle();
+    if (error) throw error;
+    if (data && data.replacement) {
+      const when = data.updated_at ? new Date(data.updated_at).toLocaleString() : "";
+      el.innerHTML =
+        'Current PDF: <a href="' + escapeHtml(data.replacement) + '" target="_blank" rel="noopener">replacement uploaded' +
+        (when ? " on " + escapeHtml(when) : "") + "</a>";
+    } else {
+      el.innerHTML =
+        'Current PDF: <a href="/' + encodeURI(FORM_ADV_PATH) +
+        '" target="_blank" rel="noopener">' + escapeHtml(FORM_ADV_PATH.split("/").pop()) + "</a> (default file)";
+    }
+    el.className = "status-msg";
+  } catch (err) {
+    el.textContent = "Couldn't load current Form ADV: " + (err.message || err);
+    el.className = "status-msg error";
+  }
+}
+loadFormAdvCurrent();
+
+const formAdvForm = document.getElementById("formAdvForm");
+if (formAdvForm) {
+  formAdvForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById("formAdvFile");
+    const file = fileInput.files[0];
+    const status = document.getElementById("formAdvStatus");
+    if (!file) {
+      status.textContent = "Choose a PDF first.";
+      status.className = "status-msg error";
+      return;
+    }
+    if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
+      status.textContent = "File must be a PDF.";
+      status.className = "status-msg error";
+      return;
+    }
+    const submitBtn = formAdvForm.querySelector("button[type=submit]");
+    submitBtn.disabled = true;
+    status.textContent = "Uploading…";
+    status.className = "status-msg";
+    try {
+      const objectPath = "replacements/form-adv-" + Date.now() + ".pdf";
+      const up = await supabase.storage.from("site-images").upload(objectPath, file, {
+        upsert: false,
+        contentType: "application/pdf",
+      });
+      if (up.error) throw up.error;
+      const { data: pub } = supabase.storage.from("site-images").getPublicUrl(objectPath);
+      const upsert = await supabase
+        .from("image_overrides")
+        .upsert({ original: FORM_ADV_PATH, replacement: pub.publicUrl }, { onConflict: "original" });
+      if (upsert.error) throw upsert.error;
+      status.innerHTML =
+        'Uploaded. Click <strong>Publish</strong> to push the change live. ' +
+        '<a href="' + escapeHtml(pub.publicUrl) + '" target="_blank" rel="noopener">Preview new PDF</a>';
+      status.className = "status-msg success";
+      formAdvForm.reset();
+      loadFormAdvCurrent();
+    } catch (err) {
+      status.textContent = "Upload failed: " + (err.message || err);
+      status.className = "status-msg error";
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+}
+
 // ── Resync admin from git ──────────────────────────────────────
 const syncBtn = document.getElementById("btnSyncFromGit");
 if (syncBtn) {

@@ -233,6 +233,25 @@
       </div>
 
       <div class="compliance-section">
+        <h3>Form ADV (Disclosures Page)</h3>
+        <p class="panel-desc" style="margin:0 0 12px;">
+          Replace the public Form ADV Part 2A &amp; 2B PDF that's linked from the
+          Disclosures page. Upload a new PDF here and click Publish — the
+          download link on <a href="/disclosures" target="_blank" rel="noopener">/disclosures</a>
+          will point to the new file.
+        </p>
+        <div id="formAdvCurrent" class="status-msg" style="margin-bottom:12px;"></div>
+        <form id="formAdvForm" class="invite-form">
+          <label class="file-label">
+            Choose New PDF
+            <input type="file" id="formAdvFile" accept="application/pdf,.pdf" />
+          </label>
+          <button type="submit" class="btn-admin btn-primary">Upload &amp; Replace</button>
+          <p id="formAdvStatus" class="status-msg" role="status"></p>
+        </form>
+      </div>
+
+      <div class="compliance-section">
         <h3>Screenshot Archive</h3>
         <div id="screenshotsList" class="archive-list"></div>
       </div>
