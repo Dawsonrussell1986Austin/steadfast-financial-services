@@ -121,7 +121,13 @@ async function run(req, res) {
       const targetUrl = cleanBase + pagePath;
       const page = await browser.newPage();
       try {
-        await page.goto(targetUrl, { waitUntil: "networkidle2", timeout: 25000 });
+        // Use "load" instead of "networkidle2" — pages with autoplay videos
+        // (home page hero) keep streaming, so networkidle never settles and
+        // the goto burns the full 25s timeout. "load" fires once all initial
+        // resources are loaded.
+        await page.goto(targetUrl, { waitUntil: "load", timeout: 20000 });
+        // Give CSS animations and lazy images a tick to settle.
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         const buffer = await page.screenshot({ fullPage: true, type: "png" });
         const slug = pagePath.replace(/[^a-z0-9]/gi, "-").replace(/^-+|-+$/g, "") || "home";
         const filename = `archive-${runId}-${slug}.png`;

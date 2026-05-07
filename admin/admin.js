@@ -1118,40 +1118,41 @@ if (screenshotBtn) {
       const token = sess.session?.access_token;
       if (!token) throw new Error("Not signed in.");
       const runId = Date.now();
-      for (let i = 0; i < SCREENSHOT_PAGES.length; i++) {
-        const pagePath = SCREENSHOT_PAGES[i];
-        status.textContent =
-          "Capturing " + (i + 1) + " of " + SCREENSHOT_PAGES.length + ": " + pagePath + "…";
-        const ctrl = new AbortController();
-        const timeoutMs = 90000;
-        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-        try {
-          const r = await fetch("/api/compliance/screenshot", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({ page: pagePath, runId }),
-            signal: ctrl.signal,
-          });
-          const raw = await r.text();
-          let data = {};
-          try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
-          if (!r.ok) {
-            captures.push({ page: pagePath, ok: false, error: data.error || raw.slice(0, 160) || ("HTTP " + r.status) });
-          } else {
-            const c = (data.captures && data.captures[0]) || data;
-            captures.push({ ...c, page: pagePath });
-          }
-        } catch (err) {
-          const msg = err?.name === "AbortError"
-            ? "Timed out after " + Math.round(timeoutMs / 1000) + "s"
-            : (err?.message || String(err));
-          captures.push({ page: pagePath, ok: false, error: msg });
-        } finally {
-          clearTimeout(timer);
+      // Single function call captures every page in one Chromium boot.
+      // Cold-starting Chromium per call (8 separate fetches) was hitting
+      // Vercel's per-invocation timeout. One call ≈ 1 cold start + N fast
+      // page navigations.
+      status.textContent =
+        "Capturing " + SCREENSHOT_PAGES.length + " pages in one run…";
+      const ctrl = new AbortController();
+      const timeoutMs = 270000; // 4.5 min, just under Vercel Pro 300s cap
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        const r = await fetch("/api/compliance/screenshot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ pages: SCREENSHOT_PAGES, runId }),
+          signal: ctrl.signal,
+        });
+        const raw = await r.text();
+        let data = {};
+        try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
+        if (!r.ok) {
+          throw new Error(data.error || raw.slice(0, 200) || ("HTTP " + r.status));
         }
+        if (Array.isArray(data.captures)) {
+          captures.push(...data.captures);
+        }
+      } catch (err) {
+        const msg = err?.name === "AbortError"
+          ? "Timed out after " + Math.round(timeoutMs / 1000) + "s"
+          : (err?.message || String(err));
+        SCREENSHOT_PAGES.forEach((p) => captures.push({ page: p, ok: false, error: msg }));
+      } finally {
+        clearTimeout(timer);
       }
       const okCount = captures.filter((c) => c.ok).length;
       const failCount = captures.length - okCount;
