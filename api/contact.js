@@ -112,6 +112,7 @@ export default async function handler(req, res) {
   // Best-effort email notification — never block the form on this.
   let emailStatus = "skipped";
   let emailError = null;
+  let emailDetail = null;
   try {
     const result = await sendNotification({
       name: fullName,
@@ -123,11 +124,30 @@ export default async function handler(req, res) {
     });
     emailStatus = result.status;
     if (result.error) emailError = result.error;
+    emailDetail = {
+      to: result.to || null,
+      from: result.from || null,
+      id: result.id || null,
+      hasApiKey: !!process.env.RESEND_API_KEY,
+      hasFrom: !!process.env.RESEND_FROM,
+    };
   } catch (err) {
     emailStatus = "error";
     emailError = err?.message || String(err);
     console.error("[contact] email send failed", err);
   }
+
+  // Audit row so admins can see in the Change Log whether emails went out.
+  await admin.from("compliance_log").insert({
+    action: "contact_email_attempt",
+    detail: {
+      email_status: emailStatus,
+      email_error: emailError,
+      submitter: email,
+      name: fullName,
+      ...(emailDetail || {}),
+    },
+  });
 
   return res.status(200).json({
     ok: true,
@@ -193,9 +213,14 @@ async function sendNotification({ name, email, phone, message, source, ip }) {
   });
   const body = await r.json().catch(() => ({}));
   if (!r.ok) {
-    return { status: "error", error: body?.message || ("Resend " + r.status) };
+    return {
+      status: "error",
+      error: body?.message || ("Resend " + r.status),
+      to: recipients,
+      from: RESEND_FROM,
+    };
   }
-  return { status: "sent", id: body?.id };
+  return { status: "sent", id: body?.id, to: recipients, from: RESEND_FROM };
 }
 
 function row(label, value) {

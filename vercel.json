@@ -21,6 +21,12 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" }
   ],
+  "redirects": [
+    { "source": "/articles", "destination": "/resources", "permanent": false },
+    { "source": "/articles.html", "destination": "/resources", "permanent": false },
+    { "source": "/article", "destination": "/resources", "permanent": false },
+    { "source": "/article.html", "destination": "/resources", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
