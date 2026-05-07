@@ -53,7 +53,6 @@
       key: "resources-parent",
       submenu: [
         { href: "resources.html", label: "Client Links", key: "resources" },
-        { href: "articles.html", label: "Articles", key: "articles" },
         { href: "https://clientaccess.rjf.com/", label: "Client Login", key: "client-login", external: true },
       ],
     },
