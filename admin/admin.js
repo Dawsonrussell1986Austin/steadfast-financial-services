@@ -1023,6 +1023,30 @@ function formatLogDetail(detail) {
       `<span class="log-meta-item log-meta-commit" title="${escapeHtml(detail.commit)}"><span class="log-meta-label">Revision</span> ${escapeHtml(shortSha)}</span>`
     );
   }
+  if (detail.submitter) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">From</span> ${escapeHtml(detail.submitter)}</span>`);
+  }
+  if (detail.email_status) {
+    const cls =
+      detail.email_status === "sent" ? "success" :
+      detail.email_status === "error" ? "error" : "";
+    parts.push(`<span class="log-meta-item ${cls}"><span class="log-meta-label">Email</span> ${escapeHtml(detail.email_status)}</span>`);
+  }
+  if (detail.email_error) {
+    parts.push(`<span class="log-meta-item error"><span class="log-meta-label">Reason</span> ${escapeHtml(detail.email_error)}</span>`);
+  }
+  if (detail.hasApiKey === false || detail.hasFrom === false) {
+    const missing = [];
+    if (detail.hasApiKey === false) missing.push("RESEND_API_KEY");
+    if (detail.hasFrom === false) missing.push("RESEND_FROM");
+    parts.push(`<span class="log-meta-item error"><span class="log-meta-label">Missing env</span> ${escapeHtml(missing.join(", "))}</span>`);
+  }
+  if (Array.isArray(detail.to) && detail.to.length) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">To</span> ${escapeHtml(detail.to.join(", "))}</span>`);
+  }
+  if (detail.from) {
+    parts.push(`<span class="log-meta-item"><span class="log-meta-label">Sender</span> ${escapeHtml(detail.from)}</span>`);
+  }
   return parts.join("");
 }
 
