@@ -1122,22 +1122,35 @@ if (screenshotBtn) {
         const pagePath = SCREENSHOT_PAGES[i];
         status.textContent =
           "Capturing " + (i + 1) + " of " + SCREENSHOT_PAGES.length + ": " + pagePath + "…";
-        const r = await fetch("/api/compliance/screenshot", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({ page: pagePath, runId }),
-        });
-        const raw = await r.text();
-        let data = {};
-        try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
-        if (!r.ok) {
-          captures.push({ page: pagePath, ok: false, error: data.error || raw.slice(0, 160) || ("HTTP " + r.status) });
-        } else {
-          const c = (data.captures && data.captures[0]) || data;
-          captures.push({ ...c, page: pagePath });
+        const ctrl = new AbortController();
+        const timeoutMs = 90000;
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+        try {
+          const r = await fetch("/api/compliance/screenshot", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({ page: pagePath, runId }),
+            signal: ctrl.signal,
+          });
+          const raw = await r.text();
+          let data = {};
+          try { data = raw ? JSON.parse(raw) : {}; } catch { /* non-JSON */ }
+          if (!r.ok) {
+            captures.push({ page: pagePath, ok: false, error: data.error || raw.slice(0, 160) || ("HTTP " + r.status) });
+          } else {
+            const c = (data.captures && data.captures[0]) || data;
+            captures.push({ ...c, page: pagePath });
+          }
+        } catch (err) {
+          const msg = err?.name === "AbortError"
+            ? "Timed out after " + Math.round(timeoutMs / 1000) + "s"
+            : (err?.message || String(err));
+          captures.push({ page: pagePath, ok: false, error: msg });
+        } finally {
+          clearTimeout(timer);
         }
       }
       const okCount = captures.filter((c) => c.ok).length;
