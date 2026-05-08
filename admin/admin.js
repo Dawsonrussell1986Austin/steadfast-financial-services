@@ -1052,7 +1052,7 @@ async function renderScreenshotArchive(elId, emptyMsg) {
           })
           .join("");
         return (
-          '<details class="archive-run" data-search="' + escapeHtml(haystack) + '" open>' +
+          '<details class="archive-run" data-search="' + escapeHtml(haystack) + '">' +
             '<summary class="archive-run-summary">' +
               '<span class="archive-run-date">' + escapeHtml(dateStr) + "</span>" +
               '<span class="archive-run-time">· ' + escapeHtml(timeStr) + "</span>" +
