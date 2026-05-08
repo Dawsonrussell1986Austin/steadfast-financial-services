@@ -1,45 +1,32 @@
 /* POST /api/compliance/screenshot
  *
- * Captures a full-page PNG of one of the public pages, uploads it to the
- * private Supabase Storage bucket "compliance-screenshots", and records
- * an audit row in compliance_log.
+ * Captures full-page PNGs of public site pages by calling the ScreenshotOne
+ * API, uploads each to the private Supabase Storage bucket
+ * "compliance-screenshots", and records an audit row in compliance_log.
  *
  * Auth: requires a valid Supabase session (Authorization: Bearer <jwt>).
  *
  * Body:
- *   { page: "/our-people" }   // path on the site (leading slash optional)
+ *   { pages: ["/", "/our-people", ...], runId: 1778... }   // pages OR
+ *   { page: "/our-people", runId: 1778... }                // single page
  *
  * Response:
- *   {
- *     file: "screenshot-our-people-1713900000000.png",
- *     path: "2026/04/screenshot-our-people-1713900000000.png",
- *     signedUrl: "https://...supabase.co/storage/v1/object/sign/..."
- *   }
+ *   { runId, captures: [{ page, file, path, signedUrl, ok, error? }, ...],
+ *     okCount, failCount }
  *
  * Required env vars:
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ *   SCREENSHOTONE_API_KEY
  * Optional:
- *   SCREENSHOT_BASE_URL — the public base URL to screenshot (default:
- *     https://${VERCEL_URL}). Set this to your custom domain
- *     (e.g. https://steadfastwealth.com) to capture the live content.
+ *   SCREENSHOT_BASE_URL — public base URL of the site (default: VERCEL_URL)
  */
 
 import { createClient } from "@supabase/supabase-js";
-import chromium from "@sparticuz/chromium-min";
-import puppeteer from "puppeteer-core";
 
 const BUCKET = "compliance-screenshots";
-const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
-// Public URL of the matching Chromium tarball. Using @sparticuz/chromium-min
-// lets us avoid bundling the binary into the function deployment (which kept
-// stripping libnss3 + friends). The pack is downloaded into /tmp at runtime
-// alongside its bundled shared libraries, so libnss3 etc. are always present.
-const CHROMIUM_PACK_URL =
-  process.env.CHROMIUM_PACK_URL ||
-  "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.x64.tar";
-
-export const config = { maxDuration: 300 };
+export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
   try {
@@ -56,12 +43,15 @@ async function run(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCREENSHOTONE_API_KEY } = process.env;
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ error: "Server missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." });
   }
+  if (!SCREENSHOTONE_API_KEY) {
+    return res.status(500).json({ error: "Server missing SCREENSHOTONE_API_KEY env var." });
+  }
 
-  // ── 1. Auth ──────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────
   const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
   if (!token) return res.status(401).json({ error: "Missing bearer token" });
 
@@ -72,7 +62,7 @@ async function run(req, res) {
   if (userErr || !userResult?.user) return res.status(401).json({ error: "Invalid session" });
   const user = userResult.user;
 
-  // ── 2. Resolve the URLs to screenshot ───────────────────────
+  // ── Resolve pages and base URL ────────────────────────────
   const DEFAULT_PAGES = [
     "/",
     "/financial-planning",
@@ -102,33 +92,47 @@ async function run(req, res) {
   }
   const cleanBase = baseUrl.replace(/\/$/, "");
 
-  // ── 3. Launch Chromium once + capture each page ─────────────
   const now = new Date();
   const yyyy = now.getUTCFullYear();
   const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
   const runId = Number.isFinite(req.body?.runId) ? req.body.runId : now.getTime();
-  const captures = [];
 
-  let browser;
-  try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: { width: 1440, height: 900 },
-      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
-      headless: chromium.headless,
-    });
-    for (const pagePath of pagePaths) {
+  // ── Capture each page in parallel via ScreenshotOne ───────
+  const captures = await Promise.all(
+    pagePaths.map(async (pagePath) => {
       const targetUrl = cleanBase + pagePath;
-      const page = await browser.newPage();
       try {
-        // Use "load" instead of "networkidle2" — pages with autoplay videos
-        // (home page hero) keep streaming, so networkidle never settles and
-        // the goto burns the full 25s timeout. "load" fires once all initial
-        // resources are loaded.
-        await page.goto(targetUrl, { waitUntil: "load", timeout: 20000 });
-        // Give CSS animations and lazy images a tick to settle.
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        const buffer = await page.screenshot({ fullPage: true, type: "png" });
+        const apiUrl = new URL("https://api.screenshotone.com/take");
+        apiUrl.searchParams.set("access_key", SCREENSHOTONE_API_KEY);
+        apiUrl.searchParams.set("url", targetUrl);
+        apiUrl.searchParams.set("full_page", "true");
+        apiUrl.searchParams.set("format", "png");
+        apiUrl.searchParams.set("viewport_width", "1440");
+        apiUrl.searchParams.set("viewport_height", "900");
+        apiUrl.searchParams.set("block_ads", "true");
+        apiUrl.searchParams.set("block_cookie_banners", "true");
+        apiUrl.searchParams.set("delay", "2");
+        apiUrl.searchParams.set("cache", "false");
+        apiUrl.searchParams.set("response_type", "by_format");
+        apiUrl.searchParams.set("image_quality", "85");
+
+        const r = await fetch(apiUrl.toString());
+        if (!r.ok) {
+          let detail = "";
+          try {
+            const body = await r.text();
+            try {
+              const parsed = JSON.parse(body);
+              detail = parsed?.error_message || parsed?.error || body.slice(0, 200);
+            } catch (e) {
+              detail = body.slice(0, 200);
+            }
+          } catch (e) {}
+          throw new Error("ScreenshotOne " + r.status + (detail ? ": " + detail : ""));
+        }
+        const arrayBuffer = await r.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
         const slug = pagePath.replace(/[^a-z0-9]/gi, "-").replace(/^-+|-+$/g, "") || "home";
         const filename = `archive-${runId}-${slug}.png`;
         const objectPath = `${yyyy}/${mm}/${runId}/${filename}`;
@@ -136,34 +140,28 @@ async function run(req, res) {
           contentType: "image/png",
           upsert: false,
         });
-        if (up.error) throw new Error(up.error.message);
+        if (up.error) throw new Error("Upload failed: " + up.error.message);
         const signed = await admin.storage.from(BUCKET).createSignedUrl(objectPath, SIGNED_URL_TTL_SECONDS);
-        captures.push({
+        return {
           page: pagePath,
           target_url: targetUrl,
           file: filename,
           path: objectPath,
           signedUrl: signed.data?.signedUrl || null,
           ok: true,
-        });
+        };
       } catch (err) {
-        captures.push({
+        return {
           page: pagePath,
           target_url: targetUrl,
           ok: false,
           error: err?.message || String(err),
-        });
-      } finally {
-        await page.close().catch(() => {});
+        };
       }
-    }
-  } catch (err) {
-    if (browser) await browser.close().catch(() => {});
-    return res.status(500).json({ error: "Capture failed: " + (err.message || String(err)) });
-  }
-  await browser.close().catch(() => {});
+    })
+  );
 
-  // ── 4. Audit log ────────────────────────────────────────────
+  // ── Audit log ────────────────────────────────────────────
   const ok = captures.filter((c) => c.ok);
   const failed = captures.filter((c) => !c.ok);
   await admin.from("compliance_log").insert({
@@ -174,6 +172,7 @@ async function run(req, res) {
       pages_failed: failed.map((c) => ({ page: c.page, error: c.error })),
       bucket: BUCKET,
       base_url: cleanBase,
+      provider: "screenshotone",
       by: user.email || user.id,
     },
   });

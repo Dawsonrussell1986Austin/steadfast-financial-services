@@ -14,8 +14,7 @@
       "includeFiles": "{*.html,assets/partials.js}"
     },
     "api/compliance/screenshot.js": {
-      "maxDuration": 300,
-      "memory": 2048
+      "maxDuration": 60
     }
   },
   "rewrites": [
