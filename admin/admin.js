@@ -977,6 +977,140 @@ async function renderArchive(bucket, elId, emptyMsg) {
   }
 }
 
+// Screenshot archive: group by capture run (run-id is the timestamp folder
+// in the path "YYYY/MM/{runId}/...") and render as collapsible date/time
+// groups with a search box that filters on date, time, or page slug.
+async function renderScreenshotArchive(elId, emptyMsg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  try {
+    const files = await listBucketRecursively(SCREENSHOTS_BUCKET);
+    if (!files.length) {
+      el.innerHTML = '<p style="color:#5c6a63;padding:12px;">' + emptyMsg + "</p>";
+      return;
+    }
+    files.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const paths = files.map((f) => f.path);
+    const { data: signed, error } = await supabase.storage
+      .from(SCREENSHOTS_BUCKET)
+      .createSignedUrls(paths, SIGNED_URL_TTL);
+    if (error) throw error;
+    const urls = Object.fromEntries((signed || []).map((s) => [s.path, s.signedUrl]));
+
+    // Group by run-id derived from the path.
+    const groups = {};
+    files.forEach((f) => {
+      const parts = f.path.split("/");
+      // Path shape: YYYY/MM/{runId}/archive-{runId}-{slug}.png
+      const runId = parts.length >= 3 ? parts[2] : parts[0];
+      if (!groups[runId]) groups[runId] = { runId, files: [], when: f.created_at };
+      groups[runId].files.push(f);
+      // Use the most recent created_at on the run as its label time.
+      if (new Date(f.created_at) > new Date(groups[runId].when)) {
+        groups[runId].when = f.created_at;
+      }
+    });
+    const orderedRuns = Object.values(groups).sort(
+      (a, b) => new Date(b.when) - new Date(a.when)
+    );
+
+    const fmtDate = (d) =>
+      new Date(d).toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    const fmtTime = (d) =>
+      new Date(d).toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    const slugFromName = (name) => {
+      const m = name.match(/^archive-\d+-(.+)\.png$/i);
+      return m ? m[1] : name.replace(/\.png$/i, "");
+    };
+
+    const runsHtml = orderedRuns
+      .map((g) => {
+        const dateStr = fmtDate(g.when);
+        const timeStr = fmtTime(g.when);
+        const ymd = new Date(g.when).toISOString().slice(0, 10); // 2026-04-08
+        const haystack = (dateStr + " " + timeStr + " " + ymd).toLowerCase();
+        const itemsHtml = g.files
+          .map((f) => {
+            const slug = slugFromName(f.name);
+            const href = urls[f.path] || "#";
+            const itemHay = (slug + " " + f.name).toLowerCase();
+            return (
+              '<a class="archive-item" data-search="' + escapeHtml(itemHay) + '" ' +
+                'href="' + href + '" target="_blank" rel="noopener">' +
+                '<span class="archive-slug">/' + escapeHtml(slug === "home" ? "" : slug) + "</span>" +
+                '<span class="archive-date">' + escapeHtml(f.name) + "</span>" +
+              "</a>"
+            );
+          })
+          .join("");
+        return (
+          '<details class="archive-run" data-search="' + escapeHtml(haystack) + '" open>' +
+            '<summary class="archive-run-summary">' +
+              '<span class="archive-run-date">' + escapeHtml(dateStr) + "</span>" +
+              '<span class="archive-run-time">· ' + escapeHtml(timeStr) + "</span>" +
+              '<span class="archive-run-count">(' + g.files.length + " page" + (g.files.length === 1 ? "" : "s") + ")</span>" +
+            "</summary>" +
+            '<div class="archive-run-items">' + itemsHtml + "</div>" +
+          "</details>"
+        );
+      })
+      .join("");
+
+    el.innerHTML =
+      '<div class="archive-toolbar">' +
+        '<input type="search" class="archive-search" id="screenshotSearch" placeholder="Search by date, time, or page (e.g. \'April 8\', \'our-people\', \'2026-04-08\')…" />' +
+        '<button type="button" class="btn-admin" id="screenshotExpandAll">Expand all</button>' +
+        '<button type="button" class="btn-admin" id="screenshotCollapseAll">Collapse all</button>' +
+      "</div>" +
+      '<div class="archive-runs">' + runsHtml + "</div>";
+
+    // Wire search.
+    const searchInput = el.querySelector("#screenshotSearch");
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        const q = searchInput.value.trim().toLowerCase();
+        el.querySelectorAll(".archive-run").forEach((run) => {
+          const runHay = run.getAttribute("data-search") || "";
+          const items = run.querySelectorAll(".archive-item");
+          let visibleItems = 0;
+          items.forEach((it) => {
+            const itHay = it.getAttribute("data-search") || "";
+            const match = !q || runHay.includes(q) || itHay.includes(q);
+            it.style.display = match ? "" : "none";
+            if (match) visibleItems++;
+          });
+          run.style.display = visibleItems > 0 ? "" : "none";
+          if (q && visibleItems > 0) run.open = true;
+        });
+      });
+    }
+    const expandBtn = el.querySelector("#screenshotExpandAll");
+    if (expandBtn) {
+      expandBtn.addEventListener("click", () => {
+        el.querySelectorAll(".archive-run").forEach((r) => (r.open = true));
+      });
+    }
+    const collapseBtn = el.querySelector("#screenshotCollapseAll");
+    if (collapseBtn) {
+      collapseBtn.addEventListener("click", () => {
+        el.querySelectorAll(".archive-run").forEach((r) => (r.open = false));
+      });
+    }
+  } catch (err) {
+    el.innerHTML =
+      '<p style="color:#a03;padding:12px;">Could not load ' + escapeHtml(SCREENSHOTS_BUCKET) +
+      ": " + escapeHtml(err.message || String(err)) + "</p>";
+  }
+}
+
 const ACTION_LABELS = {
   publish: "Published changes to live site",
   approval_uploaded: "Compliance approval uploaded",
@@ -1090,7 +1224,7 @@ async function loadCompliance() {
     }
   }
   await Promise.all([
-    renderArchive(SCREENSHOTS_BUCKET, "screenshotsList", "No screenshots yet."),
+    renderScreenshotArchive("screenshotsList", "No screenshots yet."),
     renderArchive(APPROVALS_BUCKET, "approvalsList", "No approval documents uploaded."),
   ]);
 }
