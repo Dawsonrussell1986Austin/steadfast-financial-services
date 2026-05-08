@@ -16,12 +16,14 @@
  *
  * Required env vars:
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
- *   SCREENSHOTONE_API_KEY
+ *   SCREENSHOTONE_ACCESS_KEY  — public access key
+ *   SCREENSHOTONE_SECRET_KEY  — secret used to HMAC-sign requests
  * Optional:
  *   SCREENSHOT_BASE_URL — public base URL of the site (default: VERCEL_URL)
  */
 
 import { createClient } from "@supabase/supabase-js";
+import crypto from "node:crypto";
 
 const BUCKET = "compliance-screenshots";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
@@ -43,12 +45,23 @@ async function run(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCREENSHOTONE_API_KEY } = process.env;
+  const {
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
+    SCREENSHOTONE_ACCESS_KEY,
+    SCREENSHOTONE_SECRET_KEY,
+    // Back-compat with the older single-key env name.
+    SCREENSHOTONE_API_KEY,
+  } = process.env;
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ error: "Server missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." });
   }
-  if (!SCREENSHOTONE_API_KEY) {
-    return res.status(500).json({ error: "Server missing SCREENSHOTONE_API_KEY env var." });
+  const accessKey = SCREENSHOTONE_ACCESS_KEY || SCREENSHOTONE_API_KEY;
+  if (!accessKey) {
+    return res.status(500).json({ error: "Server missing SCREENSHOTONE_ACCESS_KEY env var." });
+  }
+  if (!SCREENSHOTONE_SECRET_KEY) {
+    return res.status(500).json({ error: "Server missing SCREENSHOTONE_SECRET_KEY env var." });
   }
 
   // ── Auth ──────────────────────────────────────────────────
@@ -102,21 +115,28 @@ async function run(req, res) {
     pagePaths.map(async (pagePath) => {
       const targetUrl = cleanBase + pagePath;
       try {
-        const apiUrl = new URL("https://api.screenshotone.com/take");
-        apiUrl.searchParams.set("access_key", SCREENSHOTONE_API_KEY);
-        apiUrl.searchParams.set("url", targetUrl);
-        apiUrl.searchParams.set("full_page", "true");
-        apiUrl.searchParams.set("format", "png");
-        apiUrl.searchParams.set("viewport_width", "1440");
-        apiUrl.searchParams.set("viewport_height", "900");
-        apiUrl.searchParams.set("block_ads", "true");
-        apiUrl.searchParams.set("block_cookie_banners", "true");
-        apiUrl.searchParams.set("delay", "2");
-        apiUrl.searchParams.set("cache", "false");
-        apiUrl.searchParams.set("response_type", "by_format");
-        apiUrl.searchParams.set("image_quality", "85");
+        // Build query string in a fixed order, sign with HMAC-SHA256.
+        const params = new URLSearchParams();
+        params.set("access_key", accessKey);
+        params.set("url", targetUrl);
+        params.set("full_page", "true");
+        params.set("format", "png");
+        params.set("viewport_width", "1440");
+        params.set("viewport_height", "900");
+        params.set("block_ads", "true");
+        params.set("block_cookie_banners", "true");
+        params.set("delay", "2");
+        params.set("cache", "false");
+        params.set("response_type", "by_format");
+        params.set("image_quality", "85");
+        const query = params.toString();
+        const signature = crypto
+          .createHmac("sha256", SCREENSHOTONE_SECRET_KEY)
+          .update(query)
+          .digest("hex");
+        const apiUrlString = "https://api.screenshotone.com/take?" + query + "&signature=" + signature;
 
-        const r = await fetch(apiUrl.toString());
+        const r = await fetch(apiUrlString);
         if (!r.ok) {
           let detail = "";
           try {
