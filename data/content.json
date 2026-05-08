@@ -1,6 +1,4 @@
 {
-  "hero_headline": "A Steady Hand For Your Financial Journey",
-  "hero_eyebrow": "SINCE 1998 · FEE-ONLY FIDUCIARY",
   "hero_subtext": "Financial resources aren't an end in themselves — they're a tool for accomplishing goals. Through principled planning and disciplined investment management, we navigate your financial life together.",
   "whatwedo_eyebrow": "WHAT WE DO",
   "whatwedo_headline": "Built Around You,\nBacked By Experience",
@@ -16,8 +14,8 @@
   "fp_hero_h1": "Financial Planning",
   "fp_hero_sub": "Comprehensive guidance through every major planning area — so your resources work toward the goals that matter most.",
   "fp_lede": "For financial planning clients, we offer comprehensive coverage of all major areas of financial planning. We collaborate throughout the process by presenting multiple alternatives and educating you on tax code changes, risk management, and the decisions you face at each stage of life. For married couples, active participation from both spouses is strongly encouraged.",
-  "fp_included_h2": "All Major Planning Areas,\nUnder One Trusted Roof",
-  "fp_included_body": "Our planning engagements cover the full picture — from goal setting and cash flow to survivor needs and estate planning — so nothing important falls through the cracks.",
+  "hero_headline": "A Steady Hand For Your Financial Journey",
+  "hero_eyebrow": "SINCE 1998 · FEE-ONLY FIDUCIARY",
   "fp_included_list": "Goal setting and decision making\nNet worth review & comparative analysis\nRetirement planning\nIncome tax projections & planning\nCash flow projections\nEstate tax planning\nSurvivor needs analysis\nInvestment analysis & recommendations\nGift planning\nCollege education planning",
   "fp_process_h2": "A Collaborative,\nTransparent Process",
   "team_headline": "Built By Experience,\nDriven By Service",
@@ -35,6 +33,10 @@
   "op_hero_h1": "Our People",
   "op_hero_sub": "Advisors who measure success by the relationships they build and the lives they impact.",
   "contact_hero_h1": "Contact Us",
+  "fp_included_h2": "All Major Planning Areas,\nUnder One Trusted Roof",
+  "fp_included_body": "Our planning engagements cover the full picture — from goal setting and cash flow to survivor needs and estate planning — so nothing important falls through the cracks.",
+  "disc_hero_h1": "Disclosures",
+  "disc_hero_sub": "Disclosure statements and registration information for Steadfast Financial Services.",
   "team_body": "Since 1998, Steadfast has been led by advisors who value deep client relationships, lifelong learning, and the privilege of stewarding other people's resources well.",
   "contact_hero_sub": "We'd love to hear from you. Reach out to start a conversation about your financial goals.",
   "contact_intro_h2": "Let's Start\nThe Conversation",
@@ -51,5 +53,6 @@
   "footer_brokercheck": "Check the background of your financial professional on FINRA's BrokerCheck.",
   "footer_disclaimer": "Steadfast Financial Services is a fee-only registered investment advisor. The content on this site is developed from sources believed to be providing accurate information and is not intended as tax or legal advice. Please consult legal or tax professionals for specific information regarding your individual situation.",
   "footer_copy": "© Copyright",
-  "footer_copy_suffix": "Steadfast. All Rights Reserved."
+  "footer_copy_suffix": "Steadfast. All Rights Reserved.",
+  "disc_body": "This website is a publication of Steadfast Financial Services, Inc. The firm is registered as an investment adviser with the state of Florida and only conducts business in states where it is properly registered or is excluded from registration requirements. Registration is not an endorsement of the firm by securities regulators and does not mean the adviser has achieved a specific level of skill or ability. The firm is not engaged in the practice of law.\n\nContent should not be viewed as personalized investment advice. All expressions of opinion reflect the judgment of the authors on the date of publication and may change in response to market conditions. You should consult with a professional advisor before implementing any strategies discussed. Content should not be viewed as an offer to buy or sell any of the securities mentioned or as legal or tax advice. You should always consult an attorney or tax professional regarding your specific legal or tax situation.\n\nHyperlinks on this website are provided as a convenience. We cannot be held responsible for information, services or products found on websites linked to ours.\n\nAll investments have the potential for profit or loss. Different types of investments involve higher and lower levels of risk. There is no guarantee that a specific investment or strategy will be suitable or profitable for an investor's portfolio. There are no assurances that a portfolio will match or exceed any particular benchmark. Asset allocation and diversification will not necessarily improve an investor's returns and cannot eliminate the risk of investment losses."
 }

@@ -1,5 +1,15 @@
 [
   {
+    "id": "da07f364-842f-4aea-8c0e-525489a89caa",
+    "title": "Steadfast Welcomes Paul Bush to the Team",
+    "date": "2026-04-01",
+    "category": "news",
+    "summary": "We're excited to announce that Paul Bush has joined Steadfast Financial Services. With a background in finance and over 15 years of organizational leadership, Paul brings a disciplined, values-driven approach to helping families steward their resources well.",
+    "image": "",
+    "link": "our-people.html",
+    "author": "Steadfast Financial Services"
+  },
+  {
     "id": "b4a5e3c2-1f3d-4e2a-9c8b-7d6f5a4e3c21",
     "title": "Raymond James Investment Strategy",
     "date": "2026-04-01",
@@ -8,5 +18,35 @@
     "image": "",
     "link": "assets/uploads/Investment-Strategy-Quarterly-April-2026.pdf",
     "author": "Raymond James"
+  },
+  {
+    "id": "32124399-1450-42fa-bbd9-9e444cc26768",
+    "title": "Mid-Year Market Outlook: Staying Disciplined Through Volatility",
+    "date": "2026-03-28",
+    "category": "commentary",
+    "summary": "Markets have seen renewed volatility in 2026. Here's how we're positioning client portfolios and why a disciplined, long-term approach continues to be the most effective strategy for building wealth.",
+    "image": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=75",
+    "link": "",
+    "author": "Matthew McGahey, CFP®"
+  },
+  {
+    "id": "7c7f7abb-1395-4e23-9758-403947681dc4",
+    "title": "2026 Tax Planning: Key Changes Families Should Know",
+    "date": "2026-02-10",
+    "category": "planning",
+    "summary": "New tax brackets, updated contribution limits, and changes to estate tax exemptions — here's what matters most for your 2026 financial plan and steps you can take now.",
+    "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=75",
+    "link": "",
+    "author": "Matthew McGahey, CFP®"
+  },
+  {
+    "id": "a64835fc-2cbb-4c47-9403-b1df7417d885",
+    "title": "Why We Coordinate With Your CPA and Attorney",
+    "date": "2026-01-15",
+    "category": "planning",
+    "summary": "Financial planning, tax strategy, and estate law are deeply interconnected. We explain how our collaborative approach with trusted professionals leads to better outcomes for your family.",
+    "image": "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&w=800&q=75",
+    "link": "",
+    "author": "Matthew McGahey, CFP®"
   }
 ]
