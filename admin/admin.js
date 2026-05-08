@@ -570,15 +570,31 @@ async function loadContent() {
   setContentPreview(activeContentPage);
 }
 
-document.getElementById("btnSaveContent").addEventListener("click", async () => {
-  const rows = [];
-  contentFields.querySelectorAll("textarea").forEach((ta) => {
-    rows.push({ key: ta.dataset.key, value: ta.value });
-  });
-  const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
-  if (error) return toast("Save failed: " + error.message, "error");
-  toast("Content saved");
-  setContentPreview(activeContentPage);
+document.getElementById("btnSaveContent").addEventListener("click", async (ev) => {
+  const btn = ev.currentTarget;
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  try {
+    if (!contentFields) throw new Error("Site Content panel not initialized.");
+    const rows = [];
+    contentFields.querySelectorAll("textarea").forEach((ta) => {
+      rows.push({ key: ta.dataset.key, value: ta.value });
+    });
+    if (!rows.length) throw new Error("No fields detected — try switching tabs and back.");
+    const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
+    if (error) throw error;
+    toast("Saved " + rows.length + " field" + (rows.length === 1 ? "" : "s") + ". Click Publish to push live.", "success");
+    setContentPreview(activeContentPage);
+  } catch (err) {
+    console.error("[saveContent]", err);
+    const msg = (err && err.message) || String(err) || "Unknown error";
+    toast("Save failed: " + msg, "error");
+    alert("Save failed: " + msg + "\n\nIf this keeps happening, take a screenshot of the browser console (F12 → Console) and send it to Dawson.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -1433,7 +1449,9 @@ async function publish() {
     label.textContent = "Publish";
   } catch (err) {
     console.error("[publish]", err);
-    toast("Publish failed: " + err.message, "error");
+    const msg = (err && err.message) || String(err) || "Unknown error";
+    toast("Publish failed: " + msg, "error");
+    alert("Publish failed: " + msg + "\n\nIf this keeps happening, take a screenshot of the browser console (F12 → Console) and send it to Dawson.");
     label.textContent = "Publish";
   } finally {
     btn.disabled = false;
