@@ -59,6 +59,39 @@ export default async function handler(req, res) {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  // ── Spam filters ──────────────────────────────────────────
+  // Return 200 OK on rejects so bots think they succeeded and don't retry.
+  // Log everything we block to compliance_log so the admin can audit.
+  const honeypot = trim(body.hp_website);
+  const loadedAt = Number(body.form_loaded_at);
+  const ageMs = Number.isFinite(loadedAt) && loadedAt > 0 ? Date.now() - loadedAt : null;
+  const urlMatches = message.match(/https?:\/\//gi) || [];
+  const spamPattern =
+    /(viagra|cialis|casino|payday\s*loan|crypto[\s-]?investment|bitcoin\s*trader|forex\s*trader|seo\s*services|backlinks?|guest\s*post|free\s*money|adult\s*site|porn|xxx|escort)/i;
+
+  let blockReason = null;
+  if (honeypot) blockReason = "honeypot";
+  else if (ageMs !== null && ageMs < 2000) blockReason = "submitted_too_fast";
+  else if (urlMatches.length >= 3) blockReason = "too_many_urls";
+  else if (spamPattern.test(message) || spamPattern.test(fullName)) blockReason = "spam_keyword";
+
+  if (blockReason) {
+    await admin.from("compliance_log").insert({
+      action: "contact_spam_blocked",
+      detail: {
+        reason: blockReason,
+        name: fullName,
+        email,
+        message_preview: message.slice(0, 120),
+        url_count: urlMatches.length,
+        age_ms: ageMs,
+        source,
+      },
+    });
+    // Pretend the submission succeeded so bots don't probe for the rejection.
+    return res.status(200).json({ ok: true, storedIn: "spam_blocked" });
+  }
+
   const ip =
     (req.headers["x-forwarded-for"] || "").toString().split(",")[0].trim() ||
     req.socket?.remoteAddress ||

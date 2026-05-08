@@ -242,6 +242,10 @@
   // -------- Contact form submission to /api/contact --------
   document.querySelectorAll("form[data-contact-form]").forEach((form) => {
     const status = form.querySelector("[data-contact-status]");
+    // Stamp the form-load time so the server can reject submissions that
+    // come back faster than a human could fill out the form.
+    const tsField = form.querySelector("[data-form-loaded-at]");
+    if (tsField) tsField.value = String(Date.now());
     form.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       if (status) {
