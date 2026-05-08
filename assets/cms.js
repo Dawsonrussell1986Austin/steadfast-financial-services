@@ -127,28 +127,44 @@
   }
 
   let liveContent = {};
+  let previewOverlay = null;
+
+  function applyMerged() {
+    applyContent(Object.assign({}, liveContent, previewOverlay || {}));
+  }
+
   fetch(base + "data/content.json", { cache: "no-store" })
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
       if (data) {
         liveContent = data;
-        applyContent(liveContent);
+        applyMerged();
       }
     })
     .catch(() => {});
 
   // Live preview channel: when this page is embedded in the admin Site Content
   // editor, the parent posts unsaved edits and we re-apply them on the fly.
+  // The overlay is sticky — kept across data/content.json fetches and iframe
+  // reloads — so the parent's draft never gets clobbered by a stale CDN
+  // response while a publish is rolling out.
   window.addEventListener("message", (event) => {
     const msg = event.data;
     if (!msg || typeof msg !== "object") return;
     if (msg.type !== "steadfast:preview-content") return;
-    const next = Object.assign({}, liveContent, msg.content || {});
-    applyContent(next);
+    previewOverlay = msg.content || {};
+    applyMerged();
   });
-  // Announce readiness so the parent can push the current draft.
-  if (window.parent && window.parent !== window) {
-    try { window.parent.postMessage({ type: "steadfast:preview-ready" }, "*"); } catch (e) {}
+  // Announce readiness so the parent can push the current draft. We keep
+  // re-announcing on document ready in case the parent missed the first one.
+  function announceReady() {
+    if (window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: "steadfast:preview-ready" }, "*"); } catch (e) {}
+    }
+  }
+  announceReady();
+  if (document.readyState !== "complete") {
+    window.addEventListener("load", announceReady);
   }
 
   let imageOverrides = null;
