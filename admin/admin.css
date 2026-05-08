@@ -573,6 +573,11 @@ body { font-family: var(--ff); font-size: 15px; color: var(--ink); background: #
 .archive-run[open] .archive-run-summary::before { transform: rotate(90deg); }
 .archive-run-time { color: #5c6a63; font-weight: 500; }
 .archive-run-count { color: #8a958f; font-weight: 500; margin-left: auto; font-size: 0.85em; }
+.archive-run-download {
+  margin-left: 12px;
+  font-size: 0.78em;
+  padding: 4px 12px;
+}
 .archive-run-items {
   display: grid;
   gap: 4px;

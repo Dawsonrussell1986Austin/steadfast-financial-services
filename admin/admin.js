@@ -1052,11 +1052,12 @@ async function renderScreenshotArchive(elId, emptyMsg) {
           })
           .join("");
         return (
-          '<details class="archive-run" data-search="' + escapeHtml(haystack) + '">' +
+          '<details class="archive-run" data-search="' + escapeHtml(haystack) + '" data-run-id="' + escapeHtml(g.runId) + '">' +
             '<summary class="archive-run-summary">' +
               '<span class="archive-run-date">' + escapeHtml(dateStr) + "</span>" +
               '<span class="archive-run-time">· ' + escapeHtml(timeStr) + "</span>" +
               '<span class="archive-run-count">(' + g.files.length + " page" + (g.files.length === 1 ? "" : "s") + ")</span>" +
+              '<button type="button" class="btn-admin archive-run-download" data-run-id="' + escapeHtml(g.runId) + '" title="Download all pages in this run as a ZIP">Download ZIP</button>' +
             "</summary>" +
             '<div class="archive-run-items">' + itemsHtml + "</div>" +
           "</details>"
@@ -1104,6 +1105,60 @@ async function renderScreenshotArchive(elId, emptyMsg) {
         el.querySelectorAll(".archive-run").forEach((r) => (r.open = false));
       });
     }
+    // Per-run "Download ZIP" — fetches every PNG and bundles client-side.
+    el.querySelectorAll(".archive-run-download").forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (typeof window.JSZip === "undefined") {
+          alert("ZIP library failed to load. Reload the page and try again.");
+          return;
+        }
+        const runId = btn.getAttribute("data-run-id");
+        const group = orderedRuns.find((g) => String(g.runId) === String(runId));
+        if (!group) return;
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Zipping…";
+        try {
+          const zip = new window.JSZip();
+          let downloaded = 0;
+          await Promise.all(
+            group.files.map(async (f) => {
+              const href = urls[f.path];
+              if (!href) return;
+              const r = await fetch(href);
+              if (!r.ok) throw new Error("Fetch failed for " + f.name);
+              const blob = await r.blob();
+              zip.file(f.name, blob);
+              downloaded++;
+              btn.textContent = "Zipping… " + downloaded + "/" + group.files.length;
+            })
+          );
+          const out = await zip.generateAsync({ type: "blob" });
+          const stamp = new Date(group.when)
+            .toISOString()
+            .replace(/[:T]/g, "-")
+            .replace(/\..+$/, "");
+          const filename = "steadfast-screenshots-" + stamp + ".zip";
+          const url = URL.createObjectURL(out);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          btn.textContent = "Downloaded";
+          setTimeout(() => { btn.textContent = originalText; }, 2500);
+        } catch (err) {
+          btn.textContent = "Failed — retry";
+          alert("ZIP download failed: " + (err.message || err));
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
   } catch (err) {
     el.innerHTML =
       '<p style="color:#a03;padding:12px;">Could not load ' + escapeHtml(SCREENSHOTS_BUCKET) +
