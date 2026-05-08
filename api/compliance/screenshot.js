@@ -97,12 +97,7 @@ async function run(req, res) {
   });
   const baseUrl =
     process.env.SCREENSHOT_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
-  if (!baseUrl) {
-    return res.status(500).json({
-      error: "No base URL available. Set SCREENSHOT_BASE_URL or deploy on Vercel.",
-    });
-  }
+    "https://www.steadfastwealth.com";
   const cleanBase = baseUrl.replace(/\/$/, "");
 
   const now = new Date();
