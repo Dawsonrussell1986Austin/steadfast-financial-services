@@ -311,6 +311,39 @@ ul { margin: 0; padding: 0; list-style: none; }
   word-spacing: 0.6em;
   margin-top: 6px;
 }
+
+/* When the user scrolls past the hero, collapse the home page's tall
+   stacked brand into the same compact nav bar the subpages use. Without
+   this, the cream "is-scrolled" background paints over the video as a
+   giant slab the height of the unscrolled brand block. */
+.site-header.is-home.is-scrolled {
+  height: var(--nav-h);
+}
+.site-header.is-home.is-scrolled .nav-container {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--nav-h);
+  padding-top: 0;
+  padding-bottom: 0;
+  column-gap: 24px;
+}
+.site-header.is-home.is-scrolled .brand {
+  order: 0;
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  gap: 0;
+}
+.site-header.is-home.is-scrolled .brand-logo-home {
+  height: 44px;
+  max-width: 200px;
+}
+.site-header.is-home.is-scrolled .primary-nav { order: 1; flex: 1 1 auto; }
+.site-header.is-home.is-scrolled .primary-nav ul { justify-content: flex-end; gap: 32px; }
+.site-header.is-home.is-scrolled .nav-cta { order: 2; flex: 0 0 auto; }
 /* Push the home hero content below the taller stacked header */
 body.is-home .hero { padding-top: 540px; }
 
